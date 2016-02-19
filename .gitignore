@@ -1,0 +1,11 @@
+$ cat .gitignore
+
+Extract_Hydro_Params/APRFC/*
+Extract_Hydro_Params/CNRFC/*
+Extract_Hydro_Params/LMRFC/*
+Extract_Hydro_Params/MBRFC/*
+Extract_Hydro_Params/NCRFC/*
+Extract_Hydro_Params/NERFC/*
+Extract_Hydro_Params/NWRFC/*
+Extract_Hydro_Params/SERFC/*
+Extract_Hydro_Params/WGRFC/*
