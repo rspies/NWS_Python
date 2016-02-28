@@ -15,23 +15,29 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'NERFC_FY2016'
-param_source = 'draft_calb' # choices: 'final_calb' or 'initial_calb'
-
+RFC = 'MBRFC_FY2016'
+fx_group = 'bigyel' # set to blank '' if not using fx_groups
+param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 #### model processing choices ####
-sacsma = 'on' # choices: 'on' or 'off'
-snow = 'on' # choices: 'on' or 'off'
-uhg = 'off' # choices: 'on' or 'off'
+sacsma = 'off' # choices: 'on' or 'off'
+snow = 'off' # choices: 'on' or 'off'
+uhg = 'on' # choices: 'on' or 'off'
 lagk = 'off' # choices: 'on' or 'off'
 #### plot options ####
 snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
-#!!!!!! input directory: enter location of ModuleParFiles directory below ->
-folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Working_Calib_Files\\' + param_source
-#!!!!!! output directory: enter ouput directory for .csv files below ->
-csv_file_out = maindir + '\\Python\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
+if fx_group == '':
+    #!!!!!! input directory: enter location of ModuleParFiles directory below ->
+    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Working_Calib_Files\\' + param_source
+    #!!!!!! output directory: enter ouput directory for .csv files below ->
+    csv_file_out = maindir + '\\Python\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
+else:
+    #!!!!!! input directory: enter location of ModuleParFiles directory below ->
+    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC  + '\\Working_Calib_Files\\' + fx_group + os.sep + param_source
+    #!!!!!! output directory: enter ouput directory for .csv files below ->
+    csv_file_out = maindir + '\\Python\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + os.sep + fx_group + '\\Params_' + param_source
 ########################## END USER INPUT SECTION ############################
 #-----------------------------------------------------------------------------
 

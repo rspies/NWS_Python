@@ -8,20 +8,22 @@ import os
 from bs4 import BeautifulSoup
 import csv
 
-maindir = os.getcwd()
+os.chdir('../..')
 ############################## User Input ###################################
-basins = []
-sim_type = '1970_2003' # choices 'final' or 'working'
-variable = 'outflow' # choices: 'inflow' or 'outflow'
-#html_folder = r'C:\NWS\chps_calb\lmrfc_calb\Reports\statqme'
-html_folder = maindir + os.sep + 'Calibration_TimeSeries' + os.sep + 'statqme_output_reports' + os.sep + 'final' + os.sep + sim_type + os.sep + 'statqme' + os.sep
+RFC = 'NWRFC_FY2016'
+sim_type = 'initial-ValidationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final'
+variable = 'local' # choices: 'inflow' or 'outflow' or 'local'
+maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries'
+html_folder = maindir + os.sep + 'statqme_html_reports' + os.sep + 'statqme-' + sim_type + os.sep 
 ########################### End User Input ##################################
 
 #html_folder_inflow = maindir + '\\statqme_inflow_reports\\final_inflow\\'
 #html_folder_output = maindir + '\\statqme_output_reports\\'
 months = ['Basin','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Year Avg.']
 basin_fit_summary ={}
-output_csv_dir = maindir + os.sep + 'Calibration_TimeSeries' + os.sep + 'statqme_' + variable + '_csv' + os.sep + 'final' + os.sep + sim_type + os.sep 
+output_csv_dir = maindir + os.sep + 'statqme_' + variable + '_csv' + os.sep + sim_type + os.sep 
+if os.path.exists(output_csv_dir) == False:
+    os.makedirs(output_csv_dir)
 
 ###################### Output Files #####################################
 ##### monthly stats new csv file ####
@@ -48,17 +50,25 @@ basin_all_sim = csv.writer(basin_all_sim_stats)
 basin_all_sim.writerow(['SIMULATION PERIOD STATISTICAL SUMMARY'])
 basin_all_sim.writerow(['Basin','Mean SQME (CMSD)','Mean QME (CMSD)','Mean % Bias','Mean Bias (CMSD)','Correlation Coef', 'Daily RMS Error (CMSD)', 'Daily Absolute Error (CMSD)'])
 ##### flow interval stats new csv file ####
+output_flow_dir = output_csv_dir + os.sep + 'flow_categories' + os.sep
+if os.path.exists(output_flow_dir) == False:
+    os.makedirs(output_flow_dir)
 flow_cat_new = open(output_csv_dir + os.sep + 'flow_categories' + os.sep + '_all_basins_' + variable + '_flow_categories_stats_' + sim_type + '.csv','wb')
 flow_cat = csv.writer(flow_cat_new)
 ########################################################################
 ignore_basins = []# 'DETO3','FOSO3','GPRO3','SCOO3'
-for each in sorted(os.listdir(html_folder)):
-    name = each[-11:-5].strip('_')
-    if 'RSUM' not in name and name not in ignore_basins and 'X' not in name[-1:]:
+basins = []
+for each in sorted([f for f in os.listdir(html_folder) if f.endswith('.html')]):
+    name = each.split('_')[-1].strip('.html')
+    if variable == 'outflow' and 'RSUM' not in name and name not in ignore_basins and name[-1:] != 'X' and name[-1:] != 'I':
+        basins.append(name)
+    if variable == 'inflow' and 'RSUM' not in name and name not in ignore_basins and name[-1:] == 'I':
+        basins.append(name)
+    if variable == 'local' and 'RSUM' not in name and name not in ignore_basins and name[-1:] == 'X':
         basins.append(name)
 print basins
 
-basins = ['SYCO3','ESTO3','COCO3','SRMO3','PHIO3','SUVO3','WLAO3','MCMO3','AURO3','CANO3','SCDO3I','DLLO3','FRMO3','WSLO3','GPRO3I','FOSO3I','WTLO3','DETO3I','LSMO3','MEHO3','JFFO3','CORO3','ALBO3','SLMO3']
+#basins = ['SYCO3','ESTO3','COCO3','SRMO3','PHIO3','SUVO3','WLAO3','MCMO3','AURO3','CANO3','SCDO3I','DLLO3','FRMO3','WSLO3','GPRO3I','FOSO3I','WTLO3','DETO3I','LSMO3','MEHO3','JFFO3','CORO3','ALBO3','SLMO3']
 for basin in basins:
     print basin
     html_file = open(html_folder + os.sep + 'statqme_output_' + basin + '.html','r')

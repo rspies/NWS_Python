@@ -12,6 +12,7 @@ import dateutil
 import dateutil.parser
 import glob
 import numpy as np
+import collections
 
 os.chdir("../..")
 maindir = os.getcwd()
@@ -19,11 +20,11 @@ maindir = os.getcwd()
 ################### user input #########################
 RFC = 'SERFC_FY2016'
 state = 'GA'
+station_plot = 'on' # creates a summary bar plot for each station -> choices: 'on' or 'off'
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC + os.sep +'station_data'
 variable = 'ptpx'  # choices: 'ptpx', 'tamn', or 'tamx'
 timestep = 'daily' # choices: 'hourly' or 'daily'
 dim = 'L'; unit = 'IN'
-station_plot = 'off' # creates a summary bar plot for each station -> choices: 'on' or 'off'
 summer_thresh = 12; winter_thresh = 12 #precip thresholds (inches) to flag and set missing
 ############# files/dir below must exist ####################
 station_file =  workingdir + os.sep + 'usgs_' + timestep +os.sep + 'usgs_site_locations_' + timestep + '_' + state + '.txt'
@@ -33,6 +34,12 @@ out_dir = workingdir + os.sep + 'usgs_' + timestep +os.sep + variable + os.sep +
 bad_ptpx_file = workingdir + os.sep + 'usgs_' + timestep +os.sep + 'questionable_ptpx_check_' + timestep + '_' + state + '.txt'
 user_bad_data_list = workingdir + os.sep + 'usgs_' + timestep +os.sep + 'CHPS_suspect_map.csv'
 #################### end user input ########################
+if station_plot == 'on':
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    plt.ioff()
+    
+import matplotlib.dates
 
 if variable == 'tamn':
     ext = '.tmn'; taplot = 'usgs_' + variable + '.taplot'; tap_open = open(workingdir + os.sep + 'usgs_' + timestep + os.sep + variable + os.sep + taplot, 'wb')
@@ -152,7 +159,9 @@ for data_file in glob.glob(data_dir+'/*.txt'):
     cardfile.write('{:2d}  {:4d} {:2d}   {:4d} {:2d}   {:8s}'.format(int(min_date.month), int(min_date.year), int(max_date.month),int(max_date.year),1,'F9.2'))
     cardfile.write('\n')
     ###### write formatted data #####
-    valid_count = 0; miss_count = 0
+    valid_count = 0; miss_count = 0; plot_dict = {}
+    plot_dict = collections.OrderedDict(plot_dict) # ordered dictionary
+        
     while iter_date <= max_date:
         if int(iter_date.month) == previous_month:
             month_count += 1
@@ -168,6 +177,9 @@ for data_file in glob.glob(data_dir+'/*.txt'):
             else:
                 out_data = -999
                 miss_count += 1
+            if out_data != -999 :
+                plot_dict[iter_date] = float(out_data) # apped data to plot dictionary
+                
         if ext == '.tmx' or ext == '.tmn':
             if iter_date in site_data_daily and len(site_data_daily[iter_date]) >= 20:
                 valid_count += 1
@@ -191,6 +203,41 @@ for data_file in glob.glob(data_dir+'/*.txt'):
         previous_month = int(iter_date.month)
         iter_date = iter_date + dt.timedelta(hours=step_time)
     cardfile.close()
+
+    ### save precip data to pandas dataframe, reample, and plot
+    if ext == '.ptp' and station_plot == 'on':
+        print 'Creating plot of daily and monthly station data... '
+        df = pd.DataFrame(plot_dict.items(), columns=['Date_Time', 'ptp'])
+        resample_df_daily = df.set_index('Date_Time')['ptp'].resample('D', how='sum')# resample to daily
+        resample_df_monthly = df.set_index('Date_Time')['ptp'].resample('M', how='sum')# resample to monthly
+        plot_dates_daily = resample_df_daily.index.to_pydatetime(); plot_data_daily = resample_df_daily.values.tolist()
+        plot_dates_monthly = resample_df_monthly.index.to_pydatetime(); plot_data_monthly = resample_df_monthly.values.tolist()
+            
+        fig = plt.subplots(figsize=(16,10))
+        ax1 = plt.subplot(211)
+        ax1.bar(plot_dates_daily, plot_data_daily, color ='k') # plot data
+        ax1.set_ylabel('Daily Precip (in)')#; ax1.set_xlabel('Date')
+        ax1.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+        plt.xticks(rotation='vertical')
+        ax1.grid(True)
+        plt.title('USGS: ' + str(site_num) + ' (' + str(site_label) + ')', fontsize=16)
+
+        ax2 = plt.subplot(212)
+        ax2.bar(plot_dates_monthly, plot_data_monthly, color ='k') # plot data
+        ax2.set_ylabel('Monthly Precip (in)'); ax2.set_xlabel('Date')
+        plt.xticks(rotation='vertical')
+        ax2.xaxis.set_major_locator(matplotlib.dates.YearLocator())
+        mean_annual_ppt = 'Mean Annual Precip: ' + "%.2f" % (np.nanmean(plot_data_monthly)*12) + ' in'
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax2.text(0.75, 0.95, mean_annual_ppt, fontsize=13, transform=ax2.transAxes,
+                verticalalignment='top', bbox=props)
+        #ax.xaxis.set_minor_locator(matplotlib.dates.MonthLocator())
+        #ax.xaxis.set_minor_formatter(matplotlib.dates.DateFormatter('%m'))
+        #ax.tick_params(axis='x',labelsize=8, which = 'minor')
+        ax2.grid(True)
+        plt.savefig(workingdir + os.sep + 'usgs_' + timestep +os.sep + 'station_data_plots' + os.sep + state + os.sep + site_label)#, bbox_inches='tight')    
+        plt.close()
+    
     ### write to summary csv files and taplot files ###
     if variable == 'ptpx':
         summary_file.write(station_summary[name][0]+','+station_summary[name][1]+','+station_summary[name][2]+','+station_summary[name][3]+','+station_summary[name][4]+','+str(miss_count)+','+str(valid_count)+','+str(round((valid_count/year_factor),2))+','+str((float(valid_count)/(miss_count+valid_count))*100)+','+str(min_date.year)[-4:] +','+ str(max_date.year)[-4:] + '\n')

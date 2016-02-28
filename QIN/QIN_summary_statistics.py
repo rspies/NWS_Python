@@ -17,7 +17,7 @@ maindir = os.path.abspath(os.curdir)
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
 RFC = 'NCRFC_FY2016'
-fx_group = 'GND' # set to '' if not used
+fx_group = 'MEC' # set to '' if not used
 input_type = 'usgs' # choices: 'usgs' or 'chps'
 if fx_group != '':
     new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + fx_group + '_QIN_statistical_summary.csv','w')

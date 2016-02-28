@@ -13,7 +13,7 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'MBRFC_FY2016'
+RFC = 'SERFC_FY2016'
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
 chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Calibration_TimeSeries\\initial\\QME_SQME\\' # CHPS csv output files
@@ -27,11 +27,11 @@ new_summary.write('Basin/Gauge' + ',' + 'Daily Count' + ',' + 'Start Date' + ','
 + ',' + 'Date Max' + ','  + 'Date Min' + '\n')
 
 if data_format == 'usgs':
-    QMEs = os.listdir(usgs_files)
+    QMEs = [f for f in os.listdir(usgs_files) if os.path.isfile(os.path.join(usgs_files, f))]
 if data_format == 'chps':
-    QMEs = os.listdir(chps_files)
+    QMEs = [f for f in os.listdir(chps_files) if os.path.isfile(os.path.join(chps_files, f))]
 if data_format == 'nhds':
-    QMEs = os.listdir(nhds_files)
+    QMEs = [f for f in os.listdir(nhds_files) if os.path.isfile(os.path.join(nhds_files, f))]
     
 for QME in QMEs:
     print QME

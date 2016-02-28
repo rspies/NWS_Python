@@ -12,7 +12,7 @@ maindir = os.getcwd()
 ################### user input #########################
 RFC = 'SERFC_FY2016'
 card_type = 'MAP' 
-networks = ['nhds_hourly','nhds_daily']         # choices: 'asos_hourly','nhds_daily','raws_hourly','scan_hourly'
+networks = ['nhds_hourly','nhds_daily','usgs_daily']         # choices: 'asos_hourly','nhds_daily','raws_hourly','scan_hourly'
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep + RFC[:5] + os.sep + RFC + os.sep +'station_data'
 daily_obs_file = workingdir + os.sep + 'nhds_daily' + os.sep + 'site_obs_time_nhds_daily.csv'      # file with the obs time changes for some nhds stations
 map_weights = workingdir + os.sep + 'MAP_input' + os.sep + 'pre_weights' + os.sep           # file with the pxpp output -> template for MAP input
@@ -25,8 +25,8 @@ map_basins_area = {'BCWG1':473,'SUMG1':192,'YLOG1':211,'WODS1':249,'SWOG1':553,
                    'ESLS1':374,'OLVG1':420,'DNDV2':290}
 ########################################################
 for map_basin in map_basins:
-    out_file = open(workingdir + os.sep + 'MAP_input' + os.sep + 'MAP_input_'+map_basin+'.map','wb')
-    pxpp_output = workingdir + os.sep + 'MAP_input' + os.sep + 'pxpp_punch' + os.sep + map_basin + '_nhds_pxpp_corrected_pun.txt' # file with the pxpp output -> template for MAP input
+    out_file = open(workingdir + os.sep + 'MAP_input' + os.sep + '1950-2014' + os.sep + 'MAP_input_'+map_basin+'_1950_2014.map','wb')
+    pxpp_output = workingdir + os.sep + 'MAP_input' + os.sep + '1950-2014' + os.sep + 'pxpp_punch' + os.sep + map_basin + '_initial_bpoints_pun.txt' # file with the pxpp output -> template for MAP input
     print 'Creating file -> ' +  str(out_file)
 ################ A card block ####################
 # data pulled from pxpp output punch file
@@ -169,7 +169,7 @@ for map_basin in map_basins:
         open_pxpp.close()
     open_pxpp = open(pxpp_output,'r')
     for entry in open_pxpp:
-        if entry[:2] == '@Q' or entry[:4] == 'NHDS' or entry[:2] == '@R' or entry[:2] == '@S' or entry[:2] == '  ':
+        if entry[:2] == '@Q' or entry[:4] == 'NHDS' or entry[:4] == 'USGS' or entry[:2] == '@R' or entry[:2] == '@S' or entry[:2] == '  ':
             out_file.write(entry)
     open_pxpp.close()
     out_file.write('\n')
