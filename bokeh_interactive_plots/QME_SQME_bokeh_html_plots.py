@@ -5,7 +5,7 @@
 # Description: generate an interactive plot of QME vs. SQME from the CHPS export csv
 # Output to html file for viewing interactive plot
 
-from bokeh.plotting import figure, output_file, show, save
+from bokeh.plotting import Figure, output_file, show, save #importing figure (lower case f) results in increasing file size with each plot
 from bokeh.models import Range1d
 import os
 import pandas as pd
@@ -14,8 +14,9 @@ import pandas as pd
 os.chdir("../..")
 maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 ################## User Input ########################
-RFC = 'NERFC_FY2016'
-sim_type = 'final'
+RFC = 'NWRFC_FY2016'
+sim_type = 'draft'
+plot_type = 'normal' # choices: 'log' or 'normal'
 ######################################################
 input_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type
 
@@ -43,14 +44,24 @@ for input_file in os.listdir(input_dir+ os.sep + 'QME_SQME'):
     output_file(input_dir + os.sep + 'interactive_plots' + os.sep + basin + '_QME_SQME_'+ sim_type + '.html')
     
     # create a new plot
+    # log plot add this:  y_axis_type="log"
     print 'Creating bokeh plot...'
-    p = figure(
-       tools="xpan,xwheel_zoom,xbox_zoom,reset,resize,save",
-       y_range = Range1d(start=0,end=max_Q,bounds=(0,max_Q)), x_range = Range1d(start=date_calib[0],end=date_calib[-1],
-       bounds=(date_calib[0],date_calib[-1])),
-       title=basin + ' Daily Streamflow (CMS)', x_axis_type="datetime",
-       x_axis_label='Date', y_axis_label='Streamflow (CMSD)',plot_width=1300, plot_height=600, lod_factor=20, lod_threshold=50
-    )
+    if plot_type != 'log':
+        p = Figure(
+           tools="xpan,xwheel_zoom,xbox_zoom,reset,resize,save",
+           y_range = Range1d(start=0,end=max_Q,bounds=(0,max_Q)), x_range = Range1d(start=date_calib[0],end=date_calib[-1],
+           bounds=(date_calib[0],date_calib[-1])),
+           title=basin + ' Daily Streamflow (CMS)', x_axis_type="datetime",
+           x_axis_label='Date', y_axis_label='Streamflow (CMSD)',plot_width=1300, plot_height=600, lod_factor=20, lod_threshold=50
+        )
+    elif plot_type == 'log':
+        p = Figure(
+           tools="xpan,xwheel_zoom,xbox_zoom,reset,resize,save",
+           y_range = Range1d(start=0,end=max_Q,bounds=(0,max_Q)), x_range = Range1d(start=date_calib[0],end=date_calib[-1],
+           bounds=(date_calib[0],date_calib[-1])),
+           title=basin + ' Daily Streamflow (CMS)', x_axis_type="datetime",
+           x_axis_label='Date', y_axis_label='Streamflow (CMSD)', y_axis_type="log", plot_width=1300, plot_height=600, lod_factor=20, lod_threshold=50
+        )
     #p.y_range = DataRange1d(bounds=(0,150))
     
     # add some renderers

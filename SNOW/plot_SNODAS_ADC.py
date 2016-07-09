@@ -17,10 +17,10 @@ maindir = os.getcwd()
 
 ################################# User Input #########################################
 ############ User input ################
-RFC = 'NWRFC_FY2016'
-fx_group = ''
+RFC = 'NCRFC_FY2016'
+fx_group = 'GND'
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
-adc_plot = 'off' # 'on' or 'off' -> off only runs the chps csv conversion
+adc_plot = 'on' # 'on' or 'off' -> off only runs the chps csv conversion
 
 if fx_group != '':
     task_csv = RFC[:5] + '_fy16_task_summary_' + fx_group + '.csv'
@@ -104,7 +104,7 @@ for each_basin in basin_list:
             
         
             print 'Creating figure...'
-            fig, ax1 = plt.subplots(figsize=(10,9))
+            fig, ax1 = plt.subplots(figsize=(7,6))
             #Plot the data
             ax1.scatter(SCA, SWE, color='k', marker='o', zorder=5)
             
@@ -144,5 +144,5 @@ for each_basin in basin_list:
             plt.close()
             #Turn interactive plot mode off (don't show figures)
             plt.ioff()    
-
+            
 print 'Script Completed'

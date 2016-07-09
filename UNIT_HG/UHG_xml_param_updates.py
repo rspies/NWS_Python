@@ -13,9 +13,12 @@ maindir = os.getcwd()
 ############ User input ################
 RFC = 'MBRFC_FY2016'
 fx_group = 'BigYel' # set to '' if not used
-workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'unit_hydrographs' + os.sep
-updated_uhg = workingdir + fx_group + '_new_unithg_ordinates.csv'
-output_dir = workingdir + 'modified_UH' + os.sep
+if fx_group != '':
+    workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'unit_hydrographs' + os.sep + fx_group.lower() + os.sep
+else:
+    workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'unit_hydrographs' + os.sep
+updated_uhg = workingdir + fx_group + '_new_unithg_ordinates_fix.csv'
+output_dir = workingdir + 'modified_UH_06092016' + os.sep
 log_file = workingdir + 'log.txt'
 ########################################
 

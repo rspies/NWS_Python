@@ -11,7 +11,7 @@ import csv
 os.chdir('../..')
 ############################## User Input ###################################
 RFC = 'NWRFC_FY2016'
-sim_type = 'initial-ValidationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final'
+sim_type = 'draft-ValidationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final'
 variable = 'local' # choices: 'inflow' or 'outflow' or 'local'
 maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries'
 html_folder = maindir + os.sep + 'statqme_html_reports' + os.sep + 'statqme-' + sim_type + os.sep 

@@ -17,8 +17,12 @@ maindir = os.getcwd()
 ####################################################################
 #ENTER RFC
 RFC = 'NCRFC_FY2016'
+fx_group = 'WIS' # set to blank '' if not using fx_groups
 #FOLDER PATH OF gSSURGO .xls DATA FILES
-csv_folderPath = maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\data_files\\DES\\'
+if fx_group != '':
+    csv_folderPath = maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\data_files\\' + fx_group + '\\'
+else:
+    csv_folderPath = maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\data_files\\'
 #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
 output_folderPath =maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\'
 ####################################################################
@@ -26,8 +30,10 @@ output_folderPath =maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\'
 ####################################################################
 
 print 'Script is Running...'
-
-gssurgo_file = open(output_folderPath + RFC + '_SSURGO_Summary.csv', 'w')
+if fx_group == '':
+    gssurgo_file = open(output_folderPath + RFC + '_SSURGO_Summary.csv', 'w')
+else:
+    gssurgo_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_SSURGO_Summary.csv', 'w')
 gssurgo_file.write('Basin,' + 'A,' + 'B,' + 'C,' + 'D,' + '\n')
 
 #loop through gSSURGO .xls files in folderPath

@@ -18,19 +18,19 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 #START USER INPUT SECTION
 #Enter RFC
-RFC = 'SERFC_FY2016'
+RFC = 'NWRFC_FY2016'
 param_source = 'pre_calb' # choices: 'pre_calb','sa'
 
 #Turn on/off model parameter searchs # choices: 'on' or 'off'
-sacsma = 'on'
+sacsma = 'off'
 snow = 'on' 
-lagk = 'on'
-uhg = 'on'
+lagk = 'off'
+uhg = 'off'
 
 #Turn on/off plot choices
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
-lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
-snow_plots = 'off' # choices: 'on' or 'off' -> areal depleation plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
+snow_plots = 'off' # choices: 'on' or 'off' -> areal depletion plots
 #END USER INPUT SECTION
 #-----------------------------------------------------------------------------
 
@@ -122,8 +122,9 @@ if sacsma == 'on':
                         line = section[1] # param value on next line + 1
                     else:
                         line = section[0]
-                elif case == 2:
-                    line = xml_file.readlines()[line_num-1:line_num]
+                elif case == 2: # param on same line
+                    section = xml_file.readlines()[line_num-1:line_num]
+                    line = section[0]
                 
                 #Write only numbers and decimals to output file
                 #also catch TRUE/FALSE booleans
@@ -135,7 +136,7 @@ if sacsma == 'on':
                     line = re.sub("[^0123456789\.\-]", "", line)
                 csv_file.write(line + ',')
     
-                #Set cursor back to beginning of xml_file before movinng on to next parameter
+                #Set cursor back to beginning of xml_file before moving on to next parameter
                 xml_file.seek(0)
                 
         ###ET_DEMAND_CURVE
@@ -234,8 +235,9 @@ if snow == 'on':
                         line = section[1] # param value on next line + 1
                     else:
                         line = section[0]
-                elif case == 2:
-                    line = xml_file.readlines()[line_num-1:line_num]
+                elif case == 2: # param on same line
+                    section = xml_file.readlines()[line_num-1:line_num]
+                    line = section[0]
                 
                 #Write only numbers and decimals to output file
                 #also catch TRUE/FALSE booleans
@@ -309,7 +311,7 @@ if snow == 'on':
                 plt.clf()    
                 plt.close()
 
-            ### Area Depleation Curve
+            ### Area Depletion Curve
             SWE = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
             
             fig, ax1 = plt.subplots()                
@@ -333,7 +335,7 @@ if snow == 'on':
             #add plot legend with location and size
             ax1.legend(loc='upper left', prop={'size':10})
                 
-            plt.title(name + ' Area Depleation Curve')
+            plt.title(name + ' Area Depletion Curve')
 
             output_folder = csv_file_out +'\\ADC_plots\\'
             if os.path.exists(output_folder) == False:

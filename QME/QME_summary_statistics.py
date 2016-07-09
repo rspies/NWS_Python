@@ -13,7 +13,8 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'SERFC_FY2016'
+RFC = 'NCRFC_FY2016'
+fx_group = 'DES' # set to '' if not used
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
 chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Calibration_TimeSeries\\initial\\QME_SQME\\' # CHPS csv output files
@@ -21,7 +22,12 @@ nhds_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datac
 new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\' # output summary tab delimited file location
 ########################################
 
-new_summary = open(new_file + 'QME_data_statistical_summary.csv', 'w')
+if fx_group != '':
+    nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_combined' 
+    new_summary = open(new_file +'QME' + os.sep + fx_group + os.sep + 'QME_data_statistical_summary_'+fx_group+'.csv', 'w')
+else: 
+    nhds_files = nhds_files + os.sep + 'QME_Lynker_download' 
+    new_summary = open(new_file + 'QME_data_statistical_summary.csv', 'w')
 new_summary.write('Basin/Gauge' + ',' + 'Daily Count' + ',' + 'Start Date' + ',' + 'End Date' 
 + ',' + 'Mean Daily QME' + ',' + 'Max Daily QME' + ',' + 'Min Daily QME' +','+ 'Standard Deviation' 
 + ',' + 'Date Max' + ','  + 'Date Min' + '\n')
@@ -79,6 +85,8 @@ for QME in QMEs:
         for line in csv_read:
             if line_count >= 9: # ignore header lines
                 sep = line.split()
+                if len(sep) < 4: # some QME files (from RFC) may not have gage/basin id as 1st index
+                    sep.insert(0,'0000')
                 ### parse date columns
                 month = str(sep[1])[:-2]
                 year = str(sep[1])[-2:]

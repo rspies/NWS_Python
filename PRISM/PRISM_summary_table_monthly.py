@@ -19,12 +19,15 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'NCRFC_FY2016' 
+RFC = 'MBRFC_FY2016'
+fx_group = 'Bighorn_Yellowstone_calb_basins' # leave blank if not processing by fx group
 variable = 'ppt' # use temperature: 'tmean','tmax','tmin' or precipitation: 'ppt'
 
 #FOLDER PATH OF PRISM .xls/.csv DATA FILES
-csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\'
-
+if fx_group != '':
+    csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\' + fx_group + '\\'
+else:
+    csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\'
 #FOLDER PATH OF BASIN SUMMARY PRISM .xls DATA FILES (!Must be different than csv_FolderPath!)
 output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
 
@@ -48,7 +51,10 @@ for each in basin_files:
 months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 print 'Script is Running...'
 #Define output file name
-out_file = open(output_folderPath + RFC + '_Monthly_PRISM_' + variable + '_Summary.csv', 'w')
+if fx_group != '':
+    out_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_Monthly_PRISM_' + variable + '_Summary.csv', 'w')
+else:
+    out_file = open(output_folderPath + RFC + '_Monthly_PRISM_' + variable + '_Summary.csv', 'w')
 out_file.write('variable: ' + variable + ',' + 'units: ' + units[variable] + '\n')
 out_file.write('Basin,'+'Jan,'+'Feb,'+'Mar,'+'Apr,'+'May,'+'Jun,'+'Jul,'+'Aug,'+'Sep,'+'Oct,'+'Nov,'+'Dec,'+'\n')
 #loop through NLCD .xls files in folderPath

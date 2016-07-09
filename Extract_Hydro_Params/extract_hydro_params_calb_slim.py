@@ -15,17 +15,17 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'MBRFC_FY2016'
-fx_group = 'bigyel' # set to blank '' if not using fx_groups
-param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+RFC = 'SERFC_FY2016'
+fx_group = '' # set to blank '' if not using fx_groups
+param_source = 'final_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 #### model processing choices ####
-sacsma = 'off' # choices: 'on' or 'off'
-snow = 'off' # choices: 'on' or 'off'
+sacsma = 'on' # choices: 'on' or 'off'
+snow = 'on' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
-lagk = 'off' # choices: 'on' or 'off'
+lagk = 'on' # choices: 'on' or 'off'
 #### plot options ####
 snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
@@ -299,7 +299,7 @@ if snow == 'on':
                 plt.clf()    
                 plt.close()
 
-            ### Area Depleation Curve
+            ### Area Depletion Curve
             SWE = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
             
             fig, ax1 = plt.subplots()                
@@ -323,7 +323,7 @@ if snow == 'on':
             #add plot legend with location and size
             ax1.legend(loc='upper left', prop={'size':10})
                 
-            plt.title(name + ' Area Depleation Curve')
+            plt.title(name + ' Area Depletion Curve')
 
             output_folder = csv_file_out +'\\ADC_plots\\'
             if os.path.exists(output_folder) == False:
@@ -344,7 +344,7 @@ if uhg == 'on':
     print 'Processing UH parameters...'
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_UHG_Params_' + param_source + '_slim.csv', 'w')
     
-    csv_file.write('BASIN, AREA (mi2), Interval (hours),')
+    csv_file.write('BASIN,CH5ID,AREA (mi2),Interval (hours),')
     t = 0
     while t < 600:
         csv_file.write(str(t) + ',')
@@ -359,10 +359,11 @@ if uhg == 'on':
         name = str(os.path.basename(filename)[:])
         name = name.replace('UNITHG_', '')
         name = name.replace('_UpdateStates.xml', '')
-        print 'UHG - > ' + name
+        ch5_id = name.split('_')[1]
+        print 'UHG - > ' + name + ' - ' + ch5_id
         #print name
         
-        csv_file.write(name + ',')    
+        csv_file.write(name + ',' + ch5_id + ',')    
         
         #Open .xml file and temporary .txt file to write .xml contents to
         xml_file = open(folderPath + '\\UH\\' + filename, 'r')

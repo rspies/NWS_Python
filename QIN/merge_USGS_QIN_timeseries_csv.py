@@ -16,7 +16,7 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 RFC = 'NCRFC_FY2016'
-fx_group = 'DES' # set to '' if not used
+fx_group = 'MEC' # set to '' if not used
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_post_2007\\'
@@ -43,10 +43,10 @@ for Basin in Basins:
     historical_csv_file = histdata + Basin + '_historical.txt'
     recent_csv_file = recentdata + Basin + '_recent.txt'
     
-    QIN_file = outputpath + Basin + '_QIN.csv'
+    QIN_file = outputpath + Basin.upper() + '_QIN.csv'
     QIN_file_write = open(QIN_file, 'w')
-    QIN_file_write.write('Location Names,' + Basin + '\n')
-    QIN_file_write.write('Location Ids,' + Basin + '\n')
+    QIN_file_write.write('Location Names,' + Basin.upper() + '\n')
+    QIN_file_write.write('Location Ids,' + Basin.upper() + '\n')
     QIN_file_write.write('Time,' + 'QIN [cfs]' + '\n')
     
     if Basin + '_historical.txt' in os.listdir(histdata):

@@ -19,11 +19,11 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS'
 #####    and specify the calibration period in next section 
 basin_ids = [] # run individual basin(s) -> otherwise leave empty []
 sim_type = 'draft' # choices: "initial", "final", "working", "draft"
-RFC = 'NWRFC_FY2016'
+RFC = 'LMRFC_FY2016'
 variable = 'QIN_SQIN'#'QME_SQME' 
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
 plt.ioff()  #Turn interactive plot mode off (don't show figures)
-yr_start  = 1979; yr_end = 2011 # specify the first and last year to analyze
+yr_start  = 1979; yr_end = 2013 # specify the first and last year to analyze
 csv_loc = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type + os.sep + variable + os.sep
 out_dir = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type+ os.sep + 'UH_analysis_plots' +  os.sep + variable + os.sep 
 out_list = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type + os.sep + 'UH_analysis_plots' + os.sep + variable + os.sep + 'uhg_event_analysis.txt'
@@ -44,12 +44,12 @@ if variable == 'QME_SQME':
     step = 24 # data time step
     period = 3
 ############################################################            
-high_flows = ['SNDO3']
-midhigh_flows = ['GEOV1','CALW1','MCZO3']
-mid_flows = ['BRFI1','BTSI1','TRAO3']
-midlow_flows = ['PILW1','PRII1','TRSO3']
-low_flows = ['BUSO3','EGCO3''MADO3','MFPI1','MORI1','PINI1','SMRW1']
-min_flows=['DONO3','ISSW1']
+high_flows = ['GRRA4','NFDA4']
+midhigh_flows = ['','','']
+mid_flows = ['','','']
+midlow_flows = ['CIGA4','TBCM7','TNZM7']
+low_flows = ['','','','','','']
+min_flows=['','']
 ###########################################################
 for basin_id in basin_ids:
     print basin_id
@@ -59,13 +59,13 @@ for basin_id in basin_ids:
     if basin_id in high_flows:
         #step = 6    # time step (1 or 6 hour)
         #period = 20 # number of time steps to examine before and after event peak
-        thresh= 900 # cutoff for events to examine
+        thresh= 1200 # cutoff for events to examine
     elif basin_id in midhigh_flows:
-        thresh = 500
+        thresh = 1000
     elif basin_id in mid_flows:
-        thresh = 200
+        thresh = 500
     elif basin_id in midlow_flows:
-        thresh = 100    
+        thresh = 200    
     elif basin_id in low_flows : # low flows
         thresh= 50
     elif basin_id in min_flows : # low flows
@@ -73,7 +73,7 @@ for basin_id in basin_ids:
     elif basin_id == 'ASCW1':
         thresh = 10
     else: 
-        thresh= 20
+        thresh= 100
 
     ###### tab delimitted CHPS calibrated AND Observed dishcarge text file into panda arrays ###########
     ### replaces hour time stamp with zero to create a mean daily value -> match obs data

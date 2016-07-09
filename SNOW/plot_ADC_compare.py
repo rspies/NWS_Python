@@ -14,7 +14,7 @@ os.chdir("..")
 maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params'
 version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 ################################# User Input #########################################
-RFC = 'NERFC_FY2016'
+RFC = 'NWRFC_FY2016'
 calib_csv = open(maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_' + version_compare + '\\_' + RFC +'_SNOW17_ADC_' + version_compare + '_slim.csv','r')
 initial_csv_file = maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_pre_calb\\_' + RFC +'_SNOW17_ADC_pre_calb_slim.csv'
 ######################################################################################

@@ -16,15 +16,22 @@ maindir = os.getcwd()
 ####################################################################
 # OPTIONAL -> run all basins within an RFC directory
 RFC = 'NCRFC_FY2016'
+fx_group = 'REDMIS' # leave blank if not processing by fx group
 #FOLDER PATH OF ELEVATION AND SLOPE .CSV FILES FROM MODEL BUILDER OR PYTHON SCRIPT
-file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\'
-summary_csv = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\'
+if fx_group != '':
+    file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\' + fx_group + '\\'
+else:
+    file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\'
+output_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\'
 non_hydro1k_tasks = ['SERFC_FY14'] # identify tasks that DON'T use the hydro1k DEM (e.g. NHD plus 30m DEM)
 ####################################################################
 #END USER INPUT SECTION
 ####################################################################
 
-new_file = open(summary_csv + RFC + '_elev_slope_summary.csv', 'wb')
+if fx_group != '':
+    new_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_elev_slope_summary.csv', 'wb')
+else:
+    new_file = open(output_folderPath + RFC + '_elev_slope_summary.csv', 'wb')
 csvfile = csv.writer(new_file)
 if RFC in non_hydro1k_tasks:
     new_file.write('Units converted from ?cm? to feet\n')

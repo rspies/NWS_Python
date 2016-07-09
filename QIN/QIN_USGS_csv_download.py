@@ -17,8 +17,8 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NCRFC_FY2016'
-fx_group = 'DES' # set to '' if not used
+RFC = 'MBRFC_FY2016'
+fx_group = 'MDCO' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 

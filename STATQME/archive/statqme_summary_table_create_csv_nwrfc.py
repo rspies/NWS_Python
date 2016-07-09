@@ -7,25 +7,19 @@
 import os
 from bs4 import BeautifulSoup
 import csv
+
 os.chdir('../..')
-
 ############################## User Input ###################################
-RFC = 'NCRFC_FY2016'
-fx_group = 'MEC' # leave blank if not processing by fx group
-sim_type = 'final-CalibrationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final'
-variable = 'outflow' # choices: 'local', 'outflow', 'inflow'
-
-if fx_group == '':
-    maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries'
-else:
-    maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group    
-html_folder = maindir + os.sep + 'statqme_html_reports' + os.sep + 'statqme-' + sim_type + os.sep
+RFC = 'NWRFC_FY2016'
+sim_type = 'initial-ValidationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final'
+variable = 'local' # choices: 'inflow' or 'outflow' or 'local'
+maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries'
+html_folder = maindir + os.sep + 'statqme_html_reports' + os.sep + 'statqme-' + sim_type + os.sep 
 ########################### End User Input ##################################
 
 #html_folder_inflow = maindir + '\\statqme_inflow_reports\\final_inflow\\'
 #html_folder_output = maindir + '\\statqme_output_reports\\'
-months = ['Basin','October','November','December','January','February','March','April','May','June','July','August','September','Year Avg.']
-abv_months = ['Basin','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Year Avg.']
+months = ['Basin','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Year Avg.']
 basin_fit_summary ={}
 output_csv_dir = maindir + os.sep + 'statqme_' + variable + '_csv' + os.sep + sim_type + os.sep 
 if os.path.exists(output_csv_dir) == False:
@@ -42,9 +36,9 @@ mrms = csv.writer(month_csv_rms)
 mpbias.writerow(['Mean Monthly % Bias'])
 mbias.writerow(['Mean Monthly Bias (CMSD)'])
 mrms.writerow(['Monthly % Daily RMS Error'])
-mpbias.writerow(abv_months)
-mbias.writerow(abv_months)
-mrms.writerow(abv_months)
+mpbias.writerow(months)
+mbias.writerow(months)
+mrms.writerow(months)
 ##### daily fit stats new csv ####
 basin_fit_stats = open(output_csv_dir + variable + '_all_fit_stats_' + sim_type + '.csv','wb')
 basin_fit = csv.writer(basin_fit_stats)
@@ -54,36 +48,33 @@ basin_fit.writerow(['Basin','Correlation Coef', 'Daily RMS Error (CMSD)', 'Daily
 basin_all_sim_stats = open(output_csv_dir + variable + '_all_sim_stats_' + sim_type + '.csv','wb')
 basin_all_sim = csv.writer(basin_all_sim_stats)
 basin_all_sim.writerow(['SIMULATION PERIOD STATISTICAL SUMMARY'])
-basin_all_sim.writerow(['Basin','Mean SQME (CMSD)','Mean QME (CMSD)','Mean % Bias','Mean Bias (CMSD)','Correlation Coef', 'Daily RMS Error (CMSD)', 'Daily Absolute Error (CMSD)','Daily Data Points'])
+basin_all_sim.writerow(['Basin','Mean SQME (CMSD)','Mean QME (CMSD)','Mean % Bias','Mean Bias (CMSD)','Correlation Coef', 'Daily RMS Error (CMSD)', 'Daily Absolute Error (CMSD)'])
 ##### flow interval stats new csv file ####
 output_flow_dir = output_csv_dir + os.sep + 'flow_categories' + os.sep
 if os.path.exists(output_flow_dir) == False:
     os.makedirs(output_flow_dir)
-flow_cat_new = open(output_flow_dir + '_all_basins_' + variable + '_flow_categories_stats_' + sim_type + '.csv','wb')
+flow_cat_new = open(output_csv_dir + os.sep + 'flow_categories' + os.sep + '_all_basins_' + variable + '_flow_categories_stats_' + sim_type + '.csv','wb')
 flow_cat = csv.writer(flow_cat_new)
 ########################################################################
-ignore_list = ['PCFM7','LK2F1','OLNF1','TREF1']
-html_files = {}
-# finds both inflow, outflow, and local html reports individually
+ignore_basins = []# 'DETO3','FOSO3','GPRO3','SCOO3'
 basins = []
 for each in sorted([f for f in os.listdir(html_folder) if f.endswith('.html')]):
-    basin_name = each.split('_')[-1].strip('.html')
-    name = each
-    if variable == 'outflow' and basin_name not in ignore_list and 'output' in name and 'inflow' not in name:
-        basins.append(basin_name); html_files[basin_name]=name
-    if variable == 'inflow' and basin_name not in ignore_list and 'inflow' in name:
-        basins.append(basin_name); html_files[basin_name]=name
-    if variable == 'local' and basin_name not in ignore_list and 'local' in name:
-        basins.append(basin_name); html_files[basin_name]=name
+    name = each.split('_')[-1].strip('.html')
+    if variable == 'outflow' and 'RSUM' not in name and name not in ignore_basins and name[-1:] != 'X' and name[-1:] != 'I':
+        basins.append(name)
+    if variable == 'inflow' and 'RSUM' not in name and name not in ignore_basins and name[-1:] == 'I':
+        basins.append(name)
+    if variable == 'local' and 'RSUM' not in name and name not in ignore_basins and name[-1:] == 'X':
+        basins.append(name)
 print basins
 
+#basins = ['SYCO3','ESTO3','COCO3','SRMO3','PHIO3','SUVO3','WLAO3','MCMO3','AURO3','CANO3','SCDO3I','DLLO3','FRMO3','WSLO3','GPRO3I','FOSO3I','WTLO3','DETO3I','LSMO3','MEHO3','JFFO3','CORO3','ALBO3','SLMO3']
 for basin in basins:
     print basin
-    html_file = open(html_folder + os.sep + html_files[basin],'r')
-    print html_files[basin]
+    html_file = open(html_folder + os.sep + 'statqme_output_' + basin + '.html','r')
     #test_file = open(maindir + '\\temp.txt','w')
-    month_data = {'October':[],'November':[],'December':[],'January':[],'February':[],'March':[],
-                  'April':[],'May':[],'June':[],'July':[],'August':[],'September':[],'Year Avg.':[]}
+    month_data = {'Oct':[],'Nov':[],'Dec':[],'Jan':[],'Feb':[],'Mar':[],
+                  'Apr':[],'May':[],'Jun':[],'Jul':[],'Aug':[],'Sep':[],'Year Avg.':[]}
     
     soup = BeautifulSoup(html_file) # read in html file
     #test_file.write(soup.prettify())
@@ -95,9 +86,13 @@ for basin in basins:
     for child in soup.find(id="tableStyle4_scrollable").descendants:
         each = str(child.string).strip()
         #print repr(each)
-        if each in months:
-            month_check = each
-        if month_check != '' and each != month_check:
+        if each[:3] in months:
+            # place data in prev month to account for NWRFC month shift (Oct-1 vs Sep 30)
+            if each[:3] == 'Oct':
+                month_check = months[months.index(each[:3])-3]
+            else:
+                month_check = months[months.index(each[:3])-1]
+        if month_check != '' and each[:3] not in months: # add actual data to month dictionary
             if count % 2 ==1: 
                 month_data[month_check].append(each)
             count += 1
@@ -163,12 +158,9 @@ for basin in basins:
     count = 1   
     check_missing = [15,31,47,63,79,95,111] #index of "# of cases" to look for missing rows
     for child in soup.find(id="tableStyle6").descendants:
-        #print child.string
-        if str(child.string) == ' ': #check for missing values in flow cat
-            each = '--'
-        else:
-            each = str(child.string).strip()
-        if each != 'None' and each != 'FLOW INTERVAL' and each != 'CMSD' and each != '' and each != '\n' and each != '-':
+        check_line = str(child.string)
+        each = str(child.string).strip()
+        if each != 'None' and each != 'FLOW INTERVAL' and each != 'CMSD' and check_line != '\n' and each != '-':           
             if count % 2 ==1: 
                 if count > 13 and count <=29:
                     flow_int['a'].append(each)
@@ -184,41 +176,32 @@ for basin in basins:
                     flow_int['f'].append(each)
                 if count > 109 and count <=125:
                     flow_int['g'].append(each)
-                #print str(count) + ' : ' + each
             count += 1
-        #print str(count) + '    ' + str(child.string) + '    ' + each
         #if count in check_missing and str(each) == '0':
         #    count+=14
-    if basin in basin_fit_summary: # check that statistics data is available for basin (no data if no qme)
-        dpoints = 0
-        flow_cat_basin = open(output_csv_dir + os.sep + 'flow_categories' + os.sep + basin + '_' + variable + '_flow_categories_stats_' + sim_type + '.csv','wb')
-        flow_cat_b = csv.writer(flow_cat_basin)
-        flow_cat.writerow(''); flow_cat_b.writerow('')
-        flow_cat.writerow([basin +' Flow Interval Statistics']);flow_cat_b.writerow([basin +' Flow Interval Statistics'])
-        flow_cat.writerow(['From','To','Number of Cases','SQME River Discharge Simulated Mean (CMSD)','QME River Discharge Observed Mean (CMSD)','% Bias','Bias (Sim-Obs) MM','Maximum Error (CMSD)','Percent Average Absolute Error','Percent Daily RMS Error'])       
-        flow_cat_b.writerow(['From','To','Number of Cases','SQME River Discharge Simulated Mean (CMSD)','QME River Discharge Observed Mean (CMSD)','% Bias','Bias (Sim-Obs) MM','Maximum Error (CMSD)','Percent Average Absolute Error','Percent Daily RMS Error'])    
-        for cat in cats:
-            data = []
-            ### calculated number of data points
-            if flow_int[cat][2] != ' ':
-                dpoints = dpoints + int(flow_int[cat][2])
-            for each in flow_int[cat]:
-                data.append(each)
-            flow_cat.writerow(data)
-            flow_cat_b.writerow(data)
-        flow_cat_basin.close() 
-        ################ Write data to CSV file #################################
-        mpbias.writerow([basin, month_data['October'][2],month_data['November'][2],month_data['December'][2],month_data['January'][2],month_data['February'][2],
-                        month_data['March'][2],month_data['April'][2],month_data['May'][2],month_data['June'][2],month_data['July'][2],month_data['August'][2],month_data['September'][2],month_data['Year Avg.'][2]])
-        mbias.writerow([basin, month_data['October'][3],month_data['November'][3],month_data['December'][3],month_data['January'][3],month_data['February'][3],
-                        month_data['March'][3],month_data['April'][3],month_data['May'][3],month_data['June'][3],month_data['July'][3],month_data['August'][3],month_data['September'][3],month_data['Year Avg.'][3]])
-        mrms.writerow([basin, month_data['October'][6],month_data['November'][6],month_data['December'][6],month_data['January'][6],month_data['February'][6],
-                        month_data['March'][6],month_data['April'][6],month_data['May'][6],month_data['June'][6],month_data['July'][6],month_data['August'][6],month_data['September'][6],month_data['Year Avg.'][6]])
-        basin_fit.writerow([basin, basin_fit_summary[basin][2], basin_fit_summary[basin][0], basin_fit_summary[basin][1]]) 
-        basin_all_sim.writerow([basin, month_data['Year Avg.'][0], month_data['Year Avg.'][1], month_data['Year Avg.'][2], month_data['Year Avg.'][3], basin_fit_summary[basin][2], basin_fit_summary[basin][0], basin_fit_summary[basin][1], str(dpoints)])       
-        html_file.close()
-    else:
-        print 'No data for basin: ' + basin         
+    flow_cat_basin = open(output_csv_dir + os.sep + 'flow_categories' + os.sep + basin + '_' + variable + '_flow_categories_stats_' + sim_type + '.csv','wb')
+    flow_cat_b = csv.writer(flow_cat_basin)
+    flow_cat.writerow(''); flow_cat_b.writerow('')
+    flow_cat.writerow([basin +' Flow Interval Statistics']);flow_cat_b.writerow([basin +' Flow Interval Statistics'])
+    flow_cat.writerow(['From','To','Number of Cases','SQME River Discharge Simulated Mean (CMSD)','QME River Discharge Observed Mean (CMSD)','% Bias','Bias (Sim-Obs) MM','Maximum Error (CMSD)','Percent Average Absolute Error','Percent Daily RMS Error'])       
+    flow_cat_b.writerow(['From','To','Number of Cases','SQME River Discharge Simulated Mean (CMSD)','QME River Discharge Observed Mean (CMSD)','% Bias','Bias (Sim-Obs) MM','Maximum Error (CMSD)','Percent Average Absolute Error','Percent Daily RMS Error'])    
+    for cat in cats:
+        data = []
+        for each in flow_int[cat]:
+            data.append(each)
+        flow_cat.writerow(data)
+        flow_cat_b.writerow(data)
+    flow_cat_basin.close() 
+    ################ Write data to CSV file #################################
+    mpbias.writerow([basin, month_data['Oct'][2],month_data['Nov'][2],month_data['Dec'][2],month_data['Jan'][2],month_data['Feb'][2],
+                    month_data['Mar'][2],month_data['Apr'][2],month_data['May'][2],month_data['Jun'][2],month_data['Jul'][2],month_data['Aug'][2],month_data['Sep'][2],month_data['Year Avg.'][2]])
+    mbias.writerow([basin, month_data['Oct'][3],month_data['Nov'][3],month_data['Dec'][3],month_data['Jan'][3],month_data['Feb'][3],
+                    month_data['Mar'][3],month_data['Apr'][3],month_data['May'][3],month_data['Jun'][3],month_data['Jul'][3],month_data['Aug'][3],month_data['Sep'][3],month_data['Year Avg.'][3]])
+    mrms.writerow([basin, month_data['Oct'][6],month_data['Nov'][6],month_data['Dec'][6],month_data['Jan'][6],month_data['Feb'][6],
+                    month_data['Mar'][6],month_data['Apr'][6],month_data['May'][6],month_data['Jun'][6],month_data['Jul'][6],month_data['Aug'][6],month_data['Sep'][6],month_data['Year Avg.'][6]])
+    basin_fit.writerow([basin, basin_fit_summary[basin][2], basin_fit_summary[basin][0], basin_fit_summary[basin][1]]) 
+    basin_all_sim.writerow([basin, month_data['Year Avg.'][0], month_data['Year Avg.'][1], month_data['Year Avg.'][2], month_data['Year Avg.'][3], basin_fit_summary[basin][2], basin_fit_summary[basin][0], basin_fit_summary[basin][1]])       
+    html_file.close()         
 
 flow_cat_new.close() 
 month_csv_pbias.close()
@@ -226,4 +209,3 @@ month_csv_bias.close()
 month_csv_rms.close()
 basin_fit_stats.close()
 basin_all_sim_stats.close()
-print 'Completed!!'

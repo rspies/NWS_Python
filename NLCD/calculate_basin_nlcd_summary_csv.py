@@ -19,8 +19,9 @@ maindir = os.getcwd()
 ####################################################################
 #ENTER RFC
 RFC = 'NCRFC_FY2016'
+fx_group = 'REDMIS' # leave blank if not processing by fx group
 #FOLDER PATH OF NLCD .csv DATA FILES
-csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\'
+csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\' + fx_group
 #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
 output_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\'
 ####################################################################
@@ -28,8 +29,10 @@ output_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\'
 ####################################################################
 
 print 'Script is Running...'
-
-nlcd_file = open(output_folderPath + RFC + '_NLCD_Summary.csv', 'w')
+if fx_group != '':
+    nlcd_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_NLCD_Summary.csv', 'w')
+else:
+    nlcd_file = open(output_folderPath + RFC + '_NLCD_Summary.csv', 'w')
 if RFC == 'APRFC': # add Alaska only land cover classes
     nlcd_file.write('Basin,' + '%Open Water,' + '%Perennial Snow/Ice,' + \
                     '%Developed Open Space,' + '%Developed Low Intensity,' + '%Developed Medium Intensity,' + '%Developed High Intensity,' + \

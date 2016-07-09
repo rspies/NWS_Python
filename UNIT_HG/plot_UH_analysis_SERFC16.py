@@ -18,24 +18,25 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS'
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
 basin_ids = [] # run individual basin(s) -> otherwise leave empty []
-sim_type = 'draft' # choices: "initial", "final", "working", "draft"
-RFC = 'NWRFC_FY2016'
-variable = 'QIN_SQIN'#'QME_SQME' 
+sim_type = 'final' # choices: "initial", "final", "working", "draft"
+RFC = 'SERFC_FY2016'
+variable = 'QME_SQME'#'QIN_SQIN' 
+ignore_basins = ['TREF1','LK2F1','OLNF1']
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
 plt.ioff()  #Turn interactive plot mode off (don't show figures)
-yr_start  = 1979; yr_end = 2011 # specify the first and last year to analyze
+yr_start  = 1980; yr_end = 2010 # specify the first and last year to analyze
 csv_loc = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type + os.sep + variable + os.sep
 out_dir = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type+ os.sep + 'UH_analysis_plots' +  os.sep + variable + os.sep 
 out_list = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + sim_type + os.sep + 'UH_analysis_plots' + os.sep + variable + os.sep + 'uhg_event_analysis.txt'
 ################  Define the corresponding column of data in the csv file  #################
 write_date_list = open(out_list,'w') 
-ignore_basins = []
 if basin_ids == []:
     csv_files = os.listdir(csv_loc)
     for csv_file in csv_files:
-        basin_name = csv_file[:6].rstrip('_')
-        if basin_name not in ignore_basins:
-            basin_ids.append(basin_name)
+        if csv_file.endswith(".csv"):
+            basin_name = csv_file.split('_')[0]
+            if basin_name not in ignore_basins:
+                basin_ids.append(basin_name)
 #basin_ids = ['ASCW1'] # <- use this to run individual basin
 if variable == 'QIN_SQIN':
     step = 6 # data time step
@@ -44,36 +45,11 @@ if variable == 'QME_SQME':
     step = 24 # data time step
     period = 3
 ############################################################            
-high_flows = ['SNDO3']
-midhigh_flows = ['GEOV1','CALW1','MCZO3']
-mid_flows = ['BRFI1','BTSI1','TRAO3']
-midlow_flows = ['PILW1','PRII1','TRSO3']
-low_flows = ['BUSO3','EGCO3''MADO3','MFPI1','MORI1','PINI1','SMRW1']
-min_flows=['DONO3','ISSW1']
 ###########################################################
 for basin_id in basin_ids:
     print basin_id
     write_date_list.write(basin_id + '\t')
     calib_read = open(csv_loc + basin_id + '_' + variable + '.csv', 'r') #test!!!
-    # output figure directory
-    if basin_id in high_flows:
-        #step = 6    # time step (1 or 6 hour)
-        #period = 20 # number of time steps to examine before and after event peak
-        thresh= 900 # cutoff for events to examine
-    elif basin_id in midhigh_flows:
-        thresh = 500
-    elif basin_id in mid_flows:
-        thresh = 200
-    elif basin_id in midlow_flows:
-        thresh = 100    
-    elif basin_id in low_flows : # low flows
-        thresh= 50
-    elif basin_id in min_flows : # low flows
-        thresh= 30
-    elif basin_id == 'ASCW1':
-        thresh = 10
-    else: 
-        thresh= 20
 
     ###### tab delimitted CHPS calibrated AND Observed dishcarge text file into panda arrays ###########
     ### replaces hour time stamp with zero to create a mean daily value -> match obs data
@@ -93,6 +69,23 @@ for basin_id in basin_ids:
                 date_Q.append(float(discharge[count]))
                 new_date.append(each_day)
         count += 1
+    
+    avg_flow = np.average(date_Q_calib)
+    print 'Mean flow: ' + str(avg_flow)
+    if 0 <= avg_flow <= 10:
+        thresh = 40
+    elif 10 <= avg_flow <= 20:
+        thresh = 60
+    elif 20 <= avg_flow <= 40:
+        thresh = 120
+    elif 40 <= avg_flow <= 60:
+        thresh = 200
+    elif 60 <= avg_flow <= 100:
+        thresh = 250
+    elif 100 <= avg_flow <= 200:
+        thresh = 300
+    else:
+        thresh = 400   
      
     #### iterate through obs streamflow data and pull out events that meet thresh criteria ####       
     # create blank arrays for future calcs

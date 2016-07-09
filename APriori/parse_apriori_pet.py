@@ -11,8 +11,8 @@ os.chdir("../..")
 maindir = os.getcwd()
 
 ######################## User Input ###############################
-RFC = 'NCRFC_FY2016'
-basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\GND\\'
+RFC = 'MBRFC_FY2016'
+basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\bigyel\\'
 summary = open(basins_dir + 'apriori_ETD_summary.csv','w')
 ###################################################################
 summary.write('Calculated Apriori ETD = PE * PEadj (units = mm/day)\n')

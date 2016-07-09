@@ -33,6 +33,7 @@ for line in basin_file:
         for each in items[2:]:
             basin_stations[ch5id].append(each.rstrip('\n'))
 basin_file.close()
+#basin_list = ['WODS1']
 for basin in basin_list:
     print 'Creating pxpp file for ' + basin
 
@@ -66,7 +67,7 @@ for basin in basin_list:
             ignore_file = workingdir + os.sep + network.split('_')[0] + '_all'  + '_ignore_stations.csv'
     
         ### create list of stations that will not be processed ###
-        ignore_list = ['SC3742','sc3742','VA8241','VA8249','va8249','GA8854','GA7499'] # these stations were reported by pxpp to "HAVE INSUFFICIENT DATA TO ESTIMATE MISSING MONTHS" or user defined sites to leave out of processing
+        ignore_list = ['SC6657','SC3742','sc3742','VA8241','VA8249','va8249','GA8854','GA7499'] # these stations were reported by pxpp to "HAVE INSUFFICIENT DATA TO ESTIMATE MISSING MONTHS" or user defined sites to leave out of processing
         if os.path.isfile(ignore_file) == True:
             ignore_sites = open(ignore_file,'r')
             for each in ignore_sites:

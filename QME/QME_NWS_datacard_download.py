@@ -15,8 +15,8 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'SERFC_FY2016'
-fx_group = '' # set to '' if not used
+RFC = 'MBRFC_FY2016'
+fx_group = 'BigYel_resup' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
@@ -27,7 +27,7 @@ if fx_group != '':
 else:
     task_csv = RFC[:5] + '_fy16_task_summary.csv' #_' + fx_group + '.csv'
     out_dir = workingdir + 'datacards' + os.sep + 'QME' + os.sep #+ fx_group + os.sep + 'QME_Lynker_download' + os.sep
-    summary_file = workingdir + 'datacards' + os.sep + 'QME_datacard_download_summary_SBDW4.csv' #_' + fx_group + '.csv'
+    summary_file = workingdir + 'datacards' + os.sep + 'QME_datacard_download_summary.csv' #_' + fx_group + '.csv'
 
 date_start = '1948-10-01' # YYYY-MM-DD -> start on 10/1 to prevent CHPS issues
 date_end = '2014-09-30' # YYYY-MM-DD

@@ -18,7 +18,7 @@ daily_obs_file = workingdir + os.sep + 'nhds_daily' + os.sep + 'site_obs_time_nh
 map_weights = workingdir + os.sep + 'MAP_input' + os.sep + 'pre_weights' + os.sep           # file with the pxpp output -> template for MAP input
 basin_coords = workingdir + os.sep + 'MAP_input' + os.sep + 'vertices_summary.txt'
 ## define basins below ###
-map_basins = ['BCWG1','SUMG1','YLOG1','WODS1','SWOG1','ESLS1','OLVG1','DNDV2']   # 'BCWG1','SUMG1','YLOG1','WODS1','SWOG1','ESLS1','OLVG1','DNDV2'
+map_basins = ['WODS1']#['BCWG1','SUMG1','YLOG1','WODS1','SWOG1','ESLS1','OLVG1','DNDV2']   # 'BCWG1','SUMG1','YLOG1','WODS1','SWOG1','ESLS1','OLVG1','DNDV2'
 map_basins_desc = {'BCWG1':'Waynesboro GA','SUMG1':'Summerville GA','YLOG1':'Yellow R Lithonia GA','WODS1':'Woodruff SC','SWOG1':'Swainsboro GA',
                    'ESLS1':'Estill SC','OLVG1':'Oliver GA','DNDV2':'Dendron VA'}
 map_basins_area = {'BCWG1':473,'SUMG1':192,'YLOG1':211,'WODS1':249,'SWOG1':553,

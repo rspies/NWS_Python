@@ -26,7 +26,7 @@ from matplotlib.ticker import MultipleLocator
 #START USER INPUT SECTION
 #Enter RFC
 RFC = 'NWRFC_FY2016'
-param_source = 'pre_calb' # choices: 'pre_calb','sa'
+param_source = 'sa' # choices: 'pre_calb','sa'
 
 #Turn on/off model parameter searchs # choices: 'on' or 'off'
 sac = 'on'
@@ -35,9 +35,9 @@ lag_k = 'on'
 uh = 'on'
 
 #Turn on/off plot choices
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
-lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
-adc_plots = 'on' # choices: 'on' or 'off' -> areal depleation plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
+adc_plots = 'off' # choices: 'on' or 'off' -> areal depleation plots
 #END USER INPUT SECTION
 #-----------------------------------------------------------------------------
 

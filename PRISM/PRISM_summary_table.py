@@ -18,11 +18,15 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'NCRFC_FY2016' 
+RFC = 'MBRFC_FY2016'
+fx_group = 'Bighorn_Yellowstone_calb_basins' # leave blank if not processing by fx group
 variable = 'ppt' # use temperature: 'tmean' or precipitation: 'ppt'
 
 #FOLDER PATH OF NLCD .xls DATA FILES
-xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '\\' 
+if fx_group != '':
+    xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '\\' + fx_group + '\\'
+else:
+    xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '\\'
 #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
 output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
 ####################################################################
@@ -31,7 +35,10 @@ output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
 
 print 'Script is Running...'
 #Define output file name
-out_file = open(output_folderPath + RFC + '_PRISM_Summary_1981_2010_' + variable + '.csv', 'w')
+if fx_group != '':
+    out_file = open(output_folderPath + RFC[:5] + '_' +  RFC[-6:] + '_' + fx_group +  '_PRISM_Summary_1981_2010_' + variable + '.csv', 'w')
+else:
+    out_file = open(output_folderPath + RFC + '_PRISM_Summary_1981_2010_' + variable + '.csv', 'w')
 out_file.write('Basin,' + 'PRISM Annual Precip (in),' + '\n')
 
 basins=[]
