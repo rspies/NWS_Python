@@ -15,8 +15,8 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 # OPTIONAL -> run all basins within an RFC directory
-RFC = 'NCRFC_FY2016'
-fx_group = 'REDMIS' # leave blank if not processing by fx group
+RFC = 'WGRFC_FY2016'
+fx_group = '' # leave blank if not processing by fx group
 #FOLDER PATH OF ELEVATION AND SLOPE .CSV FILES FROM MODEL BUILDER OR PYTHON SCRIPT
 if fx_group != '':
     file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\' + fx_group + '\\'

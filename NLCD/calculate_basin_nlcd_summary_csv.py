@@ -18,8 +18,8 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC
-RFC = 'NCRFC_FY2016'
-fx_group = 'REDMIS' # leave blank if not processing by fx group
+RFC = 'WGRFC_FY2016'
+fx_group = '' # leave blank if not processing by fx group
 #FOLDER PATH OF NLCD .csv DATA FILES
 csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\' + fx_group
 #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)

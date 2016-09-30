@@ -15,14 +15,16 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'SERFC_FY2016'
+RFC = 'WGRFC_FY2016'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'final_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
-snow = 'on' # choices: 'on' or 'off'
+snow = 'off' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
+tatum = 'off' # choices: 'on' or 'off'
+
 #### plot options ####
 snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
 uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
@@ -32,12 +34,12 @@ if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
     folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Working_Calib_Files\\' + param_source
     #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Python\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
+    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
 else:
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
     folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC  + '\\Working_Calib_Files\\' + fx_group + os.sep + param_source
     #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Python\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + os.sep + fx_group + '\\Params_' + param_source
+    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + os.sep + fx_group + '\\Params_' + param_source
 ########################## END USER INPUT SECTION ############################
 #-----------------------------------------------------------------------------
 
@@ -344,7 +346,7 @@ if uhg == 'on':
     print 'Processing UH parameters...'
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_UHG_Params_' + param_source + '_slim.csv', 'w')
     
-    csv_file.write('BASIN,CH5ID,AREA (mi2),Interval (hours),')
+    csv_file.write('BASIN,CH5ID,AREA (mi2),Interval (hours),Const Baseflow (cfs),')
     t = 0
     while t < 600:
         csv_file.write(str(t) + ',')
@@ -447,6 +449,8 @@ if uhg == 'on':
     
         for line in section:
             line = re.sub("[^0123456789\.\-]", "", line)
+            const_bf = line
+            csv_file.write(const_bf + ',')
     
         ###UHG_ORDINATES
         txt_file.seek(0)
@@ -797,4 +801,99 @@ if lagk == 'on':
         os.remove(working_dir +'\\' + name + '.txt')
     
     csv_file.close() 
+    
+###############################################################################
+#TATUM SECTION---------------------------------------------------------------
+if tatum == 'on':
+    print 'Processing TATUM parameters...'
+    csv_file = open(csv_file_out + '\\' + '_' + RFC + '_TATUM_Params_' + param_source + '_slim.csv', 'w')
+    
+    csv_file.write('BASIN,CH5ID,Layers,Layer_Num,Flow_Thresh_CMS,')
+    t = 0
+    while t < 300:
+        csv_file.write(str(t) + ',')
+        t += 6
+    csv_file.write('\n')
+    
+    
+    for filename in os.listdir(folderPath + '\\Tatum\\'):
+        #print filename
+    
+        #Define output file name
+        name = str(os.path.basename(filename)[:])
+        name = name.replace('TATUM_', '')
+        name = name.replace('_UpdateStates.xml', '')
+        ch5_id = name.split('_')[1]
+        print 'Tatum - > ' + name + ' - ' + ch5_id
+        #print name
+        
+        #Open .xml file 
+        txt_file = open(folderPath + '\\Tatum\\' + filename, 'r')
+        
+        ###Number of Layers
+        #Find line number with NUMBER_OF_LAYERS
+        #Line number is saved when loop breaks
+        line_num = 0
+        for line in txt_file:
+            line_num += 1
+            if 'NUMBER_OF_LAYERS' in line:
+                break
+        #Set cursor back to beginning of txt_file that is being read
+        txt_file.seek(0)
+        #Section/line of .txt file with desired parameter value
+        section = txt_file.readlines()[line_num:line_num+1]
+        for line in section:
+            #Write only numbers and decimals to output file
+            num_lay = re.sub("[^0123456789\.\-]", "", line)
+        
+        ###find layer thresholds
+        txt_file.seek(0)
+        line_num = 0
+        search = 'off'
+        layers_thresh = []
+        for line in txt_file:
+            line_num += 1
+            if 'LAYER_UPPER_LIMIT_FLOW"' in line:
+                layers_thresh = []
+                search = 'on'
+            if search == 'on':
+                if 'row A' in line:
+                    line = re.sub("[^0123456789\.\-]", "", line)
+                    line_float = float(line)
+                    layers_thresh.append(line_float)
+                if '</table>' in line:
+                    search = 'off'
+                    layers_thresh_sort = sorted(layers_thresh)
+    
+        ###find coefficients
+        txt_file.seek(0)
+        ordinate = 0
+        line_num = 0
+        search = 'off'
+        for line in txt_file:
+            line_num += 1
+            if 'LAYER_COEFFICIENTS_' in line:
+                csv_file.write(name + ',' + ch5_id + ',')
+                csv_file.write(num_lay + ',')
+                layer_num = int(line.split('"')[1].split('_')[-1])
+                csv_file.write('LAYER_' + str(layer_num) + ',')
+                if layer_num > 1:
+                    csv_file.write(str(layers_thresh_sort[-(layer_num-len(layers_thresh_sort)-1)]) + ',') # look up flow thresh value
+                else:
+                    csv_file.write('max,') # look up flow thresh value
+                tat_time = []
+                tat_flow = []
+                search = 'on'
+            if search == 'on':
+                if 'row A' in line:
+                    ordinate = ordinate + 6
+                    tat_time.append(ordinate)
+                    line = re.sub("[^0123456789\.\-]", "", line)
+                    line_float = float(line)
+                    csv_file.write(line + ',')
+                    tat_flow.append(line_float)
+                if '</table>' in line:
+                    csv_file.write('\n')
+                    search = 'off'
+    csv_file.close()     
 print 'Script Complete'

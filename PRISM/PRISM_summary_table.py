@@ -18,8 +18,8 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'MBRFC_FY2016'
-fx_group = 'Bighorn_Yellowstone_calb_basins' # leave blank if not processing by fx group
+RFC = 'NERFC_FY2017'
+fx_group = '' # leave blank if not processing by fx group
 variable = 'ppt' # use temperature: 'tmean' or precipitation: 'ppt'
 
 #FOLDER PATH OF NLCD .xls DATA FILES

@@ -18,7 +18,7 @@ maindir = os.getcwd()
 ################################# User Input #########################################
 ############ User input ################
 RFC = 'NCRFC_FY2016'
-fx_group = 'GND'
+fx_group = 'RED+'
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 adc_plot = 'on' # 'on' or 'off' -> off only runs the chps csv conversion
 

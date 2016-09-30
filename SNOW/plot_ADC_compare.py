@@ -11,12 +11,20 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 os.chdir("..")
-maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params'
-version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
+
+
 ################################# User Input #########################################
-RFC = 'NWRFC_FY2016'
-calib_csv = open(maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_' + version_compare + '\\_' + RFC +'_SNOW17_ADC_' + version_compare + '_slim.csv','r')
-initial_csv_file = maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_pre_calb\\_' + RFC +'_SNOW17_ADC_pre_calb_slim.csv'
+RFC = 'NCRFC_FY2016'
+fx_group = 'DES' # set to blank '' if not using fx_groups
+version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
+
+if fx_group == '':
+    maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params' + os.sep + RFC[:5] + os.sep + RFC
+else:
+    maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params' + os.sep + RFC[:5] + os.sep + RFC + os.sep + fx_group
+calib_csv = open(maindir  + '\\Params_' + version_compare + '\\_' + RFC +'_SNOW17_ADC_' + version_compare + '_slim.csv','r')
+initial_csv_file = maindir + '\\Params_pre_calb\\_' + RFC +'_SNOW17_ADC_pre_calb_slim.csv'
+
 ######################################################################################
 basins = []
 SWE = []
@@ -33,7 +41,7 @@ for each in calib_csv:
 calib_csv.close()
 
 for basin in basins:
-    calib_csv = open(maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_' + version_compare + '\\_' + RFC +'_SNOW17_ADC_' + version_compare + '_slim.csv','r')
+    calib_csv = open(maindir  + '\\Params_' + version_compare + '\\_' + RFC +'_SNOW17_ADC_' + version_compare + '_slim.csv','r')
     initial_csv = open(initial_csv_file,'r')    
     print 'Plotting: ' + basin + '...'
     SCA_calb = []
@@ -105,7 +113,7 @@ for basin in basins:
         
     plt.title(basin + ' ADC Comparison - ' + basin )
         
-    figname = maindir +os.sep + RFC[:5] + os.sep + RFC + '\\Params_' + version_compare + '\\ADC_plot_compare\\' + basin + '_ADC.png'
+    figname = maindir + '\\Params_' + version_compare +  '\\ADC_plot_compare\\' + basin + '_ADC.png'
         
     plt.savefig(figname, dpi=100,bbox_inches='tight')
     

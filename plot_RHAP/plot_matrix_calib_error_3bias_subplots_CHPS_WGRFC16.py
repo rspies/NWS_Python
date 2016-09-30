@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 import matplotlib.ticker as ticker
 from matplotlib import cm
+import matplotlib.image as imagei
 from matplotlib.colors import LogNorm
 import numpy as np
 import pandas as pd
@@ -20,17 +21,18 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'MBRFC_FY2016'
-fx_group = 'kansas' # set to blank '' if not using fx_groups
+RFC = 'WGRFC_FY2016'
+fx_group = '' # set to blank '' if not using fx_groups
 add_obs_Q_plot = 'yes' # yes/no to create a subplot of the observed data for same period
 basin_ids = [] # <-- use this to run specific basins
-ignore_basins = ['PCFM7']
+ignore_basins = []
 sim_type = 'draft' # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum'] # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type #' Calb Raster Analysis' or '_bias_pbias_test'
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
+wm_image = maindir + os.sep + 'Python' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
 ################  Define the corresponding column of data in the csv file  #################
-yr_start = 1980; yr_end = 2013 #
+yr_start = 2006; yr_end = 2016 #
 ########### find all basin QME vs SQME .csv files ############
 if len(basin_ids) == 0:
     basin_ids = []
@@ -40,7 +42,7 @@ if len(basin_ids) == 0:
                 ch5id = each.split('_')[0]
                 if ch5id not in ignore_basins:
                     basin_ids.append(ch5id)
-
+#basin_ids=['GJTI4']
 ########### loop through all desired basins and define min/max errors for plots ############
 for basin_id in basin_ids:
     print basin_id
@@ -109,66 +111,78 @@ for basin_id in basin_ids:
                 gage_Q.append(np.nan)                       # set missing observed to nan (ignored in plot and analysis)
         start += delta
     
-        
-    print 'Parsing daily calibrated dishcarge data...'
-    start=pd.datetime(yr_start,1,1); chps_Q = []
-    while start <= end:
-        date_loop = pd.to_datetime(start)
-        #ignore leap year day (maintains equal matrix dimensions)
-        if date_loop.month == 2 and date_loop.day == 29: 
-            print 'Ignoring: ' + str(date_loop)
-        else:
-            if date_loop in date_Q_calib:
-                if float(np.average(date_Q_calib[date_loop])) < 0.0:    # replace negative Q with nan
-                    chps_Q.append(np.nan)
-                elif float(np.average(date_Q_calib[date_loop])) <= 0.1:
-                    chps_Q.append(0.1)
-                else:
-                    chps_Q.append(np.average(date_Q_calib[date_loop]))  # add each day of available data to new list
+    ### check if any observed data is available
+    if np.count_nonzero(~np.isnan(gage_Q)) == 0: # count the non-nan values
+        print 'NO QME DATA AVIALABLE...'
+    else: 
+        print 'Parsing daily calibrated dishcarge data...'
+        start=pd.datetime(yr_start,1,1); chps_Q = []
+        while start <= end:
+            date_loop = pd.to_datetime(start)
+            #ignore leap year day (maintains equal matrix dimensions)
+            if date_loop.month == 2 and date_loop.day == 29: 
+                print 'Ignoring: ' + str(date_loop)
             else:
-                chps_Q.append(np.nan)                                   #set missing observed to nan (ignored in plot and analysis)
-        start += delta
-    
-    ### flip matrix upside down to plot most recent data on top
-    ediff = (np.asarray(chps_Q)-np.asarray(gage_Q))#/np.asarray(gage_Q)
-    ema = np.ma.masked_invalid(ediff)
-    #eadd = np.cumsum(ema)
-    error_cum = ema.reshape((len(gage_Q)/365),365)
-    obs_Q = np.flipud(np.asarray(gage_Q).reshape((len(gage_Q)/365),365))
-    calib_Q = np.flipud(np.asarray(chps_Q).reshape((len(chps_Q)/365),365))
-    fig = plt.figure(figsize=(8,10))
-    cmap =cm.seismic_r 
-    
-    ### calculate plot coloring thresholds for bias and accum bias - based on obs data mean
-    avg_flow = np.ma.mean(np.ma.masked_invalid(obs_Q))
-    print 'Mean flow: ' + str(avg_flow)
-    if 0 <= avg_flow <= 10:
-        cminb = -100; cmaxb = 100
-        cmina = -1000; cmaxa =1000
-    elif 10 <= avg_flow <= 20:
-        cminb = -100; cmaxb = 100
-        cmina = -2000; cmaxa =2000
-    elif 20 <= avg_flow <= 40:
-        cminb = -100; cmaxb = 100
-        cmina = -2000; cmaxa =2000
-    elif 40 <= avg_flow <= 60:
-        cminb = -200; cmaxb = 200
-        cmina = -3000; cmaxa =3000
-    elif 60 <= avg_flow <= 100:
-        cminb = -200; cmaxb = 200
-        cmina = -3000; cmaxa =3000
-    elif 100 <= avg_flow <= 200:
-        cminb = -200; cmaxb = 200
-        cmina = -3000; cmaxa =3000
-    elif 100 <= avg_flow <= 200:
-        cminb = -300; cmaxb = 300
-        cmina = -5000; cmaxa =5000
-    else:
-        avg_flow = -999
-        print 'No QME data available - skipping basin!'
-    ############################# create plot(s) ##########################################
-    #######################################################################################
-    if avg_flow != -999:
+                if date_loop in date_Q_calib:
+                    if float(np.average(date_Q_calib[date_loop])) < 0.0:    # replace negative Q with nan
+                        chps_Q.append(np.nan)
+                    elif float(np.average(date_Q_calib[date_loop])) <= 0.1:
+                        chps_Q.append(0.1)
+                    else:
+                        chps_Q.append(np.average(date_Q_calib[date_loop]))  # add each day of available data to new list
+                else:
+                    chps_Q.append(np.nan)                                   #set missing observed to nan (ignored in plot and analysis)
+            start += delta
+        
+        ### flip matrix upside down to plot most recent data on top
+        ediff = (np.asarray(chps_Q)-np.asarray(gage_Q))#/np.asarray(gage_Q)
+        ema = np.ma.masked_invalid(ediff)
+        #eadd = np.cumsum(ema)
+        error_cum = ema.reshape((len(gage_Q)/365),365)
+        obs_Q = np.flipud(np.asarray(gage_Q).reshape((len(gage_Q)/365),365))
+        calib_Q = np.flipud(np.asarray(chps_Q).reshape((len(chps_Q)/365),365))
+        fig = plt.figure(figsize=(8,10))
+        cmap =cm.seismic_r 
+        
+        ### calculate plot coloring thresholds for bias and accum bias - based on obs data mean
+        avg_flow = np.ma.mean(np.ma.masked_invalid(obs_Q))
+        print 'Mean flow: ' + str(avg_flow)
+        if 0 <= avg_flow <= 10:
+            cminb = -100; cmaxb = 100
+            cmina = -1000; cmaxa =1000
+        elif 10 < avg_flow <= 20:
+            cminb = -100; cmaxb = 100
+            cmina = -2000; cmaxa =2000
+        elif 20 < avg_flow <= 40:
+            cminb = -100; cmaxb = 100
+            cmina = -2000; cmaxa =2000
+        elif 40 < avg_flow <= 60:
+            cminb = -200; cmaxb = 200
+            cmina = -3000; cmaxa =3000
+        elif 60 < avg_flow <= 100:
+            cminb = -200; cmaxb = 200
+            cmina = -3000; cmaxa =3000
+        elif 100 < avg_flow <= 200:
+            cminb = -200; cmaxb = 200
+            cmina = -3000; cmaxa =3000
+        elif 200 < avg_flow <= 500:
+            cminb = -300; cmaxb = 300
+            cmina = -4000; cmaxa =4000
+        elif 500 < avg_flow <= 1000:
+            cminb = -500; cmaxb = 500
+            cmina = -10000; cmaxa =10000
+        elif 1000 < avg_flow <= 2000:
+            cminb = -1000; cmaxb = 1000
+            cmina = -20000; cmaxa =20000
+        elif 2000 < avg_flow <= 3000:
+            cminb = -1000; cmaxb = 1000
+            cmina = -50000; cmaxa =50000
+        else:
+            cminb = -2500; cmaxb = 2500
+            cmina = -100000; cmaxa =100000    
+        
+        ############################# create plot(s) ##########################################
+        #######################################################################################
         for error_type in error_types:
             ### set all nan (masked array) values to grey  
             cmap.set_bad('k',0.3) # defining here seems to get applied to all plots?? (color,opacity)
@@ -273,6 +287,9 @@ for basin_id in basin_ids:
             ticks_in = []
             tick_labels = []
             cmin_int = cmin
+            if cmin <100 and avg_flow > 1000: # set cmin limit higher if avg flow is high
+                obs_Q = np.ma.masked_less(obs_Q,100) # mask erroneously low flow values
+                cmin_int = 100
             while cmin_int <= np.max(obs_Q):
                 ticks_in.append(float(cmin_int))
                 tick_labels.append(str(int(cmin_int)))
@@ -352,8 +369,16 @@ for basin_id in basin_ids:
             fig_out = out_dir +  basin_id + fig_name + '.png'
         else:
             fig_out = out_dir + basin_id + fig_name + '_hydrograph.png'
+
+        ### add Lynker logo watermark in plot corner
+        im = imagei.imread(wm_image)
+        newax = fig.add_axes([0.75,0.82, 0.11, 0.11], anchor='NE') # create axis to place image (x,y,scalex,scaley)
+        newax.imshow(im, alpha = 0.3, extent=(0,1,1,1.4)) # location of image  (left, right, bottom, top)
+        newax.axis('off')            
+        
         plt.savefig(fig_out, dpi=resolution, bbox_inches='tight')
         print 'Figure saved to: ' + out_dir + basin_id + '_' + label + '.png'
-        plt.close()   
+        plt.close()
+
 print 'Finished!'
 print datetime.datetime.now()

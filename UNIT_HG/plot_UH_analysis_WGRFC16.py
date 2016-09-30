@@ -19,13 +19,13 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS'
 #####    and specify the calibration period in next section 
 basin_ids = [] # run individual basin(s) -> otherwise leave empty []
 sim_type = 'draft' # choices: "initial", "final", "working", "draft"
-RFC = 'NCRFC_FY2016'
-fx_group = 'MIS' # set to blank '' if not using fx_groups
-variable = 'QME_SQME' # 'QME_SQME' or 'QIN_SQIN'
-ignore_basins = ['PCFM7','TLKM5','HRLM5','WDOM5','BRTI4','PNLI4']
+RFC = 'WGRFC_FY2016'
+fx_group = '' # set to blank '' if not using fx_groups
+variable = 'QIN_SQIN' # 'QME_SQME' or 'QIN_SQIN'
+ignore_basins = []
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
 plt.ioff()  #Turn interactive plot mode off (don't show figures)
-yr_start  = 1980; yr_end = 2013 # specify the first and last year to analyze
+yr_start  = 2002; yr_end = 2016 # specify the first and last year to analyze
 csv_loc = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + variable + os.sep
 out_dir = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type+ os.sep + 'UH_analysis_plots' +  os.sep + variable + os.sep 
 out_list = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'UH_analysis_plots' + os.sep + variable + os.sep + 'uhg_event_analysis.txt'

@@ -13,18 +13,18 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NCRFC_FY2016'
-fx_group = 'DES' # set to '' if not used
+RFC = 'NWRFC_FY2017'
+fx_group = '' # set to '' if not used
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
 chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Calibration_TimeSeries\\initial\\QME_SQME\\' # CHPS csv output files
 nhds_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\' # NHDS data download (cardfiles)
-new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\' # output summary tab delimited file location
+new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\' # output summary tab delimited file location
 ########################################
 
 if fx_group != '':
-    nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_combined' 
-    new_summary = open(new_file +'QME' + os.sep + fx_group + os.sep + 'QME_data_statistical_summary_'+fx_group+'.csv', 'w')
+    nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_updated_data' 
+    new_summary = open(new_file + os.sep + fx_group + os.sep + 'QME_data_statistical_summary_'+fx_group+'.csv', 'w')
 else: 
     nhds_files = nhds_files + os.sep + 'QME_Lynker_download' 
     new_summary = open(new_file + 'QME_data_statistical_summary.csv', 'w')
@@ -85,21 +85,24 @@ for QME in QMEs:
         for line in csv_read:
             if line_count >= 9: # ignore header lines
                 sep = line.split()
-                if len(sep) < 4: # some QME files (from RFC) may not have gage/basin id as 1st index
-                    sep.insert(0,'0000')
-                ### parse date columns
-                month = str(sep[1])[:-2]
-                year = str(sep[1])[-2:]
-                if int(year) <= 15:
-                    year = int(year) + 2000 # assume years <= 14 are in the 2000s
-                else:
-                    year = int(year) + 1900
-                day = str(sep[2])
-                full_date = datetime.datetime(year,int(month),int(day))
-                date.append(full_date)
-                if line_count == 12:
-                    site_num = sep[0]
-                discharge.append(float(sep[3]))
+                if len(sep) > 0: # ignore blank lines
+                    if len(sep) < 4 and len(sep[-1]) < 10: # some QME files (from RFC) may not have gage/basin id as 1st index
+                        sep.insert(0,'0000')
+                    ### parse date columns
+                    month = str(sep[1])[:-2]
+                    year = str(sep[1])[-2:]
+                    if int(year) <= 15:
+                        year = int(year) + 2000 # assume years <= 14 are in the 2000s
+                    else:
+                        year = int(year) + 1900
+                    day = str(sep[2])
+                    if len(sep[-1]) > 10: # check for large streamflow values that get combined with day column
+                        day = str(sep[2])[:-10]
+                    full_date = datetime.datetime(year,int(month),int(day))
+                    date.append(full_date)
+                    if line_count == 12:
+                        site_num = sep[0]
+                    discharge.append(float(sep[-1][-10:]))
             line_count += 1
         csv_read.close()
 
@@ -112,7 +115,7 @@ for QME in QMEs:
     if len(final_date) != len(Q_data):
         print 'WARNING -- Date and Discharge Data not the same length'
     
-    basin_gauge = QME.split('_')[0]
+    basin_gauge = QME.split('_')[0].rstrip('.qme').upper() # basin/gage name
     day_count = str(len(Q_data))            # number of valid daily data values
     start_date = str(min(final_date))       # date of first measurement
     end_date = str(max(final_date))         # date of last measurement

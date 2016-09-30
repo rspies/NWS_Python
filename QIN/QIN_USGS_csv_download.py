@@ -17,19 +17,19 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'MBRFC_FY2016'
-fx_group = 'MDCO' # set to '' if not used
+RFC = 'NWRFC_FY2017'
+fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
-    task_csv = RFC[:5] + '_fy16_task_summary_' + fx_group + '.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
     out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_'
-    summary_file = workingdir + 'data_csv' + os.sep + fx_group + '_QIN_data_download_summary.csv'
+    summary_file = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_data_download_summary.csv'
 else:
-    task_csv = RFC[:5] + '_fy16_task_summary.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary.csv'
     out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep 
-    summary_file = workingdir + 'data_csv' + os.sep + 'QIN_data_download_summary.csv'
+    summary_file = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + 'QIN_data_download_summary.csv'
 
 ########################################
 summary = open(summary_file,'w')
@@ -42,8 +42,8 @@ if basin_col in df:
     ch5id = df[basin_col].tolist()
 else:
     print '"' + basin_col + '" not in csv header...'
-if 'usgs_id' in df:
-    usgs_gages = df['usgs_id'].tolist()
+if 'USGS_GAGE' in df:
+    usgs_gages = df['USGS_GAGE'].tolist()
 elif 'GAGE_ID' in df:
     usgs_gages = df['GAGE_ID'].tolist()
 else:
@@ -107,7 +107,17 @@ for each in usgs_gages:
             br['fromdate'] = str(min_date)
             br['todate'] = str(mid_date1)
             br['rtype'] = ['1'] # download to file (1), display in browser (3)
-            submit_form = br.submit()
+            try:
+                submit_form = br.submit() # submit webpage request
+            except:
+                print "Unexpected error:", sys.exc_info()[0]
+                print 'Trying gage site search again...'
+                response = br.open('http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id)
+                br.select_form('CFForm_1')
+                br['fromdate'] = str(min_date)
+                br['todate'] = str(mid_date1)
+                br['rtype'] = ['1'] # download to file (1), display in browser (3)
+                submit_form = br.submit() # submit webpage request
             result = submit_form.read().replace('\r','')
             file_save = open(out_dir + 'pre_2007' + os.sep + basin_id + '_historical.txt','w')
             file_save.write(result)
@@ -127,7 +137,17 @@ for each in usgs_gages:
                 br['fromdate'] = str(mid_date2)
                 br['todate'] = str(mid_date3)
                 br['rtype'] = ['1'] # download to file (1), display in browser (3)
-                submit_form = br.submit()
+                try:
+                    submit_form = br.submit() # submit webpage request
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+                    print 'Trying gage site search again...'
+                    response = br.open('http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id)
+                    br.select_form('CFForm_1')
+                    br['fromdate'] = str(mid_date2)
+                    br['todate'] = str(mid_date3)
+                    br['rtype'] = ['1'] # download to file (1), display in browser (3)
+                    submit_form = br.submit() # submit webpage request
                 result = submit_form.read()#.replace('\r','')
                 sep = result.split('\n')[67:] # skip file header
                 for each in sep:
@@ -147,7 +167,17 @@ for each in usgs_gages:
                 br['fromdate'] = str(mid_date4)
                 br['todate'] = str(mid_date5)
                 br['rtype'] = ['1'] # download to file (1), display in browser (3)
-                submit_form = br.submit()
+                try:
+                    submit_form = br.submit() # submit webpage request
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+                    print 'Trying gage site search again...'
+                    response = br.open('http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id)
+                    br.select_form('CFForm_1')
+                    br['fromdate'] = str(mid_date4)
+                    br['todate'] = str(mid_date5)
+                    br['rtype'] = ['1'] # download to file (1), display in browser (3)
+                    submit_form = br.submit() # submit webpage request
                 result = submit_form.read()#.replace('\r','')
                 sep = result.split('\n')[67:] # skip file header
                 for each in sep:
@@ -167,7 +197,17 @@ for each in usgs_gages:
                 br['fromdate'] = str(mid_date6)
                 br['todate'] = str(max_date)
                 br['rtype'] = ['1'] # download to file (1), display in browser (3)
-                submit_form = br.submit()
+                try:
+                    submit_form = br.submit() # submit webpage request
+                except:
+                    print "Unexpected error:", sys.exc_info()[0]
+                    print 'Trying gage site search again...'
+                    response = br.open('http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id)
+                    br.select_form('CFForm_1')
+                    br['fromdate'] = str(mid_date6)
+                    br['todate'] = str(max_date)
+                    br['rtype'] = ['1'] # download to file (1), display in browser (3)
+                    submit_form = br.submit() # submit webpage request
                 result = submit_form.read()#.replace('\r','')
                 sep = result.split('\n')[67:] # skip file header
                 for each in sep:
@@ -182,7 +222,7 @@ for each in usgs_gages:
         ################################# recent data retrieval #######################################
         print 'Checking for recent data...'
         date_start = '2007-09-30' # YYYY-MM-DD
-        date_end = '2014-10-01' # YYYY-MM-DD
+        date_end = '2015-09-30' # YYYY-MM-DD
                             
         recent_url = urllib2.urlopen('http://waterdata.usgs.gov/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=' + gage_id + '&period=&begin_date=' + date_start +'&end_date='+date_end)
         br = mechanize.Browser()

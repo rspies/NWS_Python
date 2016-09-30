@@ -16,8 +16,8 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC
-RFC = 'NCRFC_FY2016'
-fx_group = 'WIS' # set to blank '' if not using fx_groups
+RFC = 'WGRFC_FY2016'
+fx_group = '' # set to blank '' if not using fx_groups
 #FOLDER PATH OF gSSURGO .xls DATA FILES
 if fx_group != '':
     csv_folderPath = maindir + '\\GIS\\'+RFC[:5] + os.sep + RFC+'\\SSURGO\\data_files\\' + fx_group + '\\'

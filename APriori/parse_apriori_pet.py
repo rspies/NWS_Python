@@ -11,8 +11,8 @@ os.chdir("../..")
 maindir = os.getcwd()
 
 ######################## User Input ###############################
-RFC = 'MBRFC_FY2016'
-basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\bigyel\\'
+RFC = 'NERFC_FY2017'
+basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\'
 summary = open(basins_dir + 'apriori_ETD_summary.csv','w')
 ###################################################################
 summary.write('Calculated Apriori ETD = PE * PEadj (units = mm/day)\n')
@@ -21,6 +21,7 @@ months_sort = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov'
 summary.write('basin,jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec\n')
 
 for each in basins:
+    print each
     if each[-4:] != '.csv':
         months = {'jan':[],'feb':[],'mar':[],'apr':[],'may':[],'jun':[],'jul':[],'aug':[],'sep':[],'oct':[],'nov':[],'dec':[]}
         fopen = open(basins_dir + each + '\\' + each + '_apriori_parameters.csv','r')

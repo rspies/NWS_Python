@@ -15,22 +15,22 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'MBRFC_FY2016'
-fx_group = 'BigYel_resup' # set to '' if not used
+RFC = 'NWRFC_FY2017'
+fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
-    task_csv = RFC[:5] + '_fy16_task_summary_' + fx_group + '.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
     out_dir = workingdir + 'datacards' + os.sep + 'QME' + os.sep + fx_group + os.sep + 'QME_Lynker_download' + os.sep
     summary_file = workingdir + 'datacards' + os.sep + 'QME' + os.sep + fx_group + os.sep + 'QME_datacard_download_summary_' + fx_group + '.csv'
 else:
-    task_csv = RFC[:5] + '_fy16_task_summary.csv' #_' + fx_group + '.csv'
-    out_dir = workingdir + 'datacards' + os.sep + 'QME' + os.sep #+ fx_group + os.sep + 'QME_Lynker_download' + os.sep
-    summary_file = workingdir + 'datacards' + os.sep + 'QME_datacard_download_summary.csv' #_' + fx_group + '.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary.csv' #_' + fx_group + '.csv'
+    out_dir = workingdir + 'datacards' + os.sep + 'QME' + os.sep + 'QME_Lynker_download' + os.sep
+    summary_file = workingdir + 'datacards' + os.sep + 'QME' + os.sep + 'QME_datacard_download_summary.csv' #_' + fx_group + '.csv'
 
 date_start = '1948-10-01' # YYYY-MM-DD -> start on 10/1 to prevent CHPS issues
-date_end = '2014-09-30' # YYYY-MM-DD
+date_end = '2015-09-30' # YYYY-MM-DD
 ########################################
 
 summary = open(summary_file,'w')
@@ -43,10 +43,10 @@ if basin_col in df:
     ch5id = df[basin_col].tolist()
 else:
     print '"' + basin_col + '" not in csv header...'
-if 'usgs_id' in df:
-    usgs_gages = df['usgs_id'].tolist()
+if 'USGS_GAGE' in df:
+    usgs_gages = df['USGS_GAGE'].tolist()
 else:
-    print '"usgs_id" not in csv header...' 
+    print '"USGS_GAGE" not in csv header...' 
     if 'GAGE_ID' in df:
         usgs_gages = df['GAGE_ID'].tolist()
     else:

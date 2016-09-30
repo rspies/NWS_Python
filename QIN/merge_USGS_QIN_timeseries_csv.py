@@ -15,8 +15,8 @@ maindir = os.getcwd()
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'NCRFC_FY2016'
-fx_group = 'MEC' # set to '' if not used
+RFC = 'NERFC_FY2017'
+fx_group = '' # set to '' if not used
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_post_2007\\'
