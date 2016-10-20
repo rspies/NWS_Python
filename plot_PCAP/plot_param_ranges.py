@@ -20,13 +20,13 @@ from pylab import *
 os.chdir("../..")
 maindir = os.getcwd()
 ############################### User Input ####################################
-rfc = 'WGRFC_FY2016'
+rfc = 'NERFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
-plot_type = 'draft' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
+plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
-snow_plot = 'off' # plot snow17 
-e19 = 'on' # create e19 folder with lower res image for chps display
+snow_plot = 'on' # plot snow17 
+e19 = 'off' # create e19 folder with lower res image for chps display
 wm_image = maindir + os.sep + 'Python' + os.sep + 'Extract_Hydro_Params' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
 
 if fx_group == '':
@@ -64,20 +64,27 @@ if sac_plot == 'on':
         count = 1; plot_num = 1; x=1.1; apbasin = basin
         if len(basin)>5: # trim off 'LOC' ending on some ch5id's for apriori lookup
             apbasin = basin.replace("LOC", "")
-            print apbasin
+            print apbasin + ' --> basin name longer than 5 char'
         if os.path.isfile(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv'):
             data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
             data_apri = data_apri.to_dict()
         else:
-            print basin + ' apriori file missing...'
-            data_apri = {}
+            if os.path.isfile(csv_read_apri + os.sep + apbasin[:5] + os.sep + apbasin[:5] + '_apriori_parameters.csv'):
+                apbasin = basin[:5]
+                data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
+                data_apri = data_apri.to_dict()
+                print 'Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin
+                print 'Continuing...' 
+            else:
+                print basin + ' apriori file missing...'
+                data_apri = {}
         
         fig = plt.figure(figsize=(8,3.5))          
         fig.suptitle(basin + ' SAC-SMA '  + 'Parameters',y=1.02,fontsize=14)
         codes = [Path.MOVETO,Path.LINETO,Path.LINETO,Path.LINETO,Path.CLOSEPOLY]
         tk = 0.3; tg = 0.2; ta = 0.1
         for param in sac_pars:
-            print 'Plotting: ' + param
+            #print 'Plotting: ' + param
             ax1 = plt.subplot(2,9,plot_num)            
             
             #### rectangle plot for anderson range (http://matplotlib.org/users/path_tutorial.html)
@@ -215,20 +222,27 @@ if snow_plot == 'on':
         count = 1; plot_num = 1; x=1.1; apbasin = basin
         if len(basin)>5: # trim off 'LOC' ending on some ch5id's for apriori lookup
             apbasin = basin.replace("LOC", "")
-            print apbasin
+            print apbasin + ' --> basin name longer than 5 char'
         if os.path.isfile(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv'):
             data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
             data_apri = data_apri.to_dict()
         else:
-            print basin + ' apriori file missing...'
-            data_apri = {}
+            if os.path.isfile(csv_read_apri + os.sep + apbasin[:5] + os.sep + apbasin[:5] + '_apriori_parameters.csv'):
+                apbasin = basin[:5]
+                data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
+                data_apri = data_apri.to_dict()
+                print 'Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin
+                print 'Continuing...' 
+            else:
+                print basin + ' apriori file missing...'
+                data_apri = {}
         
         fig = plt.figure(figsize=(8,1.75))          
         fig.suptitle(basin + ' SNOW-17 ' + 'Parameters',y=1.14,fontsize=14)
         codes = [Path.MOVETO,Path.LINETO,Path.LINETO,Path.LINETO,Path.CLOSEPOLY]
         tk = 0.3; tg = 0.2; ta = 0.1
         for param in snow_pars:
-            print 'Plotting: ' + param
+            #print 'Plotting: ' + param
             ax1 = plt.subplot(1,9,plot_num)            
             
             #### rectangle plot for anderson range (http://matplotlib.org/users/path_tutorial.html)

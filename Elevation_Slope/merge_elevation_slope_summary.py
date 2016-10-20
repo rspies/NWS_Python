@@ -15,7 +15,7 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 # OPTIONAL -> run all basins within an RFC directory
-RFC = 'WGRFC_FY2016'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 #FOLDER PATH OF ELEVATION AND SLOPE .CSV FILES FROM MODEL BUILDER OR PYTHON SCRIPT
 if fx_group != '':

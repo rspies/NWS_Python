@@ -16,7 +16,7 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC
-RFC = 'WGRFC_FY2016'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
 #FOLDER PATH OF gSSURGO .xls DATA FILES
 if fx_group != '':

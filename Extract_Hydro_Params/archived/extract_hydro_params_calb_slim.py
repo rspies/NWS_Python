@@ -15,12 +15,12 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'NERFC_FY2017'
+RFC = 'WGRFC_FY2016'
 fx_group = '' # set to blank '' if not using fx_groups
 param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
-snow = 'on' # choices: 'on' or 'off'
+snow = 'off' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
@@ -60,23 +60,15 @@ print 'Script is Running...'
 
 #SAC-SMA SECTION--------------------------------------------------------------
 #loop through SACSMA files in folderPath
-sac_params = ['PCTIM','ADIMP','RIVA','EFC','UZTWM','UZFWM','UZK','ZPERC','REXP','LZTWM','LZFPM','LZFSM', \
-              'LZPK','LZSK','PFREE','RSERV','SIDE','SMZC','RUNOFF_COMPONENT_INTERVAL','PXADJ','PEADJ','MAPE_INPUT']
-#sac_params = ['REXP','LZPK','LZFPM','PXADJ','RUNOFF_COMPONENT_INTERVAL','PFREE','ZPERC','RIVA','MAPE_INPUT','PEADJ','LZTWM', \
-#                   'RSERV','ADIMP','UZK','SIDE','LZFSM','LZSK','SMZC','UZTWM','UZFWM','PCTIM','EFC']
-
-
-
+sac_params = ['REXP','LZPK','LZFPM','PXADJ','RUNOFF_COMPONENT_INTERVAL','PFREE','ZPERC','RIVA','MAPE_INPUT','PEADJ','LZTWM', \
+                   'RSERV','ADIMP','UZK','SIDE','LZFSM','LZSK','SMZC','UZTWM','UZFWM','PCTIM','EFC']
 if sacsma == 'on':
     print 'Processing SACSMA parameters...'
     sac_line = 1
     csv_file = open(csv_file_out +'\\_' + RFC + '_SACSMA_Params_' + param_source + '_slim.csv', 'w')
-    csv_file.write('BASIN,NAME,PCTIM,ADIMP,RIVA,EFC,UZTWM,UZFWM,UZK,ZPERC,REXP,LZTWM,LZFPM,LZFSM,'\
-                   'LZPK,LZSK,PFREE,RSERV,SIDE,SMZC,RCI,PXADJ,PEADJ,MAPE_Input,' \
+    csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
+                   'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
                    'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
-    #csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
-    #               'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
-    #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
     for filename in os.listdir(folderPath + '\\SAC_SMA\\'):
         #print filename
     
