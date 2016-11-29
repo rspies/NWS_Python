@@ -17,14 +17,14 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_FY2017'
 fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
     task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
-    out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_'
+    out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + os.sep
     summary_file = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_data_download_summary.csv'
 else:
     task_csv = RFC[:5] + '_fy17_task_summary.csv'

@@ -15,7 +15,7 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_FY2017'
 fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
@@ -58,7 +58,8 @@ gage_basin = dict(zip(usgs_gages, ch5id))
 count = 0
 for each in usgs_gages:
     if str(each) != 'nan' and str(each) != 'na' and str(each) != '' and str(each)[:1].isalpha() == False: # check for missing or non-usgs gage ids
-        gage_id = str(int(str(each)[:8]))
+        #gage_id = str(int(str(each)[:8]))
+        gage_id = str(int(each))[:8]
         if len(gage_id) == 7:
             gage_id = '0' + gage_id
         basin_id = gage_basin[each].replace(' ', '').upper()
@@ -111,6 +112,7 @@ for each in usgs_gages:
             response = urllib2.urlopen('http://waterdata.usgs.gov/nwis/inventory/?site_no='+ gage_id +'&agency_cd=USGS')
             usgs_page = response.read()
             sep = usgs_page.split('\n')[-150:]
+            area='na' #default area
             for each in sep:
                 if 'Latitude' in each:
                     line = each

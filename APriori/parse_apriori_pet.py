@@ -11,7 +11,7 @@ os.chdir("../..")
 maindir = os.getcwd()
 
 ######################## User Input ###############################
-RFC = 'NWRFC_FY2017'
+RFC = 'MARFC_FY2017'
 basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\'
 summary = open(basins_dir + 'apriori_ETD_summary.csv','w')
 ###################################################################

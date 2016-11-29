@@ -26,7 +26,7 @@ plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the c
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
 snow_plot = 'on' # plot snow17 
-e19 = 'off' # create e19 folder with lower res image for chps display
+e19 = 'on' # create e19 folder with lower res image for chps display
 wm_image = maindir + os.sep + 'Python' + os.sep + 'Extract_Hydro_Params' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
 
 if fx_group == '':

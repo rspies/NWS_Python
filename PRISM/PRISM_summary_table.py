@@ -18,29 +18,30 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'NWRFC_FY2017'
+RFC = 'MARFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['tmean','ppt'] # use temperature: 'tmean' or precipitation: 'ppt'
-
+climo_period = '1981_2010'
 ####################################################################
 #END USER INPUT SECTION
 ####################################################################
 
 for variable in variables:
+    print variable
     #FOLDER PATH OF NLCD .xls DATA FILES
     if fx_group != '':
-        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '\\' + fx_group + '\\'
+        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '\\' + fx_group + '\\'
     else:
-        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '\\'
+        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '\\'
     #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
     output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
     
     print 'Script is Running...'
     #Define output file name
     if fx_group != '':
-        out_file = open(output_folderPath + RFC[:5] + '_' +  RFC[-6:] + '_' + fx_group +  '_PRISM_Summary_1981_2010_' + variable + '.csv', 'w')
+        out_file = open(output_folderPath + RFC[:5] + '_' +  RFC[-6:] + '_' + fx_group +  '_PRISM_Summary_' + climo_period + '_' + variable + '.csv', 'w')
     else:
-        out_file = open(output_folderPath + RFC + '_PRISM_Summary_1981_2010_' + variable + '.csv', 'w')
+        out_file = open(output_folderPath + RFC + '_PRISM_Summary_' + climo_period + '_' + variable + '.csv', 'w')
     
     basins=[]
     files = os.listdir(xls_folderPath)
@@ -65,6 +66,8 @@ for variable in variables:
                 for row in csv_read:
                     if row_num == 1:
                         precip_in = float(row[2]) / 25.4    # convert mm to in
+                        if RFC[:5] == 'APRFC':
+                            precip_in = precip_in / 100 # AK PRISM units mm * 100
                         out_file.write(basin + ',' + str("%.2f" % precip_in) + '\n')
                     row_num += 1
     if variable == 'tmean':
@@ -87,6 +90,8 @@ for variable in variables:
                 for row in csv_read:
                     if row_num == 1:
                         temp_c = float(row[2]) 
+                        if RFC[:5] == 'APRFC':
+                            temp_c = temp_c / 100 # AK PRISM units C * 100
                         out_file.write(basin + ',' + str("%.2f" % temp_c) + '\n')
                     row_num += 1
         

@@ -17,19 +17,19 @@ maindir = os.getcwd()
 
 ################################# User Input #########################################
 ############ User input ################
-RFC = 'NCRFC_FY2016'
-fx_group = 'RED+'
+RFC = 'NWRFC_FY2017'
+fx_group = ''
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 adc_plot = 'on' # 'on' or 'off' -> off only runs the chps csv conversion
 
 if fx_group != '':
-    task_csv = RFC[:5] + '_fy16_task_summary_' + fx_group + '.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
     download_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'download_data' + os.sep + fx_group + os.sep
     chps_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'chps_csv' + os.sep + fx_group + os.sep
     summary_file = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'NOHRSC_data_download_summary_' + fx_group + '.csv'
     adc_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'ADC_plots' + os.sep + fx_group + os.sep
 else:
-    task_csv = RFC[:5] + '_fy16_task_summary.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary.csv'
     download_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'download_data' + os.sep
     chps_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'chps_csv' + os.sep
     summary_file = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'NOHRSC_data_download_summary.csv'

@@ -14,18 +14,18 @@ os.chdir("../..") # change dir to \\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NCRFC_FY2016'
-fx_group = 'RED+'
+RFC = 'NWRFC_FY2017'
+fx_group = ''
 yr_start = 2002; yr_end = 2015
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
-    task_csv = RFC[:5] + '_fy16_task_summary_' + fx_group + '.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
     basin_col = 'basin' # 'BASIN' # list column to pull the basin id for searching on the NOHRSC website
     out_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'download_data' + os.sep + fx_group + os.sep
     summary_file = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'NOHRSC_data_download_summary_' + fx_group + '.csv'
 else:
-    task_csv = RFC[:5] + '_fy16_task_summary.csv'
+    task_csv = RFC[:5] + '_fy17_task_summary.csv'
     basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id for searching on the NOHRSC website
     out_dir = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'download_data' + os.sep 
     summary_file = workingdir + 'data_csv' + os.sep + 'NOHRSC_snow' + os.sep + 'NOHRSC_data_download_summary.csv'

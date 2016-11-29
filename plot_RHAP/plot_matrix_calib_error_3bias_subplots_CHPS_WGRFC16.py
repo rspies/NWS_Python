@@ -30,7 +30,7 @@ sim_type = 'draft' # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum'] # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type #' Calb Raster Analysis' or '_bias_pbias_test'
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
-wm_image = maindir + os.sep + 'Python' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
+wm_image = maindir + os.sep + 'Python' + os.sep + 'plot_RHAP' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
 ################  Define the corresponding column of data in the csv file  #################
 yr_start = 2006; yr_end = 2016 #
 ########### find all basin QME vs SQME .csv files ############

@@ -19,7 +19,7 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'NWRFC_FY2017'
+RFC = 'MARFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['ppt','tmean','tmax','tmin'] # use temperature: 'tmean','tmax','tmin' or precipitation: 'ppt'
 
@@ -31,6 +31,7 @@ basins_overwrite = []
 #END USER INPUT SECTION
 ####################################################################
 for variable in variables:
+    print variable
     #FOLDER PATH OF PRISM .xls/.csv DATA FILES
     if fx_group != '':
         csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\' + fx_group + '\\'
@@ -72,6 +73,8 @@ for variable in variables:
                 for row in csv_read:
                     if row_num == 1:
                         precip_in = float(row[2]) / 25.4    # convert mm to in
+                        if RFC[:5] == 'APRFC':
+                            precip_in = precip_in / 100 # AK PRISM units mm * 100
                         out_file.write(str("%.2f" % precip_in) + ',')
                         print month + ' -> ' + str("%.2f" % precip_in)
                     row_num += 1
@@ -79,6 +82,8 @@ for variable in variables:
                 for row in csv_read:
                     if row_num == 1:
                         temp_in = float(row[2]) # no temperature conversion
+                        if RFC[:5] == 'APRFC':
+                            temp_in = temp_in / 100 # AK PRISM units C * 100
                         out_file.write(str("%.2f" % temp_in) + ',')
                         print month + ' -> ' + str("%.2f" % temp_in)
                     row_num += 1

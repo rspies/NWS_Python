@@ -9,11 +9,15 @@ import os
 import numpy as np
 import datetime
 from dateutil import parser
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+plt.ioff()
+
 os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_FY2017'
 fx_group = '' # set to '' if not used
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
@@ -23,14 +27,22 @@ new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacar
 ########################################
 
 if fx_group != '':
-    nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_updated_data' 
+    nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_Lynker_download' 
     new_summary = open(new_file + os.sep + fx_group + os.sep + 'QME_data_statistical_summary_'+fx_group+'.csv', 'w')
+    figname = new_file + RFC + '_' + fx_group + '_QME_data_timeline.png'
 else: 
     nhds_files = nhds_files + os.sep + 'QME_Lynker_download' 
     new_summary = open(new_file + 'QME_data_statistical_summary.csv', 'w')
+    figname = new_file + RFC + '_' + 'QME_data_timeline.png'
 new_summary.write('Basin/Gauge' + ',' + 'Daily Count' + ',' + 'Start Date' + ',' + 'End Date' 
 + ',' + 'Mean Daily QME' + ',' + 'Max Daily QME' + ',' + 'Min Daily QME' +','+ 'Standard Deviation' 
 + ',' + 'Date Max' + ','  + 'Date Min' + '\n')
+
+########## define data timeline figure ###
+fig, ax1 = plt.subplots(figsize=(11,9))        
+plt.title('QME Data Availability Timeline',fontsize=14)
+basins_list = []; count = 0
+years = mdates.YearLocator()   # every year
 
 if data_format == 'usgs':
     QMEs = [f for f in os.listdir(usgs_files) if os.path.isfile(os.path.join(usgs_files, f))]
@@ -41,6 +53,7 @@ if data_format == 'nhds':
     
 for QME in QMEs:
     print QME
+    count += 1
     if data_format == 'usgs': 
         csv_read = open(usgs_files + '\\' + QME, 'r')
         discharge = []; date = []
@@ -116,6 +129,7 @@ for QME in QMEs:
         print 'WARNING -- Date and Discharge Data not the same length'
     
     basin_gauge = QME.split('_')[0].rstrip('.qme').upper() # basin/gage name
+    basins_list.append(basin_gauge)
     day_count = str(len(Q_data))            # number of valid daily data values
     start_date = str(min(final_date))       # date of first measurement
     end_date = str(max(final_date))         # date of last measurement
@@ -134,6 +148,23 @@ for QME in QMEs:
 
     new_summary.write(basin_gauge+','+day_count+','+start_date+','+end_date+','+mean_Q+','
     +str(max_Q)+','+str(min_Q)+','+sd+','+date_max+','+date_min+'\n')    
+    
+    ###### create plot of dates of data availability
+    print 'Adding basin data to plot...'
+    y_pos = [count] * len(final_date)
+    ax1.plot(final_date, y_pos, '|',mew=0.5,ms=7)
+    #if basin_gauge == 'DCTN1':
+    #    break
+    
+print 'Adding plot attributes...'
+ax1.xaxis.set_major_locator(mdates.YearLocator(5))
+ax1.xaxis.set_minor_locator(years)
+plt.yticks(range(1,len(basins_list)+1),basins_list)
+plt.xlabel('Date (1960-2016)') 
+plt.ylim(0,len(basins_list)+0.5)
+plt.xlim(datetime.datetime(1960,1,1), datetime.datetime(2016,1,1))
+plt.savefig(figname, dpi=200,bbox_inches='tight')   
+plt.close()
     
 new_summary.close()
 print 'Completed!!'

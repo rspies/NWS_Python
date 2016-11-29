@@ -15,7 +15,7 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'NERFC_FY2017'
+RFC = 'MBRFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
 param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 #### model processing choices ####
@@ -23,11 +23,11 @@ sacsma = 'on' # choices: 'on' or 'off'
 snow = 'on' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
-tatum = 'off' # choices: 'on' or 'off'
+tatum = 'on' # choices: 'on' or 'off'
 
 #### plot options ####
-snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
+snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':

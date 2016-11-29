@@ -15,12 +15,12 @@ maindir = os.getcwd()
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'NERFC_FY2017'
+RFC = 'WGRFC_FY2017'
 fx_group = '' # set to '' if not used
 if fx_group != '':
-    histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_pre_2007\\'
-    recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_post_2007\\'
-    outputpath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'_merged_csv\\'
+    histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\pre_2007\\'
+    recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\post_2007\\'
+    outputpath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\merged_csv\\'
 else:
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\post_2007\\'
