@@ -17,7 +17,7 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'WGRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = '' # set to '' if not used
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data

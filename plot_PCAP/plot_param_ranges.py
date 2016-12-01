@@ -20,7 +20,7 @@ from pylab import *
 os.chdir("../..")
 maindir = os.getcwd()
 ############################### User Input ####################################
-rfc = 'NERFC_FY2017'
+rfc = 'NWRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
@@ -176,11 +176,21 @@ if sac_plot == 'on':
             
         print 'Saving figure...'
         if fx_group == '':
+            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
             basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin + '_calb'
+            if not os.path.exists(basin_e19):
+                os.makedirs(basin_e19)
         else:
+            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
             basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin + '_calb'
+            if not os.path.exists(basin_e19):
+                os.makedirs(basin_e19)
         
         plt.tight_layout()
         subplots_adjust(left=None, bottom=None, right=None, top=0.9, wspace=0.1, hspace=0.2) #adjust white space 
@@ -333,11 +343,21 @@ if snow_plot == 'on':
         
         print 'Saving figure...'
         if fx_group == '':
+            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
             basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin + '_calb'
+            if not os.path.exists(basin_e19):
+                os.makedirs(basin_e19)
         else:
+            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
             basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin + '_calb'
+            if not os.path.exists(basin_e19):
+                os.makedirs(basin_e19)
         
         
         plt.tight_layout()

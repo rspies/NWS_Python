@@ -15,7 +15,7 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'WGRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
@@ -29,8 +29,8 @@ else:
     out_dir = workingdir + 'datacards' + os.sep + 'QME' + os.sep + 'QME_Lynker_download' + os.sep
     summary_file = workingdir + 'datacards' + os.sep + 'QME' + os.sep + 'QME_datacard_download_summary.csv' #_' + fx_group + '.csv'
 
-date_start = '1948-10-01' # YYYY-MM-DD -> start on 10/1 to prevent CHPS issues
-date_end = '2015-09-30' # YYYY-MM-DD
+date_start = '1949-10-01' # YYYY-MM-DD -> start on 10/1 to prevent CHPS issues
+date_end = '2016-09-30' # YYYY-MM-DD
 ########################################
 
 summary = open(summary_file,'w')
@@ -62,7 +62,7 @@ for each in usgs_gages:
         gage_id = str(int(each))[:8]
         if len(gage_id) == 7:
             gage_id = '0' + gage_id
-        basin_id = gage_basin[each].replace(' ', '').upper()
+        basin_id = str(gage_basin[each]).replace(' ', '').upper()
         #lat = str(latitude[count])
         #lon = str(longitude[count])
         print gage_id + ' -> ' + basin_id
@@ -94,6 +94,8 @@ for each in usgs_gages:
                     lat = conversions.dms_to_dd(float(nums[0]),float(nums[1]),float(nums[2]),'N')
                     lon = conversions.dms_to_dd(float(nums[4]),float(nums[5]),float(nums[6]),'W')
                     link = 'http://waterdata.usgs.gov/nwis/inventory/?site_no='+ gage_id +'&agency_cd=USGS'
+                    print lat
+                    print long
                 if 'Drainage area' in each:
                     line = each
                     line = line.replace('<dd>','')
@@ -104,6 +106,7 @@ for each in usgs_gages:
                     area = line.split('\t')[0]
             summary.write(str(lat)+','+str(lon) + ',' + str(area) + ',na,na,na,na,' + link + '\n')
         else:
+            print 'QME data download successful!'
             final_page = the_page.replace(gage_id,basin_id,1)
             total_obs = final_page.count(gage_id)
             total_missing = (final_page.count('-999.00') + final_page.count('-998.00'))

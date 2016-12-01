@@ -26,8 +26,8 @@ lagk = 'on' # choices: 'on' or 'off'
 tatum = 'on' # choices: 'on' or 'off'
 
 #### plot options ####
-snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
+uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':

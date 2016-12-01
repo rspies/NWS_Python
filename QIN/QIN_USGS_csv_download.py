@@ -17,7 +17,7 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'WGRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
@@ -62,7 +62,7 @@ for each in usgs_gages:
         gage_id = str(int(each))
         if len(gage_id) == 7:
             gage_id = '0' + gage_id
-        basin_id = basin_gage[each].replace(' ', '')
+        basin_id = str(basin_gage[each]).replace(' ', '')
         print gage_id + ' -> ' + basin_id
         summary.write(basin_id+','+gage_id+',')
         if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## skip sites that have already been downloaded
