@@ -1,11 +1,10 @@
-#Extract_Hydro_Params.py
-#Ryan Spies
-#ryan.spies@amec.com
-#AMEC
-#Description: extracts SAC-SMA/Snow-17/UNITHG/LAG-K parameters values
-#from CHPS configuration .xml files located in the Config->ModuleConfigFiles
-#directory and ouputs a .csv file with all parameters
-#Script was modified from Cody's original script
+# original: Extract_Hydro_Params.py
+# Ryan Spies
+# rspies@lynkertech.com
+# Lynker Technologies
+# Description: extracts SAC-SMA/Snow17/UNITHG/LAG-K/Tatum parameters values
+# from CHPS configuration .xml files located in the Config->ModuleConfigFiles
+# directory and ouputs a model .csv file with all parameters
 
 # NOTE: this script only works with the original CHPS SA moduleparfile .xml files...
 # not the CHPS CALB parameters from export mods

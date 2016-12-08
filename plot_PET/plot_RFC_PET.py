@@ -34,7 +34,7 @@ x = range(1,13,1) # month range
 count = 1
 plot_num = 1
 fig = plt.figure(figsize=(6.0,7.5))          
-fig.suptitle('Initial Mid-month ET-Demand Comparison'+'\n(Units = mm/day)',y=1.02,fontsize=17)
+fig.suptitle(rfc + ' Mid-month ET-Demand Comparison'+'\n(Units = mm/day)',y=1.02,fontsize=17)
 
 for basin in all_basins:
     if basin != 'month' and basin != 'Month':

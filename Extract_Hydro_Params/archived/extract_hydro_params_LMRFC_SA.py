@@ -6,9 +6,8 @@
 # from CHPS configuration .xml files located in the Config->ModuleConfigFiles
 # directory and ouputs a model .csv file with all parameters
 
-# NOTE: this script differs from the extract_hydro_params_XXRFC_sa.py by using
-# the output UH and SACSMA calibration mods in the CHPS CALB SA version which 
-# has a slightly different format than the original SA .xml modulparfiles
+# NOTE: this script only processes moduleparfiles directly from a SA
+# Use the other script to process only calibration files (exported modparfiles)
 
 import os
 os.chdir("../..")
@@ -17,31 +16,26 @@ maindir = os.path.abspath(os.curdir)
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
 RFC = 'LMRFC_FY2017'
-fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+param_source = 'SA' # choices: 'SA' or 'pre_calb'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
-snow = 'off' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
+snow = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
 snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
-lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
 
-if fx_group == '':
-    #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Working_Calib_Files\\' + param_source
-    #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
-else:
-    #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC  + '\\Working_Calib_Files\\' + fx_group + os.sep + param_source
-    #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + os.sep + fx_group + '\\Params_' + param_source
+
+#!!!!!! input directory: enter location of ModuleParFiles directory below ->
+folderPath = 'D:\\Software\\CHPS_local\\chps_sa\\FY'+RFC[-2:]+'\\' + RFC[:5].lower() + '_sa\\Config\\ModuleParFiles\\*'
+#!!!!!! output directory: enter ouput directory for .csv files below ->
+csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
+
 ########################## END USER INPUT SECTION ############################
 
 #-----------------------------------------------------------------------------
@@ -78,7 +72,7 @@ if sacsma == 'on':
     #csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
     #               'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
     #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
-    for filename in os.listdir(folderPath + '\\SAC_SMA\\'):
+    for filename in glob.glob(os.path.join(folderPath, "SACSMA*.xml")):
         #print filename
     
         #Define output file name
@@ -92,7 +86,7 @@ if sacsma == 'on':
         csv_file.write(spl_name + ',')
     
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\SAC_SMA\\' + filename, 'r')
+        xml_file = open(filename, 'r')
         found_param = []
         #loop through parameters in the 'sac_params' list
         for param in sac_params:
@@ -188,7 +182,7 @@ if snow == 'on':
     csv_adc = open(csv_file_out + '\\' + '_' + RFC + '_SNOW17_ADC_' + param_source + '_slim.csv', 'w')
     csv_adc.write('BASIN,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0\n')
     
-    for filename in os.listdir(folderPath + '\\Snow17\\'):
+    for filename in glob.glob(os.path.join(folderPath, "SNOW*.xml")):
         #print filename
         
         #Define output file name
@@ -202,12 +196,12 @@ if snow == 'on':
         csv_file.write(spl_name + ',')
     
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\Snow17\\'+ filename, 'r')
+        xml_file = open(filename, 'r')
         found_param = []
         #loop through parameters in the 'sac_params' list
         for param in snow_params:
             #Open .xml file and temporary .txt file to write .xml contents to
-            xml_file = open(folderPath + '\\Snow17\\'+ filename, 'r')
+            xml_file = open(filename, 'r')
             #get line number that the paramter is on
             line_num = 0
             for line in xml_file:
@@ -363,7 +357,7 @@ if uhg == 'on':
     csv_file.write('\n')
     
     
-    for filename in os.listdir(folderPath + '\\UH\\'):
+    for filename in glob.glob(os.path.join(folderPath, "UNITHG*.xml")):
         #print filename
     
         #Define output file name
@@ -377,7 +371,7 @@ if uhg == 'on':
         csv_file.write(name + ',' + ch5_id + ',')    
         
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\UH\\' + filename, 'r')
+        xml_file = open(filename, 'r')
         txt_file = open(working_dir +'\\' + name + '.txt', 'w')
     
         #Write contents of .xml file to the temporary .txt file
@@ -556,7 +550,7 @@ if lagk == 'on':
     
     csv_file.write('BASIN,Current Outflow,Current Storage,Inflow Basin,CONSTANT_LAG,CONSTANT_K,KQ_PAIRS,LAGQ_PAIRS,LAG1,Q1,LAG2,Q2,LAG3,Q3,LAG4,Q4,LAG5,Q5,LAG6,Q6,LAG7,Q7,LAG8,Q8,LAG9,Q9,LAG10,Q10,LAG11,Q11,LAG12,Q12,LAG13,Q13,LAG14,Q14,K1,KQ1,K2,KQ2,K3,KQ3,K4,KQ4,K5,KQ5,K6,KQ6,K7,KQ7,K8,KQ8,K9,KQ9,K10,KQ10,K11,KQ11,K12,KQ12,K13,KQ13,K14,KQ14'+'\n')
     
-    for filename in glob.glob(os.path.join(folderPath + '\\Lag_K', "LAGK*.xml")):
+    for filename in glob.glob(os.path.join(folderPath, "LAGK*.xml")):
         #print filename
         lag_time = []
         lag_Q = []
@@ -752,60 +746,61 @@ if lagk == 'on':
         
         
         ######################## LAG/K Plots ###########################
-        if lag_plots == 'on' and len(K_time)>1 or len(lag_time)>1:
-            fig, ax1 = plt.subplots()
-            
-            #Get max Lag/K time value
-            max_time = numpy.max(lag_time + K_time)
-            x = range(0,int(max_time)+6,6)
-            
-            #Plot the data
-            if len(lag_time)>1:
-                ax1.plot(lag_time, lag_Q, 'g-o', label='LAG', linewidth='2', zorder=5, ms=5)
-            if len(K_time)>1:
-                ax1.plot(K_time, K_Q, 'r-o', label='K', linewidth='2', zorder=5, ms=5)
-            #ax1.fill_between(x,UHG_flow,facecolor='gray', alpha=0.25)    
-            
-            #ax1.minorticks_on()
-            ax1.grid(which='major', axis='both', color='black', linestyle='-', zorder=3)
-            ax1.grid(which='minor', axis='both', color='grey', linestyle='-', zorder=3)
-            
-            majorLocator = MultipleLocator(6)
-            ax1.xaxis.set_major_locator(majorLocator)
-            
-            ax1.yaxis.set_minor_locator(AutoMinorLocator(2))
-            
-            ax1.set_xlabel('Time (hr)')
-            ax1.set_ylabel('Flow (cfs)')
-            
-            #Make tick labels smaller/rotate for long UHGs
-            if max_time >= 100:
-                for label in ax1.xaxis.get_ticklabels():       
-                    label.set_fontsize(8)
-            if max_time >= 160:
-                for label in ax1.xaxis.get_ticklabels():       
-                    label.set_fontsize(6)
-                    plt.xticks(rotation=90)
-                    majorLocator = MultipleLocator(12)
-                    ax1.xaxis.set_major_locator(majorLocator)
+        if lag_plots == 'on':
+            if len(K_time)>1 or len(lag_time)>1: # only plot variable lag or variable K (not constant)
+                fig, ax1 = plt.subplots()
+                
+                #Get max Lag/K time value
+                max_time = numpy.max(lag_time + K_time)
+                x = range(0,int(max_time)+6,6)
+                
+                #Plot the data
+                if len(lag_time)>1:
+                    ax1.plot(lag_time, lag_Q, 'g-o', label='LAG', linewidth='2', zorder=5, ms=5)
+                if len(K_time)>1:
+                    ax1.plot(K_time, K_Q, 'r-o', label='K', linewidth='2', zorder=5, ms=5)
+                #ax1.fill_between(x,UHG_flow,facecolor='gray', alpha=0.25)    
+                
+                #ax1.minorticks_on()
+                ax1.grid(which='major', axis='both', color='black', linestyle='-', zorder=3)
+                ax1.grid(which='minor', axis='both', color='grey', linestyle='-', zorder=3)
+                
+                majorLocator = MultipleLocator(6)
+                ax1.xaxis.set_major_locator(majorLocator)
+                
+                ax1.yaxis.set_minor_locator(AutoMinorLocator(2))
+                
+                ax1.set_xlabel('Time (hr)')
+                ax1.set_ylabel('Flow (cfs)')
+                
+                #Make tick labels smaller/rotate for long UHGs
+                if max_time >= 100:
+                    for label in ax1.xaxis.get_ticklabels():       
+                        label.set_fontsize(8)
+                if max_time >= 160:
+                    for label in ax1.xaxis.get_ticklabels():       
+                        label.set_fontsize(6)
+                        plt.xticks(rotation=90)
+                        majorLocator = MultipleLocator(12)
+                        ax1.xaxis.set_major_locator(majorLocator)
+                        
+                ax1.set_xlim([0,max_time+3])
+                plt.ylim(ymin=0)
+                
+                #add plot legend with location and size
+                ax1.legend(loc='upper right', prop={'size':10})
                     
-            ax1.set_xlim([0,max_time+3])
-            plt.ylim(ymin=0)
-            
-            #add plot legend with location and size
-            ax1.legend(loc='upper right', prop={'size':10})
+                plt.title(name[:5] + ': ' + inflow_basin + ' LAG/K Parameters')
+                    
+                output_folder = csv_file_out +'\\LAGK_plots\\'
+                if os.path.exists(output_folder) == False:
+                    os.makedirs(output_folder)
+                figname = output_folder + name + '_LAGK.png'
+                    
+                plt.savefig(figname, dpi=100, bbox_inches='tight')
                 
-            plt.title(name[:5] + ': ' + inflow_basin + ' LAG/K Parameters')
-                
-            output_folder = csv_file_out +'\\LAGK_plots\\'
-            if os.path.exists(output_folder) == False:
-                os.makedirs(output_folder)
-            figname = output_folder + name + '_LAGK.png'
-                
-            plt.savefig(figname, dpi=100, bbox_inches='tight')
-            
-            plt.clf()    
-            plt.close()
+                plt.clf()    
+                plt.close()
             
         #Delete temporary .txt file holding .xml contents
         os.remove(working_dir +'\\' + name + '.txt')
@@ -826,7 +821,7 @@ if tatum == 'on':
     csv_file.write('\n')
     
     
-    for filename in os.listdir(folderPath + '\\Tatum\\'):
+    for filename in glob.glob(os.path.join(folderPath, "TATUM*.xml")):
         #print filename
     
         #Define output file name
@@ -838,7 +833,7 @@ if tatum == 'on':
         #print name
         
         #Open .xml file 
-        txt_file = open(folderPath + '\\Tatum\\' + filename, 'r')
+        txt_file = open(filename, 'r')
         
         ###Number of Layers
         #Find line number with NUMBER_OF_LAYERS

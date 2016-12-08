@@ -20,7 +20,7 @@ from pylab import *
 os.chdir("../..")
 maindir = os.getcwd()
 ############################### User Input ####################################
-rfc = 'NWRFC_FY2017'
+rfc = 'MBRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
@@ -265,16 +265,16 @@ if snow_plot == 'on':
             patch = patches.PathPatch(path, facecolor='orange', lw=.5, zorder=2, alpha=0.7,label='Anderson/Lynker Range')
             ax1.add_patch(patch)
             
-            #### rectangle plot for apriori range 
-#            if len(data_apri)>0 and apbasin + '_sac_' + param.lower() in data_apri['Max']:
-#                and_verts = [(x-ta, data_apri['Min'][apbasin+'_sac_'+param.lower()]), # left, bottom
-#                (x-ta, data_apri['Max'][apbasin+'_sac_'+param.lower()]), # left, top
-#                (x+ta, data_apri['Max'][apbasin+'_sac_'+param.lower()]), # right, top
-#                (x+ta, data_apri['Min'][apbasin+'_sac_'+param.lower()]), # right, bottom
-#                (0., 0.)]
-#                path = Path(and_verts, codes)
-#                patch = patches.PathPatch(path, facecolor='green', lw=.5, zorder=4, alpha=0.7,label='Apriori Range')
-#                ax1.add_patch(patch)
+            #### rectangle plot for apriori snow ranges 
+            if len(data_apri)>0 and apbasin + '_snow_' + param.lower() in data_apri['Max']:
+                and_verts = [(x-ta, data_apri['Min'][apbasin+'_snow_'+param.lower()]), # left, bottom
+                (x-ta, data_apri['Max'][apbasin+'_snow_'+param.lower()]), # left, top
+                (x+ta, data_apri['Max'][apbasin+'_snow_'+param.lower()]), # right, top
+                (x+ta, data_apri['Min'][apbasin+'_snow_'+param.lower()]), # right, bottom
+                (0., 0.)]
+                path = Path(and_verts, codes)
+                patch = patches.PathPatch(path, facecolor='green', lw=.5, zorder=4, alpha=0.7,label='Apriori Range')
+                ax1.add_patch(patch)
                 
                     
             #### calculate and plot all tasked basin param limits - max/min (regional limits)

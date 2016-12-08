@@ -21,7 +21,7 @@ cold_dir = maindir + os.sep +'ColdStateFiles'
 # new ColdStatesFiles directory (e.g. ColdStatesFiles_updated)
 new_cold_dir =  maindir + os.sep + 'updated_ColdStateFiles' 
 # directory with the calibrated parameter mods (sub_directories: SAC_SMA, SNOW17, UH, Lag_K)
-param_dir = maindir + os.sep +'updated_ModuleParFiles' + os.sep
+param_dir = maindir + os.sep +'ModuleParFiles' + os.sep
 ######################### End User Input ######################################
 
 for basin in os.listdir(cold_dir):
@@ -38,9 +38,9 @@ for basin in os.listdir(cold_dir):
     for zip_file in os.listdir(basin_dir):
         # grab the model component from zip file name -> use to locate mods and name files below
         model_name = ((zip_file.split())[0]).rstrip() + '.xml'
-	model = model_name.split('_')[0]
+        model = model_name.split('_')[0]
         # locate the corresponding ModuleParFile from the exported mods directory
-        add_file = param_dir + os.sep + model + os.sep + model_name
+        add_file = param_dir + os.sep + basin + os.sep + model_name
         if os.path.isfile(add_file) is True: 
 	    # create new zip file to overwrite any existing zip files
             new_open_zip = zipfile.ZipFile(new_basin_dir + os.sep + zip_file,'w')
@@ -67,8 +67,8 @@ for basin in os.listdir(cold_dir):
 # rename directories to use the updated directory
 #shutil.move(cold_dir, maindir + os.sep + 'ColdStateFiles_previous')
 #shutil.move(new_cold_dir, maindir + os.sep + 'ColdStateFiles')
-print 'Updated files to "ColdStateFiles" directory and renamed previous version "ColdStateFiles_previous"'
-
+#print 'Updated files to "ColdStateFiles" directory and renamed previous version "ColdStateFiles_previous"'
+print 'Created new "updated_ColdStateFiles" directory...'
 print 'Script Completed!'
     
 
