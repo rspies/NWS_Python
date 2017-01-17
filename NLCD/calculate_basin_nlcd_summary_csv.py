@@ -34,17 +34,17 @@ if fx_group != '':
 else:
     nlcd_file = open(output_folderPath + RFC + '_NLCD_Summary.csv', 'w')
 if RFC == 'APRFC': # add Alaska only land cover classes
-    nlcd_file.write('Basin,' + '%Open Water,' + '%Perennial Snow/Ice,' + \
-                    '%Developed Open Space,' + '%Developed Low Intensity,' + '%Developed Medium Intensity,' + '%Developed High Intensity,' + \
-                    '%Barren Land,' + '%Deciduous Forest,' + '%Evergreen Forest,' + '%Mixed Forest,' + '%Dwarf Scrub,' + '%Shrub/Scrub,' + '%Herbaceous,' + \
-                    '%Sedge/Herbaceous,' + '%Lichens,' + '%Moss,' + '%Hay/Pasture,' + '%Cultivated Crops,' + '%Woody Wetlands,' + '%Emergent Herbaceous Wetlands,' + ',' + \
-                    '%Developed,' + '%Forest,' + '\n')
+    nlcd_file.write('Basin,' + 'Open Water,' + 'Perennial Snow/Ice,' + \
+                    'Developed Open Space,' + 'Developed Low Intensity,' + 'Developed Medium Intensity,' + 'Developed High Intensity,' + \
+                    'Barren Land,' + 'Deciduous Forest,' + 'Evergreen Forest,' + 'Mixed Forest,' + 'Dwarf Scrub,' + 'Shrub/Scrub,' + 'Herbaceous,' + \
+                    'Sedge/Herbaceous,' + 'Lichens,' + 'Moss,' + 'Hay/Pasture,' + 'Cultivated Crops,' + 'Woody Wetlands,' + 'Emergent Herbaceous Wetlands,' + \
+                    'Developed,' + 'Forest,' + '\n')
 else:
-    nlcd_file.write('Basin,' + '%Open Water,' + '%Perennial Snow/Ice,' + \
-                    '%Developed Open Space,' + '%Developed Low Intensity,' + '%Developed Medium Intensity,' + '%Developed High Intensity,' + \
-                    '%Barren Land,' + '%Deciduous Forest,' + '%Evergreen Forest,' + '%Mixed Forest,' + '%Shrub/Scrub,' + '%Herbaceous,' + \
-                    '%Hay/Pasture,' + '%Cultivated Crops,' + '%Woody Wetlands,' + '%Emergent Herbaceous Wetlands,' + ',' + \
-                    '%Developed,' + '%Forest,' + '\n')
+    nlcd_file.write('Basin,' + 'Open Water,' + 'Perennial Snow/Ice,' + \
+                    'Developed Open Space,' + 'Developed Low Intensity,' + 'Developed Medium Intensity,' + 'Developed High Intensity,' + \
+                    'Barren Land,' + 'Deciduous Forest,' + 'Evergreen Forest,' + 'Mixed Forest,' + 'Shrub/Scrub,' + 'Herbaceous,' + \
+                    'Hay/Pasture,' + 'Cultivated Crops,' + 'Woody Wetlands,' + 'Emergent Herbaceous Wetlands,' + \
+                    'Developed,' + 'Forest,' + '\n')
 
 #loop through NLCD .xls files in folderPath
 for filename in glob.glob(os.path.join(csv_folderPath, "*.csv")):
@@ -222,14 +222,14 @@ for filename in glob.glob(os.path.join(csv_folderPath, "*.csv")):
                         str(Developed_HighIntensity_percent) + ',' + str(Barren_Land_percent) + ',' + str(Deciduous_Forest_percent) + ',' + \
                         str(Evergreen_Forest_percent) + ',' + str(Mixed_Forest_percent) + ',' + str(Dwarf_Scrub_percent) + ',' + str(Shrub_Scrub_percent) + ',' + \
                         str(Herbaceous_percent) + ',' + str(Sedge_percent) + ',' + str(Lichens_percent) + ',' + str(Moss_percent) + ',' + str(Hay_Pasture_percent) + ',' +str(Cultivated_Crops_percent) + ',' + str(Woody_Wetlands_percent) + ',' \
-                        + str(Emergent_Herbaceous_Wetlands_percent) + ',,' + str(Developed_percent) + ',' + str(Forest_percent) + '\n')
+                        + str(Emergent_Herbaceous_Wetlands_percent) + ',' + str(Developed_percent) + ',' + str(Forest_percent) + '\n')
     else:
         nlcd_file.write(name + ',' + str(OpenWater_percent) + ',' + str(Perennial_SnowIce_percent) + ',' + \
                         str(Developed_OpenSpace_percent) + ',' + str(Developed_LowIntensity_percent) + ',' + str(Developed_MediumIntensity_percent) + ',' + \
                         str(Developed_HighIntensity_percent) + ',' + str(Barren_Land_percent) + ',' + str(Deciduous_Forest_percent) + ',' + \
                         str(Evergreen_Forest_percent) + ',' + str(Mixed_Forest_percent) + ',' + str(Shrub_Scrub_percent) + ',' + \
                         str(Herbaceous_percent) + ',' + str(Hay_Pasture_percent) + ',' +str(Cultivated_Crops_percent) + ',' + str(Woody_Wetlands_percent) + ',' \
-                        + str(Emergent_Herbaceous_Wetlands_percent) + ',,' + str(Developed_percent) + ',' + str(Forest_percent) + '\n')
+                        + str(Emergent_Herbaceous_Wetlands_percent) + ',' + str(Developed_percent) + ',' + str(Forest_percent) + '\n')
 
     csv_file.close()  
 nlcd_file.close()

@@ -1,7 +1,7 @@
-#Created on October 6, 2015
-#@author: rspies (rspies@lynkertech.com)
+# Created on October 6, 2015
+# @author: rspies (rspies@lynkertech.com)
 # Python 2.7
-# Loop through basin summay csv files and download USGS QIN data files from 
+# Loop through basin summary csv files and download USGS QIN data files from 
 # historic data site (pre WY 2007) http://ida.water.usgs.gov/ida/ 
 # and recent site (2007 WY+) http://waterdata.usgs.gov/nwis
 ### USGS automated retrievals info: http://help.waterdata.usgs.gov/faq/automated-retrievals 
@@ -13,11 +13,11 @@ import mechanize
 import time
 import pandas as pd
 
-os.chdir("../..") # change dir to \\AMEC\\NWS
+os.chdir("../..") # change dir to NWS data folder
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'SERFC_FY2017'
+RFC = 'LMRFC_FY2017'
 fx_group = '' # set to '' if not used
 basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
@@ -66,7 +66,7 @@ for each in usgs_gages:
         print gage_id + ' -> ' + basin_id
         summary.write(basin_id+','+gage_id+',')
         if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## skip sites that have already been downloaded
-            print 'Already processed basin -> ' + basin_id + ' ... skipping'
+            print 'Historic data file already exists -> ' + basin_id 
             #count += 1
             #continue
         ################################# historical data retrieval #######################################

@@ -1,7 +1,7 @@
-#merge_USGS_QIN_timeseries.py
-#Created by: Ryan Spies (rspies@lynkertech.com)
+# merge_USGS_QIN_timeseries.py
+# Created by: Ryan Spies (rspies@lynkertech.com)
 # Description: creates a QIN time series in .csv format for import into CHPS
-# capable of using the 2 files from the USGS -> downloaded with QIN_USGS_datacard_harves.py:
+# capable of using the 2 files from the USGS -> downloaded with QIN_USGS_csv_download.py:
 # 1. historical (before Oct 1, 2007) txt file 
 # 2. recent (after Oct 1, 2007) txt file
 ### data retrieval info: http://waterdata.usgs.gov/nwis/?IV_data_availability
@@ -9,14 +9,15 @@
 
 #import script modules
 import os
-os.chdir("../..")
+os.chdir("../..")  # change dir to NWS data folder
 maindir = os.getcwd()
 
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'WGRFC_FY2017'
+RFC = 'LMRFC_FY2017'
 fx_group = '' # set to '' if not used
+
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\post_2007\\'
@@ -74,13 +75,20 @@ for Basin in Basins:
                         QIN_file_write.write(year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ',' + flow + '\n')
         historic_file_read.close()
     else:
-        print Basin + ': historical data file missing...'
+        print Basin + ': historical data file not found...'
     
     if Basin + '_recent.txt' in os.listdir(recentdata):
         print 'Processing ' + Basin + '_recent.txt...'
         recent_csv_file_read = open(recent_csv_file, 'r')
         
         for line in recent_csv_file_read:
+            if '<!DOCTYPE html>' in line:           # some downloaded files only contain html from nonexistant gage site -> ignore file
+                print '!!! Bad data file -> ignoring ' + Basin + '_recent.txt'
+                if Basin not in os.listdir(histdata):
+                    print 'DELETING output file...'
+                    QIN_file_write.close()
+                    os.remove(QIN_file)
+                break
             if line[0] != '#':                      #ignore header lines
                 if 'agency_cd' in line:             # find the column with flow data (not the same column for all locations)
                     row = line.split('\t')
@@ -90,10 +98,18 @@ for Basin in Basins:
                             if '_00060' in s and '_00060_' not in s:
                                 flow_index = i
                     elif any('_00065' in j for j in row) == True:
-                        print 'Stage data only??...'
+                        print '!!! Stage data only in post_2007 file??...'
+                        if Basin not in os.listdir(histdata):
+                            print 'DELETING output file...'
+                            QIN_file_write.close()
+                            os.remove(QIN_file)
                         break # break file loop if flow data not available
                     else:
-                        print 'Can not find flow data column id (00060)...'
+                        print '!!! Can not find flow data column id (00060 - discharge)...'
+                        if Basin not in os.listdir(histdata):
+                            print 'DELETING output file...'
+                            QIN_file_write.close()
+                            os.remove(QIN_file)
                         break # break file loop if flow data not available
                             
                 if 'DT' in line or 'ST' in line:    #find data lines with mention of time zone

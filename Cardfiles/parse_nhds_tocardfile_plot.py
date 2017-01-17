@@ -14,17 +14,17 @@ os.chdir("../..")
 maindir = os.getcwd()
 
 ################### user input #########################
-RFC = 'SERFC_FY2016'
-state = 'GA'
-workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC + os.sep +'station_data'
+RFC = 'APRFC_FY2017'
+state = 'NWAK'
+workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC + os.sep + 'MAP_MAT_development' + os.sep +'station_data'
 variable = 'ptpx'  # choices: 'ptpx', 'tamn', or 'tamx'
-timestep = 'daily' # choices: 'hourly' or 'daily'
-station_plot = 'off' # creates a summary bar plot for each station -> choices: 'on' or 'off'
-summer_thresh = 12; winter_thresh = 12 #precip thresholds (inches) to flag and set missing
+timestep = 'hourly' # choices: 'hourly' or 'daily'
+station_plot = 'on' # creates a summary bar plot for each station -> choices: 'on' or 'off'
+summer_thresh = 6; winter_thresh = 5 #precip thresholds (inches) to flag and possibly set to missing
 ############# files/dir below must exist ####################
 station_file =  workingdir + os.sep + 'nhds_' + timestep +os.sep + 'nhds_site_locations_' + timestep + '_' + state + '.txt'
 daily_obs_file = workingdir + os.sep + 'nhds_' + timestep +os.sep + 'nhds_site_obs_time_' + state + '.csv'
-data_file = workingdir + os.sep + 'nhds_' + timestep +os.sep + variable + os.sep + 'dipper_download' + os.sep + state.lower() + '_' + variable + '_' + timestep + '_1950_2015.txt'
+data_file = workingdir + os.sep + 'nhds_' + timestep +os.sep + variable + os.sep + 'dipper_download' + os.sep + state.lower() + '_' + variable + '_' + timestep + '_1960_2016.txt'
 out_dir = workingdir + os.sep + 'nhds_' + timestep +os.sep + variable + os.sep + 'cardfiles' + os.sep + state + os.sep
 bad_ptpx_file = workingdir + os.sep + 'nhds_' + timestep +os.sep + 'questionable_ptpx_check_' + timestep + '_' + state + '.txt'
 user_bad_data_list = workingdir + os.sep + 'nhds_' + timestep +os.sep + variable + os.sep + 'CHPS_suspect_map.csv'
@@ -58,16 +58,18 @@ if timestep == 'daily':
 ### parse summary file for station info ###
 summary_file = open(workingdir + os.sep + 'station_summaries' + os.sep + 'nhds_summary_' + variable + '_' + timestep + '_' + state + '.csv','w')
 summary_file.write('NAME,SITE_ID,LAT,LON,ELEV,MISSING_DATA,TOTAL_DATA,YEARS_DATA,PCT_AVAIL,YEAR_START,YEAR_END\n')
-station_summary = {}; elev_list = []
+station_summary = {}; elev_list = []; site_name_id = {}
 read_stations = open(station_file,'r')
 for line in read_stations:
     if line[0] != '#':
         name = line[13:40].strip()      # find the station name
         number = line[40:47].strip()    # find the station id num (6 digit)
         site_id = number.split()[1]     # find the station id num (4 digit)
+        total_id = number.replace(' ','') # full station id with no spaces
         split = filter(None,line[47:].strip().split('   ')) # filter out blank entries in list
-        lat = split[0]; lon = '-' +split[1]; elev = split[2].strip(); types = split[5]
+        lat = split[0]; lon = '-' +split[1]; elev = split[2].strip(); types = split[-1]
         station_summary[site_id] = [name,number,lat,lon,elev]
+        site_name_id[name] = total_id
         elev_list.append(float(elev)) # used to fin max/min for taplot header line
 
 ### parse observation time csv file for daily data (taplot card) ###        
@@ -88,7 +90,7 @@ if variable == 'tamn' or variable == 'tamx':
     else:
         total_stations = 26
     units = 'ENGL'
-    desc = "'Rio Grande'"
+    desc = "'NW Alaska Stations'"
     max_elev = max(elev_list); min_elev = min(elev_list)
     tap_open.write('@A ')
     tap_open.write('{:2d} {:4s} {:30s} {:4.0f} {:4.0f}'.format(total_stations,units,desc,max_elev,min_elev))
@@ -120,10 +122,10 @@ for each in read_data:
             if each[:2] == '@F':
                 name = each[5:25].strip()
                 lat_taplot = float(each[29:].split()[0]); lon_taplot = float(each[29:].split()[1]); elev_taplot = int(float(each[29:].split()[3]))
-                if name in daily_obs:
-                    time_of_obs = int(daily_obs[name])/100
+                if site_name_id[name] in daily_obs:
+                    time_of_obs = int(daily_obs[site_name_id[name]])/100
                 else:
-                    print 'Observation time not available for: ' + name + ' -> using 1700 as estimate'
+                    print 'Observation time not available for: ' + name + ' -- ' + site_name_id[name] + ' -> using 1700 as estimate'
                     time_of_obs = int(17)
                 if len(name) <= 15:
                     tap_open.write('{:2s} {:20s} {:6.2f} {:6.2f} {:2d} {:4d}'.format('@F',"'"+name + ' NHDS'+"'",lat_taplot,lon_taplot,time_of_obs,elev_taplot))
@@ -143,7 +145,7 @@ for each in read_data:
         else:
             parse_month = int((each[:20].split()[1])[:-6])
             parse_year = int((each[:20].split()[1])[-6:-4])
-        if parse_year <= 15:
+        if parse_year <= 16: # parse all 2000+ years up to 2016
             parse_year = parse_year + 2000
         else:
             parse_year = parse_year + 1900
@@ -239,10 +241,12 @@ for each in read_data:
             df = pd.DataFrame(plot_dict.items(), columns=['Date_Time', 'ptp'])
             #df.reset_index(level=[0, 1], inplace=True)
             #resample_df_daily = df.set_index('Date_Time')['ptp'].resample('D', how='sum')# resample to daily
+            resample_df_daily = df.set_index('Date_Time')['ptp'].resample('D', how='sum')# resample to daily
             resample_df_monthly = df.set_index('Date_Time')['ptp'].resample('M', how='sum')# resample to monthly
             plot_dates_monthly = resample_df_monthly.index.to_pydatetime(); plot_data_monthly = resample_df_monthly.values.tolist()
-            if timestep == 'daily':            
-                plot_dates_daily = df.Date_Time; plot_data_daily = df.ptp
+            if timestep == 'daily':     
+                plot_dates_daily = resample_df_daily.index.to_pydatetime(); plot_data_daily = resample_df_daily.values.tolist()
+                #plot_dates_daily = df.Date_Time; plot_data_daily = df.ptp
             if timestep == 'hourly':
                 resample_df_daily = df.set_index('Date_Time')['ptp'].resample('D', how='sum')# resample to monthly
                 plot_dates_daily = resample_df_daily.index.to_pydatetime(); plot_data_daily = resample_df_daily.values.tolist()

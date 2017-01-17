@@ -16,7 +16,7 @@ maindir = os.path.abspath(os.curdir)
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'WGRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = '' # set to '' if not used
 input_type = 'usgs' # choices: 'usgs' or 'chps'
 if fx_group != '':

@@ -129,6 +129,8 @@ for QME in QMEs:
         print 'WARNING -- Date and Discharge Data not the same length'
     
     basin_gauge = QME.split('_')[0].rstrip('.qme').upper() # basin/gage name
+    if basin_gauge[0] != '0':
+        basin_gauge = '0' + basin_gauge
     basins_list.append(basin_gauge)
     day_count = str(len(Q_data))            # number of valid daily data values
     start_date = str(min(final_date))       # date of first measurement
@@ -160,7 +162,8 @@ print 'Adding plot attributes...'
 ax1.xaxis.set_major_locator(mdates.YearLocator(5))
 ax1.xaxis.set_minor_locator(years)
 plt.yticks(range(1,len(basins_list)+1),basins_list)
-plt.xlabel('Date (1960-2016)') 
+plt.xlabel('Date (1960-2016)')
+plt.ylabel('Gage ID')
 plt.ylim(0,len(basins_list)+0.5)
 plt.xlim(datetime.datetime(1960,1,1), datetime.datetime(2016,1,1))
 plt.savefig(figname, dpi=200,bbox_inches='tight')   
