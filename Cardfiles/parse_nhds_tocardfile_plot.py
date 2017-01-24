@@ -15,10 +15,10 @@ maindir = os.getcwd()
 
 ################### user input #########################
 RFC = 'APRFC_FY2017'
-state = 'NWAK'
+state = 'ANAK'
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC + os.sep + 'MAP_MAT_development' + os.sep +'station_data'
 variable = 'ptpx'  # choices: 'ptpx', 'tamn', or 'tamx'
-timestep = 'hourly' # choices: 'hourly' or 'daily'
+timestep = 'daily' # choices: 'hourly' or 'daily'
 station_plot = 'on' # creates a summary bar plot for each station -> choices: 'on' or 'off'
 summer_thresh = 6; winter_thresh = 5 #precip thresholds (inches) to flag and possibly set to missing
 ############# files/dir below must exist ####################
@@ -181,7 +181,7 @@ for each in read_data:
                             new_value = -999.00 # replace erroneous values with missing
                             cardfile.write("%7.2f" % new_value)
                             cardfile.write('  ')
-                            plot_dict[day_check] = float(new_value)
+                            #plot_dict[day_check] = float(new_value)
                         else:
                             cardfile.write("%7.2f" % float(value))
                             cardfile.write('  ')

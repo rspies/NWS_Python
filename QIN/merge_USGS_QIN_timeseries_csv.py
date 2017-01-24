@@ -16,7 +16,7 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 RFC = 'LMRFC_FY2017'
-fx_group = '' # set to '' if not used
+fx_group = 'upstream' # set to '' if not used
 
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\pre_2007\\'

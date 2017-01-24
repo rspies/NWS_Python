@@ -18,8 +18,9 @@ maindir = os.getcwd()
 
 ############ User input ################
 RFC = 'LMRFC_FY2017'
-fx_group = '' # set to '' if not used
-basin_col = 'CH5_ID' # 'BASIN' # list column to pull the basin id from the summary csv
+fx_group = ''           # set to '' if not used
+basin_col = 'CH5_ID'    # 'BASIN' # list column to pull the basin id from the summary csv
+date_end = '2015-09-30' # YYYY-MM-DD  # end date for NWIS data search
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
@@ -66,7 +67,7 @@ for each in usgs_gages:
         print gage_id + ' -> ' + basin_id
         summary.write(basin_id+','+gage_id+',')
         if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## skip sites that have already been downloaded
-            print 'Historic data file already exists -> ' + basin_id 
+            print 'Historic data file already exists (overwriting) -> ' + basin_id 
             #count += 1
             #continue
         ################################# historical data retrieval #######################################
@@ -222,7 +223,7 @@ for each in usgs_gages:
         ################################# recent data retrieval #######################################
         print 'Checking for recent data...'
         date_start = '2007-09-30' # YYYY-MM-DD
-        date_end = '2015-09-30' # YYYY-MM-DD
+        #date_end = '2015-09-30' # YYYY-MM-DD
                             
         recent_url = urllib2.urlopen('http://waterdata.usgs.gov/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=' + gage_id + '&period=&begin_date=' + date_start +'&end_date='+date_end)
         br = mechanize.Browser()
