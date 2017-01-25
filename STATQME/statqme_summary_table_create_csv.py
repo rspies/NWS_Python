@@ -10,7 +10,7 @@ import csv
 os.chdir('../..')
 
 ############################## User Input ###################################
-RFC = 'WGRFC_FY2016'
+RFC = 'LMRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 sim_type = 'initial-CalibrationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final' and 'CalibrationPeriod' or 'ValidationPeriod'
 variables = ['local', 'outflow', 'inflow'] # choices: 'local', 'outflow', 'inflow'
@@ -86,7 +86,7 @@ for variable in variables:
         month_data = {'October':[],'November':[],'December':[],'January':[],'February':[],'March':[],
                       'April':[],'May':[],'June':[],'July':[],'August':[],'September':[],'Year Avg.':[]}
         
-        soup = BeautifulSoup(html_file) # read in html file
+        soup = BeautifulSoup(html_file, "lxml") # read in html file # updated with lxml tag based on warning in console
         #test_file.write(soup.prettify())
         
         ############### Monthly Stats - All Years #####################
