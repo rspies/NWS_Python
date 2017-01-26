@@ -1,5 +1,5 @@
 #Created on 1/22/2015
-#@author: rspies
+#@author: Ryan Spies (rspies@lynkertech.com)
 # Python 2.7
 # This script reads CHPS csv file from QIN plot display and finds the start and end 
 # of the observed hourly QIN record, # of valid data points, and % of total available.

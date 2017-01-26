@@ -15,8 +15,8 @@ maindir = os.getcwd()
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'LMRFC_FY2017'
-fx_group = 'upstream' # set to '' if not used
+RFC = 'SERFC_FY2017'
+fx_group = '' # set to '' if not used
 
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\pre_2007\\'
@@ -84,8 +84,8 @@ for Basin in Basins:
         for line in recent_csv_file_read:
             if '<!DOCTYPE html>' in line:           # some downloaded files only contain html from nonexistant gage site -> ignore file
                 print '!!! Bad data file -> ignoring ' + Basin + '_recent.txt'
-                if Basin not in os.listdir(histdata):
-                    print 'DELETING output file...'
+                if Basin + '_historical.txt' not in os.listdir(histdata):
+                    print 'DELETING output merge file...'
                     QIN_file_write.close()
                     os.remove(QIN_file)
                 break
@@ -99,14 +99,14 @@ for Basin in Basins:
                                 flow_index = i
                     elif any('_00065' in j for j in row) == True:
                         print '!!! Stage data only in post_2007 file??...'
-                        if Basin not in os.listdir(histdata):
-                            print 'DELETING output file...'
+                        if Basin + '_historical.txt' not in os.listdir(histdata):
+                            print 'DELETING output merge file...'
                             QIN_file_write.close()
                             os.remove(QIN_file)
                         break # break file loop if flow data not available
                     else:
                         print '!!! Can not find flow data column id (00060 - discharge)...'
-                        if Basin not in os.listdir(histdata):
+                        if Basin + '_historical.txt' not in os.listdir(histdata):
                             print 'DELETING output file...'
                             QIN_file_write.close()
                             os.remove(QIN_file)

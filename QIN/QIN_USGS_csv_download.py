@@ -1,5 +1,5 @@
 # Created on October 6, 2015
-# @author: rspies (rspies@lynkertech.com)
+# rspies (rspies@lynkertech.com)
 # Python 2.7
 # Loop through basin summary csv files and download USGS QIN data files from 
 # historic data site (pre WY 2007) http://ida.water.usgs.gov/ida/ 
@@ -13,15 +13,16 @@ import mechanize
 import time
 import pandas as pd
 
-os.chdir("../..") # change dir to NWS data folder
+os.chdir("../..") # change dir to NWS main folder
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'LMRFC_FY2017'
-fx_group = ''           # set to '' if not used
+RFC = 'MBRFC_FY2017'
+fx_group = 'fix'           # set to '' if not used
 basin_col = 'CH5_ID'    # 'BASIN' # list column to pull the basin id from the summary csv
 date_end = '2015-09-30' # YYYY-MM-DD  # end date for NWIS data search
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
+summary_output = 'yes'   # options: 'yes' or 'no' choice to create a summary text with info regarding data download
 
 if fx_group != '':
     task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
@@ -31,10 +32,11 @@ else:
     task_csv = RFC[:5] + '_fy17_task_summary.csv'
     out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep 
     summary_file = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + 'QIN_data_download_summary.csv'
+############ End User Input ##############
 
-########################################
-summary = open(summary_file,'w')
-summary.write('Basin,Gage ID,Historic Start,Historic Data Website,Recent Data Avail,Recent Data Website\n')
+if summary_output == 'yes':
+    summary = open(summary_file,'w') # create a summary output file
+    summary.write('Basin,Gage ID,Historic Start,Historic End,Historic Data Website,Recent Data Avail,Recent Data Website\n')
 read_csv = open(workingdir + task_csv,'r')
 df = pd.read_csv(read_csv,sep=',',header=0,dtype=object)
 read_csv.close()
@@ -52,7 +54,7 @@ else:
     
 basin_gage = dict(zip(usgs_gages, ch5id)) # dictionary with merged gage id and basin id
 if len(usgs_gages)!=len(set(basin_gage)): # check for duplicate gage ids being used
-    print 'Warning duplicate gage ids will can only be used for one basin'
+    print 'Warning!! Duplicate gage ids should only be used for one basin'
     raw_input("Press Enter to continue...")
 
 #usgs_gages = ['2207220','2202040','2198000','2197500'] # use this list to only process specific gages
@@ -65,8 +67,8 @@ for each in usgs_gages:
             gage_id = '0' + gage_id
         basin_id = str(basin_gage[each]).replace(' ', '')
         print gage_id + ' -> ' + basin_id
-        summary.write(basin_id+','+gage_id+',')
-        if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## skip sites that have already been downloaded
+        
+        if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## check if basin data has already been downloaded
             print 'Historic data file already exists (overwriting) -> ' + basin_id 
             #count += 1
             #continue
@@ -94,7 +96,7 @@ for each in usgs_gages:
             print min_date + ' -> ' + max_date
             #min_date = '2000-10-01'
             #max_date = '2000-10-01'
-            if int(max_date[:4])-int(min_date[:4]) >8: # break up download to prevent server timeout
+            if int(max_date[:4])-int(min_date[:4]) >8: # break up download requests if more than 8 years to prevent server timeout
                 interval = int((int(max_date[:4])-int(min_date[:4]))/4)
                 mid_date1 = str(int(min_date[:4])+interval) + '-09-30'
                 mid_date2 = str(int(mid_date1[:4])) + '-10-01'
@@ -124,7 +126,7 @@ for each in usgs_gages:
             file_save.write(result)
             br.close()
             
-            if int(max_date[:4])-int(min_date[:4]) >15: # download second half of historic data
+            if int(max_date[:4])-int(min_date[:4]) >8: # download remaining chunks of data if it was divided (more than 8 years)
                 time.sleep(5) # delays for 5 seconds
                 print 'File split2: ' + mid_date2 + ' -> ' + mid_date3
                 br = mechanize.Browser()
@@ -215,10 +217,14 @@ for each in usgs_gages:
                     file_save.write(str(each))
                 br.close()
             file_save.close()
-            summary.write(min_date+',http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id + ',')
+            if summary_output == 'yes':
+                summary.write(basin_id+','+gage_id+',')
+                summary.write(min_date+','+max_date+',http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id + ',')
         else:
             print 'NO HISTORIC DATA AVAILABLE FOR SITE -> ' + gage_id
-            summary.write('na,na,')
+            if summary_output == 'yes':
+                summary.write(basin_id+','+gage_id+',')
+                summary.write('na,na,na,')
         
         ################################# recent data retrieval #######################################
         print 'Checking for recent data...'
@@ -232,15 +238,18 @@ for each in usgs_gages:
         recent_page = res.read()
         if len(recent_page) < 1200:
             print 'NO RECENT DATA AVAILABLE FOR SITE -> ' + gage_id
-            summary.write('na,http://waterdata.usgs.gov/nwis/inventory/?site_no='+gage_id+'&agency_cd=USGS\n')
+            if summary_output == 'yes':
+                summary.write('na,http://waterdata.usgs.gov/nwis/inventory/?site_no='+gage_id+'&agency_cd=USGS\n')
         else:
             print 'Processing recent data from USGS server...'
             file_save = open(out_dir + 'post_2007' + os.sep + basin_id + '_recent.txt','w')
             file_save.write(recent_page)
             file_save.close()
-            summary.write('YES,http://waterdata.usgs.gov/nwis/inventory/?site_no='+gage_id+'&agency_cd=USGS\n')
+            if summary_output == 'yes':
+                summary.write('YES,http://waterdata.usgs.gov/nwis/inventory/?site_no='+gage_id+'&agency_cd=USGS\n')
         br.close()
         print 'delaying to avoid detection...\n'
         time.sleep(10) # delays for 10 second
     count += 1
-summary.close()
+if summary_output == 'yes':
+    summary.close()
