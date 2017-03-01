@@ -17,7 +17,7 @@ maindir = os.getcwd()
 
 ################################# User Input #########################################
 ############ User input ################
-RFC = 'NWRFC_FY2017'
+RFC = 'MARFC_FY2017'
 fx_group = ''
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 adc_plot = 'on' # 'on' or 'off' -> off only runs the chps csv conversion
@@ -68,6 +68,7 @@ for each_basin in basin_list:
     df = pd.read_csv(data_csv,sep=',',header=0,parse_dates='date',index_col=['date'],na_values=[' ','',' \n'])
     #df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d %H')
     ts = df.resample(rule='24H', how='last', base=0)
+    
     ts.columns = ['snow_cover','swe_min','swe_mean','swe_max','sca_min','sca_mean','sca_max'] # rename columns
     
     if len(ts) > 20: # check that there is adequate data in dataframe (20 days)
@@ -134,8 +135,8 @@ for each_basin in basin_list:
             
             #add plot legend with location and size
             #ax1.legend(loc='upper left', prop={'size':10})
-                
-            plt.title(basin_shef[each_basin] + '\nSNODAS SWE vs. SCA (2002-2015 Daily Data) : Model Area=' + str(basin_area[each_basin]) + ' sq mi')
+            min_year = ts.first_valid_index().year; max_year = ts.last_valid_index().year
+            plt.title(basin_shef[each_basin] + '\nSNODAS SWE vs. SCA (' + str (min_year) + '-' + str(max_year) + ' Daily Data) : Model Area=' + str(basin_area[each_basin]) + ' sq mi')
                 
             figname = adc_dir + basin + '_ADC.png'
             plt.savefig(figname, dpi=100,bbox_inches='tight')

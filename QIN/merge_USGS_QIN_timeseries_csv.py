@@ -15,7 +15,7 @@ maindir = os.getcwd()
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'SERFC_FY2017'
+RFC = 'LMRFC_FY2017'
 fx_group = '' # set to '' if not used
 
 if fx_group != '':
@@ -89,11 +89,11 @@ for Basin in Basins:
                     QIN_file_write.close()
                     os.remove(QIN_file)
                 break
-            if line[0] != '#':                      #ignore header lines
+            if line[0] != '#':                      # ignore header lines
                 if 'agency_cd' in line:             # find the column with flow data (not the same column for all locations)
                     row = line.split('\t')
                     
-                    if any('_00060' in j for j in row) == True: # check that flow data is in file
+                    if any('_00060' in j for j in row) == True: # check that flow data is in file (usgs code for streamflow: 00060)
                         for i, s in enumerate(row):
                             if '_00060' in s and '_00060_' not in s:
                                 flow_index = i

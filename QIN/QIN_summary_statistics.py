@@ -16,14 +16,14 @@ maindir = os.path.abspath(os.curdir)
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'SERFC_FY2017'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # set to '' if not used
 input_type = 'usgs' # choices: 'usgs' or 'chps'
 if fx_group != '':
-    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_statistical_summary_updated.csv','w')
+    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_' + input_type + '_statistical_summary.csv','w')
     data_dir = fx_group + os.sep + 'merged_csv'
 else:
-    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + 'QIN_statistical_summary.csv','w')
+    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + 'QIN_' + input_type + '_statistical_summary.csv','w')
     data_dir = 'merged_csv'
 ############################ End User input ##################################
 ##############################################################################
@@ -40,7 +40,7 @@ if input_type == 'usgs':
     csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + data_dir
     header = 3
 if input_type == 'chps':
-    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC + os.sep + 'raw_data' + os.sep + 'chps_output' + os.sep + 'QIN'
+    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + 'chps_export'
     header = 2
 
 csv_files = os.listdir(csv_loc)

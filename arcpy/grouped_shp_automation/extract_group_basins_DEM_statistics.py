@@ -14,14 +14,14 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../..")
+os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'NCRFC_FY2016'
-fx_group = 'REDMIS' # leave blank if not processing by fx group
+RFC = 'MARFC_FY2017'
+fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromNCRFC\\calb_basins\\' + 'calb_basins_REDMIS_join.shp'
+in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
 find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 

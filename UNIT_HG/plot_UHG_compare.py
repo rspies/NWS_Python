@@ -14,7 +14,7 @@ os.chdir("../..")
 
 
 ################################# User Input #########################################
-RFC = 'WGRFC_FY2016'
+RFC = 'LMRFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
 version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 

@@ -20,7 +20,7 @@ from pylab import *
 os.chdir("../..")
 maindir = os.getcwd()
 ############################### User Input ####################################
-rfc = 'NWRFC_FY2017'
+rfc = 'MARFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
@@ -113,6 +113,13 @@ if sac_plot == 'on':
             if group_limits == 'on':
                 gmax = data_init[param].max()
                 gmin = data_init[param].min()
+                if plot_type == 'draft' or plot_type == 'final': # get calb max/min values for calb parameters
+                    gmax_calb = data_calb[param].max()
+                    gmin_calb = data_calb[param].min()
+                    if gmax_calb > gmax:
+                        gmax = gmax_calb
+                    if gmin_calb < gmin:
+                        gmin = gmin_calb
                 and_verts = [(x-tg, gmin), # left, bottom
                 (x-tg, gmax), # left, top
                 (x+tg, gmax), # right, top

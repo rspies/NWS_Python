@@ -17,23 +17,24 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'SERFC_FY2017'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # set to '' if not used
-data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
+data_format = 'usgs' # choices: 'usgs' or 'chps' or 'nhds'
+max_year = 2017
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
-chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Calibration_TimeSeries\\initial\\QME_SQME\\' # CHPS csv output files
+chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\QME_CHPS_export\\' # CHPS csv output files
 nhds_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\' # NHDS data download (cardfiles)
 new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\' # output summary tab delimited file location
 ########################################
 
 if fx_group != '':
     nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_Lynker_download' 
-    new_summary = open(new_file + os.sep + fx_group + os.sep + 'QME_data_statistical_summary_'+fx_group+'.csv', 'w')
-    figname = new_file + RFC + '_' + fx_group + '_QME_data_timeline.png'
+    new_summary = open(new_file + os.sep + fx_group + os.sep + 'QME_' + data_format + '_data_statistical_summary_'+fx_group+'.csv', 'w')
+    figname = new_file + RFC + '_' + fx_group + '_' + data_format + '_QME_data_timeline.png'
 else: 
     nhds_files = nhds_files + os.sep + 'QME_Lynker_download' 
-    new_summary = open(new_file + 'QME_data_statistical_summary.csv', 'w')
-    figname = new_file + RFC + '_' + 'QME_data_timeline.png'
+    new_summary = open(new_file + 'QME_' + data_format + '_data_statistical_summary.csv', 'w')
+    figname = new_file + RFC + '_' + data_format + '_' + 'QME_data_timeline.png'
 new_summary.write('Basin/Gauge' + ',' + 'Daily Count' + ',' + 'Start Date' + ',' + 'End Date' 
 + ',' + 'Mean Daily QME' + ',' + 'Max Daily QME' + ',' + 'Min Daily QME' +','+ 'Standard Deviation' 
 + ',' + 'Date Max' + ','  + 'Date Min' + '\n')
@@ -65,7 +66,7 @@ for QME in QMEs:
                 ### parse date columns
                 month = str(sep[1])[:-2]
                 year = str(sep[1])[-2:]
-                if int(year) <= 14:
+                if int(year) <= 17:
                     year = int(year) + 2000 # assume years <= 14 are in the 2000s
                 else:
                     year = int(year) + 1900
@@ -87,7 +88,7 @@ for QME in QMEs:
                 sep = line.split(',')
                 full_date = parser.parse(sep[0])
                 date.append(full_date.date())
-                discharge.append(float(sep[3]))
+                discharge.append(float(sep[-1]))
             line_count += 1
         csv_read.close()
     if data_format == 'nhds': 
@@ -104,8 +105,8 @@ for QME in QMEs:
                     ### parse date columns
                     month = str(sep[1])[:-2]
                     year = str(sep[1])[-2:]
-                    if int(year) <= 15:
-                        year = int(year) + 2000 # assume years <= 14 are in the 2000s
+                    if int(year) <= 17:
+                        year = int(year) + 2000 # assume years <= 17 are in the 2000s
                     else:
                         year = int(year) + 1900
                     day = str(sep[2])
@@ -129,8 +130,8 @@ for QME in QMEs:
         print 'WARNING -- Date and Discharge Data not the same length'
     
     basin_gauge = QME.split('_')[0].rstrip('.qme').upper() # basin/gage name
-    if basin_gauge[0] != '0':
-        basin_gauge = '0' + basin_gauge
+    #if basin_gauge[0] != '0':
+    #    basin_gauge = '0' + basin_gauge
     basins_list.append(basin_gauge)
     day_count = str(len(Q_data))            # number of valid daily data values
     start_date = str(min(final_date))       # date of first measurement
@@ -154,7 +155,7 @@ for QME in QMEs:
     ###### create plot of dates of data availability
     print 'Adding basin data to plot...'
     y_pos = [count] * len(final_date)
-    ax1.plot(final_date, y_pos, '|',mew=0.5,ms=7)
+    ax1.plot(final_date, y_pos, '|',mew=0.5,ms=14)
     #if basin_gauge == 'DCTN1':
     #    break
     
@@ -165,7 +166,7 @@ plt.yticks(range(1,len(basins_list)+1),basins_list)
 plt.xlabel('Date (1960-2016)')
 plt.ylabel('Gage ID')
 plt.ylim(0,len(basins_list)+0.5)
-plt.xlim(datetime.datetime(1960,1,1), datetime.datetime(2016,1,1))
+plt.xlim(datetime.datetime(1960,1,1), datetime.datetime(max_year,1,1))
 plt.savefig(figname, dpi=200,bbox_inches='tight')   
 plt.close()
     

@@ -23,15 +23,16 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 #####    and specify the calibration period in next section 
 RFC = 'LMRFC_FY2017'
 fx_group = ''                   # set to blank '' if not using fx_groups
-add_obs_Q_plot = 'yes'          # yes/no to create a subplot of the observed data for same period
-basin_ids = []                  # <-- use this to run specific basin(s)
-ignore_basins = []
-sim_type = 'initial'            # choices: initial (prior to calib) or final (final calib)
+yr_begin = 1980; yr_final = 2016  # these are the default start/end years for plots
+sim_type = 'draft'            # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum']  # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type    #' Calb Raster Analysis' or '_bias_pbias_test'
 resolution = 350                #350->(for report figs) 100->for CHPS fx help tab display (E19)
+add_obs_Q_plot = 'yes'          # yes/no to create a subplot of the observed data for same period
+basin_ids = []                  # <-- use this to run specific basin(s)
+ignore_basins = []
+
 wm_image = os.getcwd() + os.sep + 'Python' + os.sep + 'plot_RHAP' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
-yr_begin = 1980; yr_end = 2015  # these are the default start/end years for plots
 log_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'raster_hydrograph_plots' + os.sep
 ############################ End User input ###################################
 
@@ -66,7 +67,7 @@ for basin_id in basin_ids:
     Q_calib = test['SQME'].tolist()
     date_Q_calib = {}; count = 0                        # read the data into a dictionary (more efficient processing)
     for each_day in date_calib:
-        if yr_begin <= int(each_day.year) <= yr_end:
+        if yr_begin-2 <= int(each_day.year) <= yr_final+2: # find simulated data within 2 year buffer of start/end
             if each_day.replace(hour=0) in date_Q_calib:
                 if float(Q_calib[count]) >= 0:          # ignore data less than 0 
                     date_Q_calib[each_day.replace(hour=0)].append(Q_calib[count])
@@ -81,7 +82,7 @@ for basin_id in basin_ids:
     discharge = test['QME'].tolist()
     date_Q = {}; count = 0 # read the data into a dictionary (more efficient processing)
     for each_day in date:
-        if yr_begin-1 <= int(each_day.year) <= yr_end:
+        if yr_begin-2 <= int(each_day.year) <= yr_final+2: # find observed data within 2 year buffer of start/end
             if each_day.replace(hour=0) in date_Q:
                 if float(discharge[count]) >= 0:
                     date_Q[each_day.replace(hour=0)].append(float(discharge[count]))
@@ -101,8 +102,14 @@ for basin_id in basin_ids:
                 yr_start = 2005
         else:
             yr_start = yr_begin
+        ### set plot end date to last year with obs data or to default (yr_final)
+        if max(date_Q).year > yr_final:
+            print 'Obs data ends -> ' + str(max(date_Q).year)
+            yr_end = int(max(date_Q).year)
+        else:
+            yr_end = yr_final
     else:
-        yr_start = yr_begin
+        yr_start = yr_begin; yr_end = yr_final
         log_file.write(basin_id + ',na,na,') # log summary file output
     
     ################## Create matrix of observed and calibrated data #####################

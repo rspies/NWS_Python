@@ -14,104 +14,116 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../..")
+os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'NCRFC_FY2016'
-fx_group = 'REDMIS' # leave blank if not processing by fx group
-variable = 'tmean' # use temperature: 'tmean' or precipitation: 'ppt'
+RFC = 'NWRFC_FY2017'
+fx_group = '' # leave blank if not processing by fx group
+variables = ['tmean','ppt'] # use temperature: 'tmean' or precipitation: 'ppt'
+resolution = '800m' # choices: '800m' or '4km' -> PRISM resolution
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromNCRFC\\calb_basins\\' + 'calb_basins_REDMIS_join.shp'
-find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
+in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'FY2017_CalibrationTask_BasinElevZones_30m.shp'
+find_ch5id = 'BASIN' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
-
-# location of PRISM Raster (CONUS)
-PRISM_Dataset = 'D:\\GIS Library\\PRISM\\1981_2010\\' + variable + '\\4km\\PRISM_'+variable+'_30yr_normal_4kmM2_annual_asc.asc' 
-
-if fx_group != '':
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable +'\\' + fx_group + os.sep
-else:
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable +'\\'
-
+ignore_basins = ['VDFC7','SDGC7','SDGC7U','FRGC7','LDOT2U','PLBT4','CMRT4']
 ################# End User Input ######################
 
-if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
-    print "Missing directory: 'C:\\NWS\\python\\temp_output\\' -> please create"
-    raw_input("Press enter to continue processing...")
-if not os.path.exists(output_dir):
-    print "Missing directory: " + output_dir + " -> please create"
-    raw_input("Press enter to continue processing...")
-print 'Processing...'
+for variable in variables:
+    print variable.upper()
+    if RFC[:5] == 'APRFC':
+        resolution = '4km'
+        # Alaska PRISM Raster
+        PRISM_Dataset = 'D:\\GIS Library\\PRISM\\Alaska\\AK_PRISM_' + variable + '\\'+ variable +'\\'+ variable + 'anl' 
+    else:
+        # location of PRISM Raster (CONUS)
+        if resolution == '4km':
+            PRISM_Dataset = 'D:\\GIS Library\\PRISM\\1981_2010\\' + variable + '\\4km\\PRISM_'+variable+'_30yr_normal_4kmM2_annual_asc.asc' 
+        if resolution == '800m':
+            PRISM_Dataset = 'D:\\GIS Library\\PRISM\\1981_2010\\' + variable + '\\' + resolution + '\\PRISM_'+variable+'_30yr_normal_'+resolution+'M2_annual_asc.asc' 
 
-# Check out any necessary licenses
-arcpy.CheckOutExtension("spatial")
+    if fx_group != '':
+        output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '_' + resolution + '\\' + fx_group + os.sep
+    else:
+        output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\1981_2010_climo_' + variable + '_' + resolution + '\\'
 
-# Set Geoprocessing environments
-arcpy.env.scratchWorkspace = "C:\\NWS\\python\\Model_Output.gdb" # temporary file storage directory
-#arcpy.env.parallelProcessingFactor = "50"
-print 'ok so far...'
+    if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
+        print "Missing directory: 'C:\\NWS\\python\\temp_output\\' -> please create"
+        raw_input("Press enter to continue processing...")
+    if not os.path.exists(output_dir):
+        print "Missing directory: " + output_dir + " -> please create"
+        raw_input("Press enter to continue processing...")
+    print 'Processing...'
 
-# use search cursor to loop through individual basins in shapefile
-basins = arcpy.SearchCursor(in_shp)
-fields = arcpy.ListFields(in_shp, "", "String")
+    # Check out any necessary licenses
+    arcpy.CheckOutExtension("spatial")
 
-#Process: Define Projection
-check_project = in_shp[:-4] + '.prj'
-if not os.path.exists(check_project):
-    sr = arcpy.SpatialReference(4269) # define projection of basin shp -> 4269 = GCS_North_American_1983
-    print 'Defining Projection...'
-    arcpy.DefineProjection_management(in_shp, sr)
+    # Set Geoprocessing environments
+    arcpy.env.scratchWorkspace = "C:\\NWS\\python\\Model_Output.gdb" # temporary file storage directory
+    #arcpy.env.parallelProcessingFactor = "50"
+    print 'ok so far...'
 
-#################################################################################
+    # use search cursor to loop through individual basins in shapefile
+    basins = arcpy.SearchCursor(in_shp)
+    fields = arcpy.ListFields(in_shp, "", "String")
 
-# Search cursor info: http://resources.arcgis.com/de/help/main/10.1/index.html#//018w00000011000000     
-with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cursor gets "A geometry object for the feature" and the "NAME" attribute for each basin
-    for index, row in enumerate(cursor): 
-        Basin_Boundary = row[0] # basin geometry
-        ch5id = row[1] # basin = find_ch5id
-        print 'Processing basin: ' + str(ch5id)
-        print 'ch5id = ' + row[1]
-        #print 'name = ' + row[2]
+    #Process: Define Projection
+    check_project = in_shp[:-4] + '.prj'
+    if not os.path.exists(check_project):
+        sr = arcpy.SpatialReference(4269) # define projection of basin shp -> 4269 = GCS_North_American_1983
+        print 'Defining Projection...'
+        arcpy.DefineProjection_management(in_shp, sr)
+
+    #################################################################################
+
+    # Search cursor info: http://resources.arcgis.com/de/help/main/10.1/index.html#//018w00000011000000     
+    with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cursor gets "A geometry object for the feature" and the "NAME" attribute for each basin
+        for index, row in enumerate(cursor): 
+            Basin_Boundary = row[0] # basin geometry
+            ch5id = row[1] # basin = find_ch5id
+            print 'Processing basin: ' + str(ch5id)
+            print 'ch5id = ' + row[1]
+            #print 'name = ' + row[2]
+            
+            if ch5id not in ignore_basins: #check for ignore basins
+                Basin_Raster = 'C:\\NWS\\python\\temp_output\\' + ch5id
+                Basin_Points = 'C:\\NWS\\python\\temp_output\\' + ch5id + '_points'
+                Stats_Table = 'C:\\NWS\\python\\temp_output\\prism_stats.dbf'
+            
+                ## Process: Extract by Mask
+                print 'Extracting/Clipping by mask...'
+                #arcpy.gp.ExtractByMask_sa(PRISM_Dataset, Basin_Boundary, Basin_Raster) # fails for small basins
+                arcpy.Clip_management(PRISM_Dataset, "#", Basin_Raster, Basin_Boundary, "0", "ClippingGeometry")
+            
+                ## Process: Raster to Point
+                print 'Raster to point...'
+                arcpy.RasterToPoint_conversion(Basin_Raster, Basin_Points, "VALUE")
+                print 'Completed raster to point'
+                
+                # Process: Summary Statistics
+                print 'Calculating Summary statistics...'
+                arcpy.Statistics_analysis(Basin_Points + '.shp', Stats_Table, "GRID_CODE MEAN", "")
+                
+                # Process: output csv file
+                print 'Creating '+ ch5id + '_prism.csv file...'
+                rows = arcpy.SearchCursor(Stats_Table)
+                prism_csv = open(output_dir + ch5id + '_prism' + '.csv', 'wb')
+                csvFile = csv.writer(prism_csv) #output csv
+                fieldnames = [f.name for f in arcpy.ListFields(Stats_Table)]
+            
+                allRows = []
+                for row in rows:
+                    rowlist = []
+                    for field in fieldnames:
+                        rowlist.append(row.getValue(field))
+                    allRows.append(rowlist)
+            
+                csvFile.writerow(fieldnames)
+                for row in allRows:
+                    csvFile.writerow(row)
+                row = None
+                rows = None
+                prism_csv.close()
         
-        Basin_Raster = 'C:\\NWS\\python\\temp_output\\' + ch5id
-        Basin_Points = 'C:\\NWS\\python\\temp_output\\' + ch5id + '_points'
-        Stats_Table = 'C:\\NWS\\python\\temp_output\\prism_stats.dbf'
-    
-        ## Process: Extract by Mask
-        print 'Extracting/Clipping by mask...'
-        #arcpy.gp.ExtractByMask_sa(PRISM_Dataset, Basin_Boundary, Basin_Raster) # fails for small basins
-        arcpy.Clip_management(PRISM_Dataset, "#", Basin_Raster, Basin_Boundary, "0", "ClippingGeometry")
-    
-        ## Process: Raster to Point
-        print 'Raster to point...'
-        arcpy.RasterToPoint_conversion(Basin_Raster, Basin_Points, "VALUE")
-        print 'Completed raster to point'
-        
-        # Process: Summary Statistics
-        print 'Calculating Summary statistics...'
-        arcpy.Statistics_analysis(Basin_Points + '.shp', Stats_Table, "GRID_CODE MEAN", "")
-        
-        # Process: output csv file
-        print 'Creating '+ ch5id + '_prism.csv file...'
-        rows = arcpy.SearchCursor(Stats_Table)
-        prism_csv = open(output_dir + ch5id + '_prism' + '.csv', 'wb')
-        csvFile = csv.writer(prism_csv) #output csv
-        fieldnames = [f.name for f in arcpy.ListFields(Stats_Table)]
-    
-        allRows = []
-        for row in rows:
-            rowlist = []
-            for field in fieldnames:
-                rowlist.append(row.getValue(field))
-            allRows.append(rowlist)
-    
-        csvFile.writerow(fieldnames)
-        for row in allRows:
-            csvFile.writerow(row)
-        row = None
-        rows = None
-        prism_csv.close()
-    
-print 'Completed grid extraction!'
+    print 'Completed grid extraction!'
 winsound.Beep(800,1000) # beep to indicate script is complete

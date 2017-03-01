@@ -12,15 +12,15 @@ import arcpy
 import os
 import csv
 import winsound
-os.chdir("../..")
+os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input ###########################################################
-RFC = 'NCRFC_FY2016'
-fx_group = 'REDMIS' # leave blank if not processing by fx group
+RFC = 'MARFC_FY2017'
+fx_group = '' # leave blank if not processing by fx group
 variable = 'recharge' # choices: 'recharge' or 'trans'
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromNCRFC\\calb_basins\\' + 'calb_basins_REDMIS_join.shp'
+in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
 find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
@@ -33,6 +33,7 @@ if fx_group != '':
 else:
     output_dir = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\GW_' + variable + '\\'
 
+ignore_basins = ['SDGC7U','VDFC7','MRLC7','VCSC7','SDGC7','FRGC7','CBBT21','LDOT2U','FALT23','PLBT4','CMRT4']
 ################# End User Input ##########################################################
 
 if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
@@ -84,27 +85,27 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
     for index, row in enumerate(cursor): 
         Basin_Boundary = row[0] # basin geometry
         ch5id = row[1] # basin = find_ch5id
-        print 'Processing basin: ' + str(ch5id)
-        print 'ch5id = ' + row[1]
-        #print 'name = ' + row[2]
-        #if ch5id in basins_overwrite:
-
-        ## Local variables:
-        Basin_Raster = 'C:\\NWS\\python\\temp_output\\' + ch5id
+        if ch5id not in ignore_basins:
+            print 'Processing basin: ' + str(ch5id)
+            print 'ch5id = ' + row[1]
+            #print 'name = ' + row[2]
     
-        ## Process: Extract by Mask
-        print 'Extracting by mask...'
-        arcpy.gp.ExtractByMask_sa(Recharge_Dataset, Basin_Boundary, Basin_Raster)
-    
-        ## Process: Calculate mean of raster
-        print 'Raster to point...'
-        result = arcpy.GetRasterProperties_management(Basin_Raster, "MEAN")
-        print result
-        all_data[ch5id]=str(result)
-        if variable == 'recharge':
-            csvFile.writerow([ch5id,all_data[ch5id],float(all_data[ch5id])/25.4])
-        if variable == 'trans':
-            csvFile.writerow([ch5id,all_data[ch5id]])
+            ## Local variables:
+            Basin_Raster = 'C:\\NWS\\python\\temp_output\\' + ch5id
+        
+            ## Process: Extract by Mask
+            print 'Extracting by mask...'
+            arcpy.gp.ExtractByMask_sa(Recharge_Dataset, Basin_Boundary, Basin_Raster)
+        
+            ## Process: Calculate mean of raster
+            print 'Raster to point...'
+            result = arcpy.GetRasterProperties_management(Basin_Raster, "MEAN")
+            print result
+            all_data[ch5id]=str(result)
+            if variable == 'recharge':
+                csvFile.writerow([ch5id,all_data[ch5id],float(all_data[ch5id])/25.4])
+            if variable == 'trans':
+                csvFile.writerow([ch5id,all_data[ch5id]])
 
 recharge_csv.close()
 

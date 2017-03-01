@@ -4,7 +4,6 @@
 # Description: calculates a WY summary of QME data from NWS datacard data
 # and outputs a water year mean daily flow table
 
-import glob
 import os
 import datetime
 import csv
@@ -15,7 +14,7 @@ maindir = os.getcwd()
 ###################### User Input ##########################################
 ############################################################################
 path = os.getcwd()
-rfc = 'MARFC_FY2017'
+rfc = 'APRFC_FY2017'
 # directory with basin .xlsx files (daily data):
 variable = 'QME' # QME or MAP
 datacard_dir = maindir + '\\Calibration_NWS\\' + rfc[:5] + os.sep + rfc + '\\datacards\\QME\\QME_Lynker_download\\'
@@ -25,7 +24,7 @@ out_dir = maindir + '\\Calibration_NWS\\' + rfc[:5] + os.sep + rfc + '\\datacard
 ################### End User Input #########################################
 summary_file = open(out_dir + os.sep + rfc + '_' + variable + '_summary.csv','w')
 summary_file.write(',')
-years = range(1950,2016)
+years = range(1948,2016)
 
 ## AF to cfs per day
 #af_cfs = 43560.0/(24*60*60)
@@ -157,6 +156,8 @@ for each in datacard_files:
     csvfile.close()
 
 ### write all data to summary file
+if variable == 'QME':
+    summary_file.write('Mean Daily QME (cms)\n,')
 for loc in summary_data:
     summary_file.write(loc + ',')
 summary_file.write('\n')

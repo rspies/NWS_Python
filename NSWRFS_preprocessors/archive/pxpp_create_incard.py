@@ -12,25 +12,23 @@ maindir = os.getcwd()
 
 ################### user input #########################
 variable = 'ptpx'  # choices: 'ptpx'
-RFC = 'APRFC_FY2017'
-fxgroup = 'NWAK'
-linux_dir = '/aprfc_fy17/nwak/'
-networks = ['nhds_daily','raws_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
-month1 = 10; year1 = 1970; month2 = 10; year2 = 2015; base_station = 'AK5051' # Amistad Dam daily
-lat_lon_default = ' '; obs_time_daily = 17; elev_units = 'FT'; winter = 10; summer = 4
+RFC = 'WGRFC_FY2015'
+linux_dir = '/wgrfc/riog/'
+networks = ['nhds_daily','nhds_hourly','CONAGUA_daily', 'CONAGUA_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
 ########################################################
 
 state_abbr = {'50':'AK','41':'TX','29':'NM'}
-workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep + RFC[:5] + os.sep + RFC + os.sep + 'MAP_MAT_development' + os.sep +'station_data'
+workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep + RFC + os.sep +'raw_data'
 
 if len(networks) > 1:
-    out_file = open(workingdir + os.sep + 'pxpp_input' + os.sep + 'pxpp_'+fxgroup+'_'+str(year1)+'_'+str(year2)+'.txt','wb')
-    final_summary = open(workingdir + os.sep + 'pxpp_input' + os.sep + fxgroup+'_station_summary.csv','wb')
+    out_file = open(workingdir + os.sep + 'pxpp_input' + os.sep + 'pxpp_1970_2013_rio_grande_07022015.txt','wb')
+    final_summary = open(workingdir + os.sep + 'pxpp_input' + os.sep + 'final_pxpp_ALL_station_summary.csv','wb')
 else:
     out_file = open(workingdir + os.sep + 'pxpp_input' + os.sep + 'pxpp_' + networks[0] + '.txt','wb')
     final_summary = open(workingdir + os.sep + 'pxpp_input' + os.sep + 'final_pxpp_'+ networks[0] + '_summary.csv','wb')
 ### header ###
-
+month1 = 10; year1 = 1970; month2 = 10; year2 = 2014; base_station = 'TX0225' # Amistad Dam daily
+lat_lon_default = ' '; obs_time_daily = 17; elev_units = 'FT'; winter = 11; summer = 3
 out_file.write('{:5d}{:5d}{:5d}{:5d}  {:8s}  {:4s}  {:2d} {:4s}{:5d}{:5d}'.format(
 month1,year1,month2,year2,base_station,lat_lon_default,obs_time_daily,elev_units,winter,summer))
 out_file.write('\n')
@@ -44,15 +42,15 @@ for network in networks:
     timestep = network.split('_')[1]
     if network[:4] == 'raws' or network[:4] == 'asos' or network[:4] == 'scan':
         card_dir = workingdir + os.sep + network +os.sep + 'cardfiles_ptpx' + os.sep
-        station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '.csv'
+        station_file =  workingdir + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '.csv'
         ignore_file = workingdir + os.sep + network[:4] + '_all'  + '_ignore_stations.csv'
     if network[:4] == 'nhds':
         card_dir = workingdir + os.sep + network[:4] + '_' + timestep +os.sep + variable + os.sep + 'cardfiles' + os.sep
-        station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '.csv'
+        station_file =  workingdir + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '.csv'
         ignore_file = workingdir + os.sep + network[:4] + '_all'  + '_ignore_stations.csv'
     if network[:4] == 'CONA':
         card_dir = workingdir + os.sep + 'CONAGUA'  + os.sep + variable + os.sep + 'cardfiles' + os.sep + timestep + os.sep
-        station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network.split('_')[0] + '_summary_' + variable + '_' + timestep + '.csv'
+        station_file =  workingdir + os.sep + network.split('_')[0] + '_summary_' + variable + '_' + timestep + '.csv'
         ignore_file = workingdir + os.sep + network.split('_')[0] + '_all'  + '_ignore_stations.csv'
 
     ### create list of stations that will not be processed ###

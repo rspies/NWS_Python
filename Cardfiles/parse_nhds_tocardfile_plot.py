@@ -39,9 +39,9 @@ if station_plot == 'on':
     import numpy as np
 
 if variable == 'tamn':
-    ext = '.tmn'; taplot = 'nhds_' + variable + '.taplot'; tap_open = open(workingdir + os.sep + 'nhds_' + timestep + os.sep + variable + os.sep + taplot, 'wb')
+    ext = '.tmn'; taplot = 'nhds_' + variable + '_' + state + '.taplot'; tap_open = open(workingdir + os.sep + 'nhds_' + timestep + os.sep + variable + os.sep + taplot, 'wb')
 if variable == 'tamx':
-    ext = '.tmx'; taplot = 'nhds_' + variable + '.taplot'; tap_open = open(workingdir + os.sep + 'nhds_' + timestep + os.sep + variable + os.sep + taplot, 'wb')
+    ext = '.tmx'; taplot = 'nhds_' + variable + '_' + state + '.taplot'; tap_open = open(workingdir + os.sep + 'nhds_' + timestep + os.sep + variable + os.sep + taplot, 'wb')
 if variable == 'ptpx':
     ext = '.ptp'
     bad_ptpx_summary = open(bad_ptpx_file,'wb')
@@ -90,7 +90,7 @@ if variable == 'tamn' or variable == 'tamx':
     else:
         total_stations = 26
     units = 'ENGL'
-    desc = "'NW Alaska Stations'"
+    desc = "'Alaska Stations'"
     max_elev = max(elev_list); min_elev = min(elev_list)
     tap_open.write('@A ')
     tap_open.write('{:2d} {:4s} {:30s} {:4.0f} {:4.0f}'.format(total_stations,units,desc,max_elev,min_elev))
@@ -224,6 +224,7 @@ for each in read_data:
         else:
             cardfile.write(each) 
     if each[:1] == '$' and count_all > 0: # find the break btw station data -> calculate site summary
+        print site_id_data
         percent_data = round(((count_all - count_missing)/float(count_all))*100,1)
         station_summary[site_id_data].append(count_missing)
         station_summary[site_id_data].append(count_all-count_missing)
@@ -278,9 +279,9 @@ for each in read_data:
         
 ### populate summary csv file
 for site in station_summary:
-    for item in station_summary[site]:
+    for item in station_summary[site][:-1]:
         summary_file.write(str(item) + ',')
-    summary_file.write('\n')
+    summary_file.write(str(station_summary[site][-1]) + '\n')
 
 summary_file.close()
 if variable == 'tamn' or variable == 'tamx':

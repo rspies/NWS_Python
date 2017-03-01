@@ -15,15 +15,15 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../..")
+os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'MBRFC_FY2016'
-fx_group = 'Bighorn_Yellowstone_calb_basins' # leave blank if not processing by fx group
+RFC = 'MARFC_FY2017'
+fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromMBRFC\\calb_basins\\' + 'Bighorn_Yellowstone_calb_basins.shp'
-find_ch5id = 'CH5ID' # attribute table header for basin id -> must exist!!!
+in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
+find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
 # if you only want to run specific basins -> list them below
@@ -36,8 +36,8 @@ else:
     output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\'
 
 # location of NLCD Raster (CONUS)
-if RFC == 'APRFC': # different file for Alaska
-    NLCD_Dataset = r'C:\NWS\AK_NLCD_2001\ak_nlcd_2001_land_cover_3-13-08_se5.img'
+if RFC[:5] == 'APRFC': # different file for Alaska
+    NLCD_Dataset = r'D:\\GIS Library\\NLCD\\AK_NLCD_2001\\ak_nlcd_2001_land_cover_3-13-08_se5.img'
     #NLCD_Dataset = r'Q:\\GISLibrary\\NLCD\\AK_NLCD_2001\\ak_nlcd_2001_land_cover_3-13-08_se5.img'
 else:
     NLCD_Dataset = r'D:\\GIS Library\\NLCD\\nlcd_2011_landcover_2011_edition_2014_03_31.img'
@@ -49,6 +49,7 @@ if not os.path.exists(output_dir):
     print "Missing directory: " + output_dir + " -> please create"
     raw_input("Press enter to continue processing...")
 
+ignore_basins = []
 # Check out any necessary licenses
 arcpy.CheckOutExtension("spatial")
 
@@ -76,7 +77,7 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
         print 'Processing basin: ' + str(ch5id)
         print 'ch5id = ' + row[1]
         #print 'name = ' + row[2]
-        if ch5id == 'LOCM8':
+        if ch5id not in ignore_basins:
     
             ## Local variables:
             Basin_Raster = 'C:\\NWS\\python\\temp_output\\XX_' + ch5id

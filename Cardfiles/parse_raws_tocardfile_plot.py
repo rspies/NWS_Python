@@ -30,11 +30,14 @@ maindir = os.getcwd()
 startTime = datetime.now()
 ################### user input #########################
 RFC = 'APRFC_FY2017'
-variable = 'temp'  # choices: 'ptpx' or 'temp'
+variable = 'ptpx'  # choices: 'ptpx' or 'temp'
 timestep = 'hourly' # choices: 'hourly' 
 station_plot = 'on' # creates a summary bar plot for each station -> choices: 'on' or 'off'
 state = 'AK'
-region = 'ANAK'
+region = 'NWAK'
+non_winter = ['AHOG','AKAV','AKEL','AKIA','AKOY','ANOA','ANOR','ASEL','ASIS','ATAH'] #'AHOG','AKAV','AKEL','AKIA','AKOY','ANOA','ANOR','ASEL','ASIS','ATAH'
+fill_winter_csv = 'D:\Projects\NWS\Calibration_NWS\APRFC\APRFC_FY2017\MAP_MAT_development\station_data\point_shapefiles\NWAK\NWAK_RAWS_PRISM\NWAK_RAWS_PRISM_monthly_ppt_1971_2000.csv'
+
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC+ os.sep +'MAP_MAT_development' + os.sep + 'station_data'
 
 if region != '':
@@ -52,9 +55,12 @@ else:
     bad_ptpx_file = workingdir + os.sep + 'raws_' + timestep +os.sep + 'questionable_ptpx_check_' + timestep + '.txt'
     taplot_output = workingdir + os.sep + 'taplot_input' +os.sep + 'raws.taplot'
 ########################################################
-
+## read fill winter data if needed
+if len(non_winter) > 0:
+    winter_fill = pd.read_csv(fill_winter_csv, delimiter=',',header=0).set_index('SITE_ID').to_dict('index')
+    
 ### read through the metadata file for station info ###
-summary_file.write('NAME,SITE_ID,LAT,LON,ELEV,NUMBER,MISSING_DATA,VALID_DATA,YEARS_VALID,PCT_AVAIL,YEAR_START,YEAR_END\n')
+summary_file.write('NAME,SITE_ID,LAT,LON,ELEV,NUMBER,MISSING_DATA,TOTAL_DATA,YEARS_DATA,PCT_AVAIL,YEAR_START,YEAR_END\n')
 station_summary = {}; all_elev = []
 read_stations = open(station_file,'r')
 sys.path.append(os.getcwd() + os.sep + 'Python' + os.sep + 'modules') # navigate to python/modules dir
@@ -183,10 +189,10 @@ for data_file in glob.glob(data_files+'/*.dat'):
             date_time = dt.datetime.strptime(line[1]+ ' ' +line[2] + ' ' +str(line[5])[:2]+ ' ' +str(line[5])[2:], '%Y %j %H %M')     
             changemin = date_time.minute
             # set hourly precip threshold based on season
-            if date_time.day >=4 and date_time.day <= 9:
-                thresh = 2.0
+            if date_time.month >=4 and date_time.month <= 9:
+                thresh = 5.0
             else:
-                thresh = 1.0
+                thresh = 3.0
             # round sub-hourly data points up to nearest hour
             if int(changemin) != 0:
                 changet = dt.timedelta(minutes=(60-int(changemin)))
@@ -215,10 +221,10 @@ for data_file in glob.glob(data_files+'/*.dat'):
                         if round_dt not in site_data: # only add data to list if doesn't already have data for a date-time
                             if data < thresh and data >= 0.0: # QA/QC bad precip values
                                 if round_dt.date() not in set_miss_dates:
-                                    site_data[round_dt]=[float(data)]
+                                    site_data[round_dt]=[float(data)] 
                                 else:
                                     if float(data) == 0.00:
-                                        site_data[round_dt]=[float(data)]
+                                        site_data[round_dt]=[float(data)]                                       
                             if data >= thresh:
                                 bad_ptpx_summary.write(str(site_id) + '  ' + str(round_dt) + '  ' + str(data) + '\n')
                     else:
@@ -254,7 +260,7 @@ for data_file in glob.glob(data_files+'/*.dat'):
             ###### header info ######        
             cardfile.write('$ Data downloaded from WRCC and RAWS download website\n')
             cardfile.write('$ Data processed from hourly text files using python script\n')
-            cardfile.write('$ Ryan Spies ryan.spies@amecfw.com\n')
+            cardfile.write('$ Ryan Spies rspies@lynkertech.com\n')
             cardfile.write('$ Data Generated: ' + str(datetime.now())[:10] + '\n')
             cardfile.write('$\n')
             cardfile.write('{:12s}  {:4s} {:4s} {:4s} {:2d}   {:12s}    {:12s}'.format('datacard', data_type[ext], dim,unit,int(step_time),site_label,station_summary[site_id][0].upper()))
@@ -262,7 +268,7 @@ for data_file in glob.glob(data_files+'/*.dat'):
             cardfile.write('{:2d}  {:4d} {:2d}   {:4d} {:2d}   {:8s}'.format(int(min_date.month), int(min_date.year), int(max_date.month),int(max_date.year),1,'F9.2'))
             cardfile.write('\n')
             ###### write formatted data #####
-            valid_count = 0; miss_count = 0; plot_dict = {}
+            valid_count = 0; miss_count = 0; plot_dict = {}; fill_count = 0
             plot_dict = collections.OrderedDict(plot_dict) # ordered dictionary
             
             while iter_date <= max_date:
@@ -274,12 +280,45 @@ for data_file in glob.glob(data_files+'/*.dat'):
                     if iter_date in site_data:
                         valid_count += 1
                         if ext == '.ptp':
-                            out_data = max(site_data[iter_date])
+                            if site_id in non_winter: # replace RAWS gage data when assuming it is non-winterized
+                                if iter_date.month <=4 or iter_date.month >= 10:        # attempt to fill winter months Oct-Apr
+                                    if valid_count > 0 and fill_count <= 1060:           # no fill until some observed data is available and only fill first 2 year of winter data
+                                        if iter_date.hour == 12:                        # only fill the daily value on hour 12 - all others set to 0
+                                            out_data = winter_fill[site_id][str(iter_date.month)] # look up fill value from PRISM/station csv
+                                            fill_count += 1
+                                            #print str(iter_date) + ' ---- ' + str(out_data)
+                                        else:
+                                            out_data = 0.00
+                                    else:
+                                        out_data = -999
+                                    if iter_date.month == 4 and iter_date.day == 30 and iter_date.hour >= 1: # need data for last day of previous month in order to allow pxpp to not set next month to missing
+                                        out_data = max(site_data[iter_date])
+                                        #print str(iter_date) + ' ---- ' + str(out_data)
+                                else:
+                                    out_data = max(site_data[iter_date])
+                            else:
+                                out_data = max(site_data[iter_date])
                         if ext == '.tpt':
                             out_data = np.mean(site_data[iter_date])
                     else:
-                        out_data = -999
-                        miss_count += 1
+                        if site_id in non_winter: # replace RAWS gage data when assuming it is non-winterized
+                            if iter_date.month <=4 or iter_date.month >= 10:            # attempt to fill winter months Oct-Apr
+                                if valid_count > 0 and fill_count <= 1060:               # no fill until some observed data is available and only fill first 2 year of winter data
+                                    if iter_date.hour == 12:                            # only fill the daily value on hour 12 - all others set to 0
+                                        out_data = winter_fill[site_id][str(iter_date.month)] # look up fill value from PRISM/station csv
+                                        fill_count += 1
+                                        #print str(iter_date) + ' ---- ' + str(out_data)
+                                    else:
+                                        out_data = 0.00
+                                else:
+                                    out_data = -999
+                                    miss_count += 1
+                            else:
+                                out_data = -999
+                                miss_count += 1
+                        else:
+                            out_data = -999
+                            miss_count += 1
                     if out_data != -999 :
                         plot_dict[iter_date] = float(out_data) # apped data to plot dictionary
                         
@@ -362,7 +401,7 @@ for data_file in glob.glob(data_files+'/*.dat'):
                 taplot.write('\n')             
                 summary_tmn.write(station_summary[site_id][0]+','+str(site_id)+','+station_summary[site_id][2]+','+station_summary[site_id][3]+','+station_summary[site_id][4]+','+
                 station_summary[site_id][1]+','+str(miss_count)+','+str(valid_count)+','+str(round((valid_count/year_factor),2))+','+str((float(valid_count)/(miss_count+valid_count))*100)+','+str(min_date.year) +',' + str(max_date.year) + '\n')
-
+                
 if taplot != 'na':
     taplot.close()
 if summary_tmx != 'na' and summary_tmn != 'na':

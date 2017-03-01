@@ -15,7 +15,7 @@ import numpy as np
 import os
 import csv
 arcpy.env.overwriteOutput = True
-os.chdir("../..")
+os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################

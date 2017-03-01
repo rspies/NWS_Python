@@ -18,9 +18,10 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'MARFC_FY2017'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['tmean','ppt'] # use temperature: 'tmean' or precipitation: 'ppt'
+resolution = '800m' # choices: '800m' or '4km' -> PRISM resolution
 climo_period = '1981_2010'
 ####################################################################
 #END USER INPUT SECTION
@@ -30,18 +31,18 @@ for variable in variables:
     print variable
     #FOLDER PATH OF NLCD .xls DATA FILES
     if fx_group != '':
-        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '\\' + fx_group + '\\'
+        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '_' + resolution + '\\' + fx_group + '\\'
     else:
-        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '\\'
+        xls_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\' + climo_period + '_climo_' + variable + '_' + resolution + '\\'
     #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
     output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
     
     print 'Script is Running...'
     #Define output file name
     if fx_group != '':
-        out_file = open(output_folderPath + RFC[:5] + '_' +  RFC[-6:] + '_' + fx_group +  '_PRISM_Summary_' + climo_period + '_' + variable + '.csv', 'w')
+        out_file = open(output_folderPath + RFC[:5] + '_' +  RFC[-6:] + '_' + fx_group +  '_PRISM_Summary_' + climo_period + '_' + variable + '_' + resolution + '.csv', 'w')
     else:
-        out_file = open(output_folderPath + RFC + '_PRISM_Summary_' + climo_period + '_' + variable + '.csv', 'w')
+        out_file = open(output_folderPath + RFC + '_PRISM_Summary_' + climo_period + '_' + variable + '_' + resolution + '.csv', 'w')
     
     basins=[]
     files = os.listdir(xls_folderPath)

@@ -14,9 +14,9 @@ os.chdir("../..") # change dir to \\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'NWRFC_FY2017'
+RFC = 'MARFC_FY2017'
 fx_group = ''
-yr_start = 2002; yr_end = 2015
+yr_start = 2002; yr_end = 2017
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
 if fx_group != '':
@@ -87,11 +87,11 @@ for basin_query in ch5id_list:
                 csv_line = csv_line.replace('</td><td>',',')
                 csv_line = csv_line.replace('</td></tr>','')
                 len_line = csv_line.split(',')
-                if yr_int == yr_start and 'SHEF ID:' in csv_line and len(len_line) == 2:
+                if yr_int == yr_end and 'SHEF ID:' in csv_line and len(len_line) == 2:
                     print len_line
                     summary.write(basin_query+',')
                     summary.write(len_line[1]+',')
-                if yr_int == yr_start and 'Basin Area:' in csv_line and len(len_line) == 2:
+                if yr_int == yr_end and 'Basin Area:' in csv_line and len(len_line) == 2:
                     print len_line
                     summary.write(len_line[1].strip('sq. mi') + '\n')
 

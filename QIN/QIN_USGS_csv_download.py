@@ -17,14 +17,14 @@ os.chdir("../..") # change dir to NWS main folder
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'MBRFC_FY2017'
-fx_group = 'fix'           # set to '' if not used
-basin_col = 'CH5_ID'    # 'BASIN' # list column to pull the basin id from the summary csv
-date_end = '2015-09-30' # YYYY-MM-DD  # end date for NWIS data search
+RFC = 'LMRFC_FY2017'
+fx_group = ''                   # set to '' if not used
+basin_col = 'CH5_ID'            # 'BASIN' # list column to pull the basin id from the summary csv
+date_end = '2016-09-30'         # YYYY-MM-DD  # end date for NWIS data search
+summary_output = 'yes'          # options: 'yes' or 'no' choice to create a text file with a summary of the data download
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
-summary_output = 'yes'   # options: 'yes' or 'no' choice to create a summary text with info regarding data download
 
-if fx_group != '':
+if fx_group != '':              # define directory locations if using fxgroup to break up download
     task_csv = RFC[:5] + '_fy17_task_summary_' + fx_group + '.csv'
     out_dir = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + os.sep
     summary_file = workingdir + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_data_download_summary.csv'

@@ -16,19 +16,19 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'LMRFC_FY2017'
+RFC = 'MARFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
 param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
-snow = 'off' # choices: 'on' or 'off'
+snow = 'on' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
-snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
+snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
 uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
@@ -378,91 +378,38 @@ if uhg == 'on':
         
         #Open .xml file and temporary .txt file to write .xml contents to
         xml_file = open(folderPath + '\\UH\\' + filename, 'r')
-        txt_file = open(working_dir +'\\' + name + '.txt', 'w')
-    
-        #Write contents of .xml file to the temporary .txt file
-        for line in xml_file:
-            txt_file.write(line)
-    
-        #Close the open files
-        xml_file.close()
-        txt_file.close()
-    
-        #Open .txt file with .xml contents in read mode and create output .txt file where parameters will be written
-        txt_file = open(working_dir +'\\' + name + '.txt', 'r')
     
         ###UHG_DURATION
         #Find line number with UHG_DURATION value
         #Line number is saved when loop breaks
-        line_num = 0
-        for line in txt_file:
-            line_num += 1
-            if 'UHG_DURATION' in line:
-                break
-    
-        #Set cursor back to beginning of txt_file that is being read
-        txt_file.seek(0)
-    
-        #Section/line of .txt file with desired parameter value
-        section = txt_file.readlines()[line_num:line_num+1]
-    
-        for line in section:
-            #Write only numbers and decimals to output file
-            line = re.sub("[^0123456789\.\-]", "", line)
-    
-        ###DRAINAGE_AREA
-        txt_file.seek(0)
-        line_num = 0
-        for line in txt_file:
-            line_num += 1
-            if 'DRAINAGE_AREA' in line:
-                break
-    
-        txt_file.seek(0)
-    
-        section = txt_file.readlines()[line_num:line_num+1]
-    
-        for line in section:
-            line = re.sub("[^0123456789\.\-]", "", line)
-            area = line
-            csv_file.write(area + ',')
+        uhg_params = ['DRAINAGE_AREA','UHG_INTERVAL','CONSTANT_BASE_FLOW']
+        for param in uhg_params:
+            #print param
+            line_num = 0; section = ''
+            xml_file.seek(0)
+            xml_seek = iter(xml_file) # create an iterable xml file object (this allows code to read next lines without looping)
+            for line in (xml_seek):
+                #print line
+                line_num += 1
+                if param in line:
+                    section = next(xml_seek) 
+                    if 'description' in section: # some moduleparfile formats include an extra 'description' line
+                        section = next(xml_seek)
+                    break
             
-        ###UHG_INTERVAL
-        txt_file.seek(0)
-        line_num = 0
-        for line in txt_file:
-            line_num += 1
-            if 'UHG_INTERVAL' in line:
-                break
-    
-        txt_file.seek(0)
-    
-        section = txt_file.readlines()[line_num:line_num+1]
-    
-        for line in section:
-            line = re.sub("[^0123456789\.\-]", "", line)
-            interval = line
-            csv_file.write(interval + ',')
-    
-        ###CONSTANT_BASE_FLOW
-        txt_file.seek(0)
-        line_num = 0
-        for line in txt_file:
-            line_num += 1
-            if 'CONSTANT_BASE_FLOW' in line:
-                break
-    
-        txt_file.seek(0)
-    
-        section = txt_file.readlines()[line_num:line_num+1]
-    
-        for line in section:
-            line = re.sub("[^0123456789\.\-]", "", line)
-            const_bf = line
-            csv_file.write(const_bf + ',')
+            if section == '':
+                print 'Param not found: ' + param
+            
+            #Write only numbers and decimals to output file
+            else:
+                section = re.sub("[^0123456789\.\-]", "", section)
+                param_data = section
+                csv_file.write(param_data + ',')
+                if param == 'DRAINAGE_AREA':
+                    area = param_data
     
         ###UHG_ORDINATES
-        txt_file.seek(0)
+        xml_file.seek(0)
     
         UHG_time = []
         UHG_flow = []
@@ -474,7 +421,7 @@ if uhg == 'on':
         UHG_time.append(ordinate)
         UHG_flow.append(ordinate)
         
-        for line in txt_file:
+        for line in xml_file:
             if 'row A' in line:
                 ordinate = ordinate + 6
                 UHG_time.append(ordinate)
@@ -536,13 +483,8 @@ if uhg == 'on':
             plt.clf()    
             plt.close()
         
-        txt_file.close()
-        
+        xml_file.close()
         csv_file.write('\n')    
-        
-        #Delete temporary .txt file holding .xml contents
-        os.remove(working_dir +'\\' + name + '.txt')
-    
     csv_file.close() 
 
 ###############################################################################
@@ -752,60 +694,61 @@ if lagk == 'on':
         
         
         ######################## LAG/K Plots ###########################
-        if lag_plots == 'on' and len(K_time)>1 or len(lag_time)>1:
-            fig, ax1 = plt.subplots()
-            
-            #Get max Lag/K time value
-            max_time = numpy.max(lag_time + K_time)
-            x = range(0,int(max_time)+6,6)
-            
-            #Plot the data
-            if len(lag_time)>1:
-                ax1.plot(lag_time, lag_Q, 'g-o', label='LAG', linewidth='2', zorder=5, ms=5)
-            if len(K_time)>1:
-                ax1.plot(K_time, K_Q, 'r-o', label='K', linewidth='2', zorder=5, ms=5)
-            #ax1.fill_between(x,UHG_flow,facecolor='gray', alpha=0.25)    
-            
-            #ax1.minorticks_on()
-            ax1.grid(which='major', axis='both', color='black', linestyle='-', zorder=3)
-            ax1.grid(which='minor', axis='both', color='grey', linestyle='-', zorder=3)
-            
-            majorLocator = MultipleLocator(6)
-            ax1.xaxis.set_major_locator(majorLocator)
-            
-            ax1.yaxis.set_minor_locator(AutoMinorLocator(2))
-            
-            ax1.set_xlabel('Time (hr)')
-            ax1.set_ylabel('Flow (cfs)')
-            
-            #Make tick labels smaller/rotate for long UHGs
-            if max_time >= 100:
-                for label in ax1.xaxis.get_ticklabels():       
-                    label.set_fontsize(8)
-            if max_time >= 160:
-                for label in ax1.xaxis.get_ticklabels():       
-                    label.set_fontsize(6)
-                    plt.xticks(rotation=90)
-                    majorLocator = MultipleLocator(12)
-                    ax1.xaxis.set_major_locator(majorLocator)
+        if lag_plots == 'on':
+            if len(K_time)>1 or len(lag_time)>1:
+                fig, ax1 = plt.subplots()
+                
+                #Get max Lag/K time value
+                max_time = numpy.max(lag_time + K_time)
+                x = range(0,int(max_time)+6,6)
+                
+                #Plot the data
+                if len(lag_time)>1:
+                    ax1.plot(lag_time, lag_Q, 'g-o', label='LAG', linewidth='2', zorder=5, ms=5)
+                if len(K_time)>1:
+                    ax1.plot(K_time, K_Q, 'r-o', label='K', linewidth='2', zorder=5, ms=5)
+                #ax1.fill_between(x,UHG_flow,facecolor='gray', alpha=0.25)    
+                
+                #ax1.minorticks_on()
+                ax1.grid(which='major', axis='both', color='black', linestyle='-', zorder=3)
+                ax1.grid(which='minor', axis='both', color='grey', linestyle='-', zorder=3)
+                
+                majorLocator = MultipleLocator(6)
+                ax1.xaxis.set_major_locator(majorLocator)
+                
+                ax1.yaxis.set_minor_locator(AutoMinorLocator(2))
+                
+                ax1.set_xlabel('Time (hr)')
+                ax1.set_ylabel('Flow (cfs)')
+                
+                #Make tick labels smaller/rotate for long UHGs
+                if max_time >= 100:
+                    for label in ax1.xaxis.get_ticklabels():       
+                        label.set_fontsize(8)
+                if max_time >= 160:
+                    for label in ax1.xaxis.get_ticklabels():       
+                        label.set_fontsize(6)
+                        plt.xticks(rotation=90)
+                        majorLocator = MultipleLocator(12)
+                        ax1.xaxis.set_major_locator(majorLocator)
+                        
+                ax1.set_xlim([0,max_time+3])
+                plt.ylim(ymin=0)
+                
+                #add plot legend with location and size
+                ax1.legend(loc='upper right', prop={'size':10})
                     
-            ax1.set_xlim([0,max_time+3])
-            plt.ylim(ymin=0)
-            
-            #add plot legend with location and size
-            ax1.legend(loc='upper right', prop={'size':10})
+                plt.title(name[:5] + ': ' + inflow_basin + ' LAG/K Parameters')
+                    
+                output_folder = csv_file_out +'\\LAGK_plots\\'
+                if os.path.exists(output_folder) == False:
+                    os.makedirs(output_folder)
+                figname = output_folder + name + '_LAGK.png'
+                    
+                plt.savefig(figname, dpi=100, bbox_inches='tight')
                 
-            plt.title(name[:5] + ': ' + inflow_basin + ' LAG/K Parameters')
-                
-            output_folder = csv_file_out +'\\LAGK_plots\\'
-            if os.path.exists(output_folder) == False:
-                os.makedirs(output_folder)
-            figname = output_folder + name + '_LAGK.png'
-                
-            plt.savefig(figname, dpi=100, bbox_inches='tight')
-            
-            plt.clf()    
-            plt.close()
+                plt.clf()    
+                plt.close()
             
         #Delete temporary .txt file holding .xml contents
         os.remove(working_dir +'\\' + name + '.txt')

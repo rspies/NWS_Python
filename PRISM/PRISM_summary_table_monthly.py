@@ -19,10 +19,10 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'MARFC_FY2017'
+RFC = 'NWRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['ppt','tmean','tmax','tmin'] # use temperature: 'tmean','tmax','tmin' or precipitation: 'ppt'
-
+resolution = '800m' # choices: '800m' or '4km' -> PRISM resolution
 # if you only want to run specific basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [])
 basins_overwrite = []
@@ -34,9 +34,9 @@ for variable in variables:
     print variable
     #FOLDER PATH OF PRISM .xls/.csv DATA FILES
     if fx_group != '':
-        csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\' + fx_group + '\\'
+        csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution + '_month\\' + fx_group + '\\'
     else:
-        csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_month\\'
+        csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution + '_month\\'
     #FOLDER PATH OF BASIN SUMMARY PRISM .xls DATA FILES (!Must be different than csv_FolderPath!)
     output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
     
@@ -56,9 +56,9 @@ for variable in variables:
     print 'Script is Running...'
     #Define output file name
     if fx_group != '':
-        out_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_Monthly_PRISM_' + variable + '_Summary.csv', 'w')
+        out_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_Monthly_PRISM_' + variable + '_' + resolution + '_Summary.csv', 'w')
     else:
-        out_file = open(output_folderPath + RFC + '_Monthly_PRISM_' + variable + '_Summary.csv', 'w')
+        out_file = open(output_folderPath + RFC + '_Monthly_PRISM_' + variable + '_' + resolution + '_Summary.csv', 'w')
     out_file.write('variable: ' + variable + ',' + 'units: ' + units[variable] + '\n')
     out_file.write('Basin,'+'Jan,'+'Feb,'+'Mar,'+'Apr,'+'May,'+'Jun,'+'Jul,'+'Aug,'+'Sep,'+'Oct,'+'Nov,'+'Dec,'+'\n')
     #loop through NLCD .xls files in folderPath

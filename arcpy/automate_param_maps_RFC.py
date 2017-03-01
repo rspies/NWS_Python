@@ -13,13 +13,13 @@ import os
 os.chdir("../..")
 maindir = os.getcwd()
 ########################### USER INPUT ################################
-rfc = 'NCRFC_FY2016'
+rfc = 'LMRFC_FY2017'
 fx_group = ''
-param_version = 'final' # choices: 'sa' or 'calb' or 'final' or 'draft';
-labels = 'off' # choices: 'on' or 'off'
+param_version = 'draft' # choices: 'sa' or 'calb' or 'final' or 'draft';
+labels = 'on' # choices: 'on' or 'off'
 model = 'SACSMA' # choices: 'SACSMA' or 'SNOW17'
 #input_mxd = 'P:\\NWS\\GIS\\' + rfc + '\\' + rfc + '_sac_params_' + param_version + '.mxd'
-input_mxd = maindir +'\\GIS\\' + rfc[:5] + os.sep + rfc + '\\' + rfc[:5].upper() + '_' + param_version + '_param_map' + '.mxd'
+input_mxd = maindir +'\\GIS\\' + rfc[:5] + os.sep + rfc + '\\' + rfc[:5].lower() + '_fy17_' + param_version + '_param_map' + '.mxd'
 ######################### END USER INPUT ##############################
 ### output location
 if fx_group != '':
@@ -39,7 +39,8 @@ all_layers = []
 for each in avail_layers:
     all_layers.append(each[9:-4])
 variables = list(set(all_layers))
-#variables = ['EFC'] # use this to run specific parameters
+
+#variables = ['UZTWM'] # use this to run specific parameters
 for variable in variables:
     print variable
     print 'Populating mxd...'
@@ -49,11 +50,11 @@ for variable in variables:
     df_inset = arcpy.mapping.ListDataFrames(mxd, "Inset_Map")[0]
 
     if param_version == 'final' or param_version == 'draft':
-        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '16_' + param_version + "_" + model + "_params", df_main)[0]   # parameter shapefile
+        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params", df_main)[0]   # parameter shapefile
     if param_version == 'sa':
         updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + "initial_params_0727", df_main)[0]   # parameter shapefile
     if param_version == 'final'or param_version == 'draft':
-        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '16_' + param_version + "_" + model + "_params", df_inset)[0]   # parameter shapefile
+        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params", df_inset)[0]   # parameter shapefile
     if param_version == 'sa':
         updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + "initial_params_0727", df_inset)[0]   # parameter shapefile          
     
@@ -87,7 +88,7 @@ for variable in variables:
     #arcpy.mapping.UpdateLayer(df_inset, updateLayer3, sourceLayer1, False)
     #arcpy.mapping.UpdateLayer(df_inset, updateLayer4, sourceLayer2, False)
     print 'Creating map png...'
-    arcpy.mapping.ExportToPNG(mxd, out_dir + '\\' + variable + '_' + param_version + '.png', resolution=150)
+    arcpy.mapping.ExportToPNG(mxd, out_dir + '\\' + variable + '_' + param_version + '.png', resolution=220)
     del mxd, sourceLayer1
 
 print 'Completed!'
