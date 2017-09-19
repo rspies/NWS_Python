@@ -17,10 +17,11 @@ os.chdir("../..") # change dir to NWS main folder
 maindir = os.getcwd()
 
 ############ User input ################
-RFC = 'LMRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = ''                   # set to '' if not used
 basin_col = 'CH5_ID'            # 'BASIN' # list column to pull the basin id from the summary csv
-date_end = '2016-09-30'         # YYYY-MM-DD  # end date for NWIS data search
+date_end = '2017-01-01'         # YYYY-MM-DD  # end date for NWIS data search
+date_begin = '1992-10-01'       # yyyy-MM-DD # default minimum date not to exceed
 summary_output = 'yes'          # options: 'yes' or 'no' choice to create a text file with a summary of the data download
 workingdir = maindir + os.sep + 'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep
 
@@ -67,12 +68,13 @@ for each in usgs_gages:
             gage_id = '0' + gage_id
         basin_id = str(basin_gage[each]).replace(' ', '')
         print gage_id + ' -> ' + basin_id
-        
+        '''
         if basin_id + '_historical.txt' in os.listdir(out_dir + 'pre_2007'): ## check if basin data has already been downloaded
             print 'Historic data file already exists (overwriting) -> ' + basin_id 
             #count += 1
             #continue
         ################################# historical data retrieval #######################################
+        
         try:
             hist_summary = urllib2.urlopen('http://ida.water.usgs.gov/ida/available_records.cfm?sn=' + gage_id)
         except:
@@ -94,6 +96,8 @@ for each in usgs_gages:
             min_date = br.form.find_control("mindatetime").value[:10]
             max_date = br.form.find_control("maxdatetime").value[:10]
             print min_date + ' -> ' + max_date
+            if int(min_date[:4])<int(date_begin[:4]):
+                min_date = date_begin
             #min_date = '2000-10-01'
             #max_date = '2000-10-01'
             if int(max_date[:4])-int(min_date[:4]) >8: # break up download requests if more than 8 years to prevent server timeout
@@ -225,10 +229,10 @@ for each in usgs_gages:
             if summary_output == 'yes':
                 summary.write(basin_id+','+gage_id+',')
                 summary.write('na,na,na,')
-        
+        '''
         ################################# recent data retrieval #######################################
         print 'Checking for recent data...'
-        date_start = '2007-09-30' # YYYY-MM-DD
+        date_start = date_begin #'2007-09-30' # YYYY-MM-DD
         #date_end = '2015-09-30' # YYYY-MM-DD
                             
         recent_url = urllib2.urlopen('http://waterdata.usgs.gov/nwis/uv?cb_00060=on&cb_00065=on&format=rdb&site_no=' + gage_id + '&period=&begin_date=' + date_start +'&end_date='+date_end)
@@ -253,3 +257,4 @@ for each in usgs_gages:
     count += 1
 if summary_output == 'yes':
     summary.close()
+print 'Script completed'

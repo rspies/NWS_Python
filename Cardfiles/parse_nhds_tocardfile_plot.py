@@ -17,7 +17,7 @@ maindir = os.getcwd()
 RFC = 'APRFC_FY2017'
 state = 'ANAK'
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep +RFC[:5] + os.sep + RFC + os.sep + 'MAP_MAT_development' + os.sep +'station_data'
-variable = 'ptpx'  # choices: 'ptpx', 'tamn', or 'tamx'
+variable = 'tamn'  # choices: 'ptpx', 'tamn', or 'tamx'
 timestep = 'daily' # choices: 'hourly' or 'daily'
 station_plot = 'on' # creates a summary bar plot for each station -> choices: 'on' or 'off'
 summer_thresh = 6; winter_thresh = 5 #precip thresholds (inches) to flag and possibly set to missing

@@ -16,15 +16,19 @@ maindir = os.path.abspath(os.curdir)
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'NCRFC_FY2017'
-fx_group = '' # set to '' if not used
+RFC = 'SERFC_FY2017'
+fx_group = ''           # set to '' if not used
+variable = 'STG'        
+timestep = 'inst'       # options: 'daily' or 'inst' # daily or instantaneous (hourly/sub-hourly)
 input_type = 'usgs' # choices: 'usgs' or 'chps'
+find_dir = {'STG':'csv_'+timestep,'QIN':'merged_csv'}
+
 if fx_group != '':
-    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + fx_group + '_QIN_' + input_type + '_statistical_summary.csv','w')
-    data_dir = fx_group + os.sep + 'merged_csv'
+    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + variable + os.sep + fx_group + '_' + variable + '_' + input_type + timestep + '_statistical_summary.csv','w')
+    data_dir = fx_group + os.sep + find_dir[variable]
 else:
-    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + 'QIN_' + input_type + '_statistical_summary.csv','w')
-    data_dir = 'merged_csv'
+    new_summary = open(maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + variable + os.sep + variable + '_' + input_type + '_' + timestep + '_statistical_summary.csv','w')
+    data_dir = find_dir[variable]
 ############################ End User input ##################################
 ##############################################################################
 
@@ -34,10 +38,10 @@ call_qin = 1
 ############ End User input ##################################################
 
 if input_type == 'usgs':
-    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + data_dir
+    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + variable + os.sep + data_dir
     header = 3
 if input_type == 'chps':
-    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'QIN' + os.sep + 'chps_export'
+    csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + variable + os.sep + 'chps_export'
     header = 2
 if input_type == 'ibwc':
     csv_loc = maindir + os.sep +'Calibration_NWS' + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'data_csv' + os.sep + 'IBWC' + os.sep + 'chps_csv'
@@ -55,11 +59,11 @@ for csv_file in csv_files:
     csv_read = open(csv_loc + os.sep + csv_file,'r')
     ###### tab delimitted CHPS QIN dishcarge CSV file into panda arrays ###########
     test = pd.read_csv(csv_read,sep=',',skiprows=header,
-            usecols=[call_date,call_qin],parse_dates=['date'],names=['date', 'QIN'])
+            usecols=[call_date,call_qin],parse_dates=['date'],names=['date', variable])
     ### assign column data to variables
     
     date_qin = test['date'].tolist()                  # convert to list (indexible)
-    all_qin = test['QIN'].tolist()
+    all_qin = test[variable].tolist()
 
     # find max/min of all data
     Q_mask = np.ma.masked_less(all_qin,0.0)     # mask values less than 0 to ignore

@@ -10,9 +10,9 @@ import csv
 os.chdir('../..')
 
 ############################## User Input ###################################
-RFC = 'LMRFC_FY2017'
+RFC = 'MBRFC_FY2017'
 fx_group = '' # leave blank if not processing by fx group
-sim_type = 'draft-CalibrationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final' and 'CalibrationPeriod' or 'ValidationPeriod'
+sim_type = 'final-CalibrationPeriod' # specific to type of simulation: 'initial' or 'draft' or 'final' and 'CalibrationPeriod' or 'ValidationPeriod'
 variables = ['local', 'outflow', 'inflow'] # choices: 'local', 'outflow', 'inflow'
 
 if fx_group == '':

@@ -14,10 +14,12 @@ maindir = os.getcwd()
 ################### user input #########################
 variable = 'ptpx'  # choices: 'ptpx'
 RFC = 'APRFC_FY2017'
-fxgroup = 'ANAK'
+fxgroup = 'NWAK'
 linux_dir = '' # used to point to file structure in linux # note that the MAP processor has an character limit on directories
-networks = ['nhds_daily','raws_hourly','nhds_hourly','asos_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
+networks = ['nhds_daily','raws_hourly','nhds_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
 month1 = 1; year1 = 1960; month2 = 9; year2 = 2015; 
+if fxgroup == 'NWAK':
+    year1=1965
 
 if fxgroup == 'NWAK':
     base_station = 'AK5076' # base station AK5051, akAKIA

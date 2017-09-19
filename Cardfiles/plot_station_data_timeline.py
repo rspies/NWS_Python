@@ -16,19 +16,19 @@ os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
 
 ############ User input ################
-variable = 'ptpx'       # choices: 'ptpx'
+variable = 'temp'       # choices: 'ptpx'
 RFC = 'APRFC_FY2017'
-fxgroup = 'ANAK'
-plot_stations = 'pxpp_input'   # choices: 'all' or 'pxpp_input' ### pxpp_input will ignore the stations in the ignore_file and not plot
-networks = ['nhds_hourly','nhds_daily','raws_hourly','asos_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
+fxgroup = 'NWAK'
+plot_stations = 'all'   # choices: 'all' or 'pxpp_input' ### pxpp_input will ignore the stations in the ignore_file and not plot
+networks = ['nhds_daily','raws_hourly']  # choices: 'raws_hourly','asos_hourly','nhds_daily','nhds_hourly','scan_hourly','CONAGUA'
 workingdir = maindir + os.sep + 'Calibration_NWS'+ os.sep + RFC[:5] + os.sep + RFC + os.sep + 'MAP_MAT_development' + os.sep +'station_data'
-figname =  workingdir + os.sep + 'station_summaries' + os.sep + 'data_timeline_plots' + os.sep + RFC + '_' + fxgroup + '_' + plot_stations + '.png'
+figname =  workingdir + os.sep + 'station_summaries' + os.sep + 'data_timeline_plots' + os.sep + RFC + '_' + fxgroup + '_' + variable + '_' + plot_stations + '.png'
 yearstart = 1960; yearend = 2016;  # start and end years for plotting
 ########################################
 
 ########## define data timeline figure ###
 fig, ax1 = plt.subplots(figsize=(11,9))        
-plt.title('Station Data Availability Timeline',fontsize=14)
+plt.title(variable.upper() + ' Station Data Availability Timeline',fontsize=14)
 basins_list = []; count = 0
 years = mdates.YearLocator()   # every year
 
@@ -37,19 +37,26 @@ for network in networks:
     timestep = network.split('_')[1]
     ignore_sites = []
     if network[:4] == 'raws' or network[:4] == 'asos' or network[:4] == 'scan':
-        card_dir = workingdir + os.sep + network +os.sep + 'cardfiles_ptpx' + os.sep + fxgroup + os.sep
+        card_dir = workingdir + os.sep + network +os.sep + 'cardfiles_' + variable + os.sep + fxgroup + os.sep
         station_file =   workingdir + os.sep + 'station_summaries' + os.sep + fxgroup + '_' + network[:4] + '_summary_' + variable + '_' + timestep + '.csv'
         ignore_file = workingdir + os.sep + network + os.sep + fxgroup  + '_ignore_stations.csv'
     if network[:4] == 'nhds' or network[:4] == 'usgs':
-        card_dir = workingdir + os.sep + network[:4] + '_' + timestep +os.sep + variable + os.sep + 'cardfiles' + os.sep + fxgroup + os.sep
-        station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '_' + fxgroup + '.csv'
+        if variable == 'temp' and network == 'nhds_daily':
+            card_dir = workingdir + os.sep + network[:4] + '_' + timestep +os.sep + 'tamx' + os.sep + 'cardfiles' + os.sep + fxgroup + os.sep
+            station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network[:4] + '_summary_tamx_' + timestep + '_' + fxgroup + '.csv'
+        else:
+            card_dir = workingdir + os.sep + network[:4] + '_' + timestep +os.sep + variable + os.sep + 'cardfiles' + os.sep + fxgroup + os.sep
+            station_file =  workingdir + os.sep + 'station_summaries' + os.sep + network[:4] + '_summary_' + variable + '_' + timestep + '_' + fxgroup + '.csv'
         ignore_file = workingdir + os.sep + network + os.sep + fxgroup  + '_ignore_stations.csv'
     if network[:4] == 'CONA':
         card_dir = workingdir + os.sep + 'CONAGUA'  + os.sep + variable + os.sep + 'cardfiles' + os.sep + timestep + os.sep
         station_file =  workingdir + os.sep + network.split('_')[0] + '_summary_' + variable + '_' + timestep + '.csv'
         ignore_file = workingdir + os.sep + network.split('_')[0] + '_all'  + '_ignore_stations.csv'
 
-    cards = [f for f in os.listdir(card_dir) if os.path.isfile(os.path.join(card_dir, f))]
+    if variable == 'temp':
+        cards = [f for f in os.listdir(card_dir) if os.path.isfile(os.path.join(card_dir, f)) and f.endswith('.tmx')]
+    else:
+        cards = [f for f in os.listdir(card_dir) if os.path.isfile(os.path.join(card_dir, f))]
     print cards
     ## read list of stations to ignore if plotting only pxpp input sites
     if plot_stations == 'pxpp_input':
@@ -86,7 +93,10 @@ for network in networks:
                         else:
                             sep = line.split()
                             if len(sep) > 0: # ignore blank lines
-                                full_date += timedelta(hours=1)
+                                if variable == 'temp':
+                                    full_date += timedelta(days=1)
+                                else:
+                                    full_date += timedelta(hours=1)
                                 date.append(full_date)
                                 data.append(float(sep[-1][-10:]))
                     line_count += 1

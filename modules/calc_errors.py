@@ -20,22 +20,25 @@ def pct_bias(obsx,modely):
     a = 0
     b = 0
     for each in modely:
-        a = a + (float(modely[cnt]) - obsx[cnt])
+        a += (float(modely[cnt]) - obsx[cnt])
         cnt += 1
     b = sum(obsx)
+    bias = (sum(modely)-b)/float(len(obsx))
     pbias = (a/b) * 100
-    print 'P Bias: ' + str(pbias)
-    return pbias
+    print 'Bias: ' + str(bias)
+    print 'P Bias: ' + str(pbias) + '%'
+    return bias, pbias
     
     ###### Nash Sutcliffe #####
 def nash_sut(obsx,modely):
     cnt = 0
     a = 0
     c = 0
+    print 'calculating NS...'
+    b = sum(obsx)/len(obsx)
     for each in modely:
-        a = a + ((modely[cnt] - obsx[cnt])**2)
-        b = sum(obsx)/len(obsx)
-        c = c + ((obsx[cnt] - b)**2)
+        a += ((modely[cnt] - obsx[cnt])**2)
+        c += ((obsx[cnt] - b)**2)
         cnt += 1
     ns = round(1 - (a/c), 2)
     print 'NSE: ' + str(ns)
@@ -46,7 +49,7 @@ def ma_error(obsx,modely):
     cnt = 0
     a = 0
     for each in modely:
-        a = a + (abs(modely[cnt] - obsx[cnt]))
+        a += (abs(modely[cnt] - obsx[cnt]))
         cnt += 1
     mae = round(a/len(modely),2)
     print 'MAE: ' + str(mae)
@@ -58,7 +61,7 @@ def rms_error(obsx,modely):
     a = 0
     
     for each in modely:
-        a = a + ((modely[cnt] - obsx[cnt])**2)
+        a += ((modely[cnt] - obsx[cnt])**2)
         cnt += 1
     mean = sum(obsx)/len(obsx)
     rmse = round((a/len(modely))**.5,2)

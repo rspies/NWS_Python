@@ -10,13 +10,13 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-os.chdir("..")
+os.chdir("../..")
 
 
 ################################# User Input #########################################
-RFC = 'NCRFC_FY2016'
-fx_group = 'DES' # set to blank '' if not using fx_groups
-version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
+RFC = 'NWRFC_FY2017'
+fx_group = '' # set to blank '' if not using fx_groups
+version_compare = 'final_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 
 if fx_group == '':
     maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params' + os.sep + RFC[:5] + os.sep + RFC

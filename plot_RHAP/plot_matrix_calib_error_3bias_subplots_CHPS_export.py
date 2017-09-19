@@ -3,6 +3,9 @@
 # Python 2.7
 # This script plots a raster image of an input stream dischare txt file
 
+# using matplotlib imshow - could use pcolormesh:
+# http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pcolormesh
+
 import os
 import matplotlib.pyplot as plt
 #Turn interactive plot mode off (don't show figures)
@@ -21,10 +24,10 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'LMRFC_FY2017'
+RFC = 'MBRFC_FY2017'
 fx_group = ''                   # set to blank '' if not using fx_groups
-yr_begin = 1980; yr_final = 2016  # these are the default start/end years for plots
-sim_type = 'draft'            # choices: initial (prior to calib) or final (final calib)
+yr_begin = 1989; yr_final = 2013  # these are the default start/end years for plots
+sim_type = 'final'            # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum']  # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type    #' Calb Raster Analysis' or '_bias_pbias_test'
 resolution = 350                #350->(for report figs) 100->for CHPS fx help tab display (E19)
@@ -173,7 +176,10 @@ for basin_id in basin_ids:
         ### calculate plot coloring thresholds for bias and accum bias - based on obs data mean
         avg_flow = np.ma.mean(np.ma.masked_invalid(obs_Q))
         print 'Mean flow: ' + str(avg_flow)
-        if 0 <= avg_flow <= 10:
+        if 0 <= avg_flow <= 1:
+            cminb = -6; cmaxb = 6
+            cmina = -100; cmaxa =100        
+        elif 0 <= avg_flow <= 10:
             cminb = -100; cmaxb = 100
             cmina = -1000; cmaxa =1000
         elif 10 < avg_flow <= 20:

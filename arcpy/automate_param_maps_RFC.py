@@ -13,9 +13,9 @@ import os
 os.chdir("../..")
 maindir = os.getcwd()
 ########################### USER INPUT ################################
-rfc = 'LMRFC_FY2017'
+rfc = 'MBRFC_FY2017'
 fx_group = ''
-param_version = 'draft' # choices: 'sa' or 'calb' or 'final' or 'draft';
+param_version = 'final' # choices: 'sa' or 'calb' or 'final' or 'draft';
 labels = 'on' # choices: 'on' or 'off'
 model = 'SACSMA' # choices: 'SACSMA' or 'SNOW17'
 #input_mxd = 'P:\\NWS\\GIS\\' + rfc + '\\' + rfc + '_sac_params_' + param_version + '.mxd'
@@ -50,13 +50,13 @@ for variable in variables:
     df_inset = arcpy.mapping.ListDataFrames(mxd, "Inset_Map")[0]
 
     if param_version == 'final' or param_version == 'draft':
-        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params", df_main)[0]   # parameter shapefile
-    if param_version == 'sa':
-        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + "initial_params_0727", df_main)[0]   # parameter shapefile
+        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_fy17_' + param_version + "_" + model + "_params", df_main)[0]   # parameter shapefile
+    if param_version == 'sa' or param_version == 'initial':
+        updateLayer1 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params")[0]   # parameter shapefile
     if param_version == 'final'or param_version == 'draft':
-        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params", df_inset)[0]   # parameter shapefile
-    if param_version == 'sa':
-        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + "initial_params_0727", df_inset)[0]   # parameter shapefile          
+        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_fy17_' + param_version + "_" + model + "_params", df_inset)[0]   # parameter shapefile
+    if param_version == 'sa' or param_version == 'initial':
+        updateLayer2 = arcpy.mapping.ListLayers(mxd, rfc[:5].lower() + '_' + param_version + "_" + model + "_params", df_inset)[0]   # parameter shapefile          
     
     sourceLayer1 = arcpy.mapping.Layer(layers_dir + rfc[:5] + '_sa_' + variable + '.lyr')
     #sourceLayer2 = arcpy.mapping.Layer(maindir +'\\GIS\\' + rfc + '\\layer_files\\SERFC_calib_' + variable + '.lyr')

@@ -15,29 +15,33 @@ maindir = os.getcwd()
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
-RFC = 'LMRFC_FY2017'
+RFC = 'SERFC_FY2017'
 fx_group = '' # set to '' if not used
+dss_csv = 'off'          # options: 'on' or 'off' # create csv for dss import
 
 if fx_group != '':
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\post_2007\\'
     outputpath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\'+fx_group+'\\merged_csv\\'
+    dss_path = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_dss\\'  + fx_group
 else:
     histdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\pre_2007\\'
     recentdata = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\post_2007\\'
     outputpath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\QIN\\merged_csv\\'
+    dss_path = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_dss'
 ####################################################################
 #END USER INPUT SECTION
 ####################################################################
 
 Basins = []
 for each in os.listdir(histdata):
-    if each.split('_')[0] not in Basins:
-        Basins.append(each.split('_')[0])
+    if each.replace('_historical.txt','') not in Basins:
+        Basins.append(each.replace('_historical.txt',''))
 for each in os.listdir(recentdata):
-    if each.split('_')[0] not in Basins:
-        Basins.append(each.split('_')[0])
+    if each.replace('_recent.txt','') not in Basins:
+        Basins.append(each.replace('_recent.txt',''))
 print Basins
+dss_dic = {} # dictionary for storing all locations/dates
 
 for Basin in Basins:
     print 'Processing: ' + Basin
@@ -69,10 +73,15 @@ for Basin in Basins:
                     minute = date[10:12]
                     second = date[12:14]
                     flow = str(sep[flow_ind])
+                    inst_date = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
                     if flow == 'Ice':
-                        QIN_file_write.write(year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ',' + '-999.0' + '\n')
+                        QIN_file_write.write(inst_date + ',' + '-999.0' + '\n')
                     else:
-                        QIN_file_write.write(year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ',' + flow + '\n')
+                        QIN_file_write.write(inst_date + ',' + flow + '\n')
+                        if dss_csv == 'on':
+                            if inst_date not in dss_dic:
+                                dss_dic[inst_date] = {}
+                            dss_dic[inst_date][Basin]=str(float(flow))
         historic_file_read.close()
     else:
         print Basin + ': historical data file not found...'
@@ -128,13 +137,39 @@ for Basin in Basins:
                     second = '00'
                     flow = str(row[flow_index])
                     #QIN_file_write.write(str(date) + '00' + ',' + flow + '\n')
+                    inst_date = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
                     if flow == 'Ice' or flow == 'Ssn' or flow == 'Eqp' or flow == '' or flow == 'Rat':
-                        QIN_file_write.write(year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ',' + '-999.0' + '\n')
+                        QIN_file_write.write(inst_date + ',' + '-999.0' + '\n')
                     else:
-                        QIN_file_write.write(year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second + ',' + str(float(flow)) + '\n')    
+                        QIN_file_write.write(inst_date + ',' + str(float(flow)) + '\n')    
+                        if dss_csv == 'on':
+                            if inst_date not in dss_dic:
+                                dss_dic[inst_date] = {}
+                            dss_dic[inst_date][Basin]=str(float(flow))
         recent_csv_file_read.close()
     else:
         print Basin + ': _recent.txt file missing...'
-        
     QIN_file_write.close()
+###########################    
+if dss_csv == 'on':
+    print 'Writing to combined dss csv...'
+    combine_csv = open(dss_path + os.sep + 'QIN_inst' + '_merged_for_dss.csv','w')
+    combine_csv.write('Date,')
+    for Basin in Basins:
+        if Basin != Basins[-1]:
+            combine_csv.write(Basin + ',')
+        else:
+            combine_csv.write(Basin + '\n')
+    for datestep in sorted(dss_dic):
+        combine_csv.write(datestep + ',')
+        for Basin in Basins:
+            if Basin in dss_dic[datestep]:
+                combine_csv.write(dss_dic[datestep][Basin])
+            else:
+                combine_csv.write('')
+            if Basin != Basins[-1]:
+                combine_csv.write(',')
+            else:
+                combine_csv.write('\n')
+    combine_csv.close()
 print 'Script Complete'

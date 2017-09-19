@@ -16,16 +16,16 @@ maindir = os.path.abspath(os.curdir)
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'MARFC_FY2017'
+RFC = 'MBRFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+param_source = 'final_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'on' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
-tatum = 'off' # choices: 'on' or 'off'
+tatum = 'on' # choices: 'on' or 'off'
 
 #### parameter plot options ####
 snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
@@ -738,7 +738,7 @@ if lagk == 'on':
                 #add plot legend with location and size
                 ax1.legend(loc='upper right', prop={'size':10})
                     
-                plt.title(name[:5] + ': ' + inflow_basin + ' LAG/K Parameters')
+                plt.title(name.split('_')[0] + ': ' + inflow_basin + ' LAG/K Parameters')
                     
                 output_folder = csv_file_out +'\\LAGK_plots\\'
                 if os.path.exists(output_folder) == False:

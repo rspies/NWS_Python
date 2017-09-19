@@ -33,7 +33,7 @@ if fx_group != '':
     nlcd_file = open(output_folderPath + RFC[:5] + '_' + fx_group + '_' + RFC[-6:] + '_NLCD_Summary.csv', 'w')
 else:
     nlcd_file = open(output_folderPath + RFC + '_NLCD_Summary.csv', 'w')
-if RFC == 'APRFC': # add Alaska only land cover classes
+if RFC[:5] == 'APRFC': # add Alaska only land cover classes
     nlcd_file.write('Basin,' + 'Open Water,' + 'Perennial Snow/Ice,' + \
                     'Developed Open Space,' + 'Developed Low Intensity,' + 'Developed Medium Intensity,' + 'Developed High Intensity,' + \
                     'Barren Land,' + 'Deciduous Forest,' + 'Evergreen Forest,' + 'Mixed Forest,' + 'Dwarf Scrub,' + 'Shrub/Scrub,' + 'Herbaceous,' + \
@@ -216,7 +216,7 @@ for filename in glob.glob(os.path.join(csv_folderPath, "*.csv")):
     Forest_percent = float((Forest_sum/Count_sum)*100)
 
     #WRITE THE DATA TO THE RFC SUMMARY CSV FILE
-    if RFC == 'APRFC': # add Alaska only land cover classes
+    if RFC[:5] == 'APRFC': # add Alaska only land cover classes
         nlcd_file.write(name + ',' + str(OpenWater_percent) + ',' + str(Perennial_SnowIce_percent) + ',' + \
                         str(Developed_OpenSpace_percent) + ',' + str(Developed_LowIntensity_percent) + ',' + str(Developed_MediumIntensity_percent) + ',' + \
                         str(Developed_HighIntensity_percent) + ',' + str(Barren_Land_percent) + ',' + str(Deciduous_Forest_percent) + ',' + \

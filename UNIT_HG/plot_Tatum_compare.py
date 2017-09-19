@@ -15,8 +15,8 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 os.chdir("../..")
 
 ################################# User Input #########################################
-RFC = 'NCRFC_FY2016'
-fx_group = 'DES' # set to blank '' if not using fx_groups
+RFC = 'MBRFC_FY2017'
+fx_group = '' # set to blank '' if not using fx_groups
 version_compare1 = 'final_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 version_compare2 = 'pre_calb' # compare results to the pre_calb
 
@@ -28,6 +28,13 @@ else:
 interval = 6 # 6hour values
 ######################################################################################
 csv1 = open(maindir  + '\\Params_' + version_compare1 + '\\_' + RFC +'_TATUM_Params_' + version_compare1 + '_slim.csv','r')
+### output 
+output_folder = maindir + '\\Params_' + version_compare1 + '\\TATUM_plot_compare\\'
+if os.path.exists(output_folder) == False:
+    os.makedirs(output_folder)
+layer_sum_check = open(output_folder + 'layer_coeff_check.txt','w')
+layer_sum_check.write('Checking all flow layers add to 1.00 -> list below layers != 1.00\n')
+        
 basins = []
 tat_time = []
 data_dict1 = {}; thresh_dict1 = {}
@@ -79,12 +86,20 @@ for basin in basins:
         num_ords.append(len(data_dict1[basin][layer]))
         #ax1.plot(x_initial, UHG_initial_flow, color='red', label='Initial UHG', ls = '--', linewidth='3', zorder=5, alpha=0.75)
         #ax1.fill_between(x,UHG_flow,facecolor='gray', alpha=0.25)
+        sum_coef = round(sum(map(float,data_dict1[basin][layer])),2) # convert list strings to float, sum, and round to 2 decimals
+        if sum_coef != 1.00:
+            print 'WARNING!! -> ' + basin + ' ' + layer + ' sum = ' + str(sum_coef)
+            layer_sum_check.write(version_compare1 + ' ' + basin + ' ' + layer + ' sum = ' + str(sum_coef) + '\n')
     if version_compare2 != '':
         if basin in data_dict2:
             colors=iter(cm.autumn(np.linspace(0,1,len(data_dict2[basin])+1)))
             for layer in sorted(data_dict2[basin]):
                 ax1.plot(tat_time[:len(data_dict2[basin][layer])], data_dict2[basin][layer], '--', dashes=(5,2), color=next(colors), label=version_compare2+' ' + layer + ': ' +thresh_dict2[basin][layer], linewidth='3', zorder=5)
                 num_ords.append(len(data_dict2[basin][layer]))
+                sum_coef = round(sum(map(float,data_dict2[basin][layer])),2) # convert list strings to float, sum, and round to 2 decimals
+                if sum_coef != 1.00:
+                    layer_sum_check.write(version_compare2 + ' ' + basin + ' ' + layer + ' sum = ' + str(sum_coef) + '\n')
+                    #print 'WARNING!! -> ' + version_compare2 + ' ' + basin + ' ' + layer + ' sum = ' + str(sum_coef)
     
     #ax1.minorticks_on()
     ax1.grid(which='major', axis='both', color='black', linestyle='-', zorder=3)
@@ -116,13 +131,10 @@ for basin in basins:
     plt.ylim(ymax=1)
     
     #add plot legend with location and size
-    ax1.legend(loc='upper right', prop={'size':10})
+    ax1.legend(bbox_to_anchor=(1.6, 1.05), prop={'size':10})
         
     plt.title(basin + ' TATUM Coefficients')
     
-    output_folder = maindir + '\\Params_' + version_compare1 + '\\TATUM_plot_compare\\'
-    if os.path.exists(output_folder) == False:
-        os.makedirs(output_folder)
     figname = maindir + '\\Params_' + version_compare1 + '\\TATUM_plot_compare\\' + basin + '_TATUM.png'
     plt.savefig(figname, dpi=100,bbox_inches='tight')
     
@@ -130,4 +142,5 @@ for basin in basins:
     plt.close()
     #Turn interactive plot mode off (don't show figures)
     plt.ioff()  
+layer_sum_check.close()
 print 'Script Completed'

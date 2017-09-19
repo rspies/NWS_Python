@@ -18,14 +18,14 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS'
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
 basin_ids = [] # run individual basin(s) -> otherwise leave empty []
-sim_type = 'draft' # choices: "initial", "final", "working", "draft"
-RFC = 'LMRFC_FY2017'
+sim_type = 'final' # choices: "initial", "final", "working", "draft"
+RFC = 'MBRFC_FY2017'
 fx_group = '' # set to blank '' if not using fx_groups
-variable = 'QIN_SQIN' # 'QME_SQME' or 'QIN_SQIN'
+variable = 'QME_SQME' # 'QME_SQME' or 'QIN_SQIN'
 ignore_basins = []
 resolution = 350 #350->(for report figs) 100->for CHPS fx help tab display (E19)
 plt.ioff()  #Turn interactive plot mode off (don't show figures)
-yr_start  = 2000; yr_end = 2016 # specify the first and last year to analyze
+yr_start  = 2000; yr_end = 2013 # specify the first and last year to analyze
 csv_loc = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + variable + os.sep
 out_dir = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type+ os.sep + 'UH_analysis_plots' +  os.sep + variable + os.sep 
 out_list = maindir + os.sep + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'UH_analysis_plots' + os.sep + variable + os.sep + 'uhg_event_analysis.txt'
@@ -101,8 +101,8 @@ for basin_id in basin_ids:
         actual_index = 0; tot_events = 0
         for obs in date_Q:
             #### find streamflow values > than set threshold (isolate larger events)
-            #### also ignore peak events at the very begining of analysis period
-            if obs > thresh and actual_index >= period:
+            #### also ignore peak events at the very begining and end of analysis period 
+            if obs > thresh and actual_index >= period and actual_index < (len(date_Q) - period):
                 #### find event peak within the window period specified above
                 #### e.g. value at time1 must be > all values within +- 5 time steps
                 if obs >= max(date_Q[actual_index + 1:actual_index + period]) and obs > max(date_Q[actual_index - period: actual_index]):

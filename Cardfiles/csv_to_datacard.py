@@ -14,24 +14,46 @@ os.chdir("../..")
 maindir = os.getcwd() + os.sep
 
 ################### user input #########################
-station_dir = maindir + 'Calibration_NWS\\NCRFC\\NCRFC_FY2016\\data_csv\\USACE_QME'
-csv_dir = station_dir + os.sep + 'csv' + os.sep 
-out_dir = station_dir + os.sep + 'datacard'
+RFC = 'WGRFC_FY2017'
+station_dir = maindir + 'Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_csv\\IBWC'
+csv_dir = station_dir + os.sep + 'qme_csv' + os.sep 
+out_dir = station_dir + os.sep + 'qme_datacard'
 variable = 'QME'
+csv_units = 'CMS' # define units in csv file in case conversion is needed
 chps_shift = 'no' # shift time back by 1 timestep (csv from CHPS shifts forward compared to original datacard)
 variable_name = 'QME' #'inflow' or 'outflow'
 date_col = 0 # csv column with date
 data_col = 1 # csv column with data
-start_limit = datetime.datetime(1950,1,1,0)
+start_limit = datetime.datetime(1924,1,1,0)
 header_lines = 1 # header lines in csv
 timestep = 24 # time step in hours
 date_time_format = "%m/%d/%Y %H:%M"
 #data_format = 'f9.3'
-basin_list = ['WDOM5'] # name of location
-loc_name = {'EDYI4':'Eddyville','GJTI4':'Grand Junction','PROI4':'Perry','WWDI4':'Woodward','WDOM5':'Windom','HRLM5':'Heron Lake Outlet'} #
+
+loc_name = {'CMRT4':'Rio Alamo at Cuidad Mier',
+'RRGT2':'Rio Grande near Roma',
+'RGDT2':'Rio Grande at Fort Ringgold',
+'RGLT2':'Rio Grande near Los Ebanos',
+'MITT2':'Banker Floodway near Mission',
+'PRGT2':'Rio Grande near Progresso',
+'SBMT2':'Rio Grande near San Benito',
+'LOBT2':'Rio Grande near Brownsville',
+'WSLT2':'Rio Grande Main US Floodway near Westlaco',
+'MDET2':'North Rio Grande Floodway at Mercedes (if available)',
+'SBST2':'North Rio Grande Floodway near Sebastian',
+'MECT2':'Arroyo Colorado Floodway near Mercedes',
+'HAGT2':'Arroyo Colorado Floodway near Harlingen',
+'CMGTP':'RIO SAN JUAN AT CAMARGO TAMAULIPAS',
+'MADT2A':'ANZALDUAS CANAL NEAR REYNOSA',
+'MADT2':'RIO GRANDE BELOW ANZALDUAS DAM NEAR REYNOSA'} #
 ########################################################
 var_units = {'QME':'CFSD','MAP':'MM','MAT':'DEGF'}
 var_dim = {'QME':'L3','MAP':'L','MAT':'TEMP'}
+
+basin_list = [] # name of location
+for each in os.listdir(csv_dir):
+    basin_list.append(each.rstrip('.csv'))
+print basin_list
 
 for basin_id in basin_list:
     count = 0; date_count = 0
@@ -56,6 +78,8 @@ for basin_id in basin_list:
             elif float(data) < 0 and variable != 'MAT':
                 data = -999
             if date >= start_limit:
+                if data != -999 and variable == 'QME' and csv_units == 'CMS':
+                    data = str(float(data)*35.3147) # convert QME from cms to cfs
                 dates[date] = data
                 if date_count == 1:
                     start_date = date.replace(day=1) # get first date of data and set day to 1 (ensure full month in datacard)
@@ -108,8 +132,11 @@ for basin_id in basin_list:
             write_file.write('{:12s}{:2d}{:02d}{:4d}{:9.3f}'.format(basin_id,int(each.month),int(str(each.year)[-2:]),hr_count,float(dates[each])))
         elif float(dates[each]) <= 99999.99:
             write_file.write('{:12s}{:2d}{:02d}{:4d}{:10.3f}'.format(basin_id,int(each.month),int(str(each.year)[-2:]),hr_count,float(dates[each])))
-        else:
+        elif float(dates[each]) <= 999999.99:
+            write_file.write('{:12s}{:2d}{:02d}{:4d}{:11.3f}'.format(basin_id,int(each.month),int(str(each.year)[-2:]),hr_count,float(dates[each])))
             print '!!!Significant value found: ' + str(each.month) + '/' + str(each.year) + ' ' + str(hr_count) + str(dates[each]) +'\n'
+        else:
+            print '!!!Significant too long for format: ' + str(each.month) + '/' + str(each.year) + ' ' + str(hr_count) + str(dates[each]) +'\n'
         write_file.write('\n')
         #write_file.write(basin_id + space1 + str(each.month)+str(each.year)[2:] + space2 +  str(hr_count) + "%10.2f" % float(dates[each]) + '\n')
         month_prev = each.month

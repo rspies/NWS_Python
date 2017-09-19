@@ -1,17 +1,11 @@
-#Created on July 22, 2014
+#Created on 5/23/2017
 #@author: rspies
 # Python 2.7
-# This script calculates summary statistics for multiple QME data files
-# input RFC to process and location of files
-# Note: input must be in the native USGS (NWIS download format) -> daily data
+# This script converts individual QME datacard files to a single/merged csv file that can be imported for dss build
 
 import os
-import numpy as np
 import datetime
 from dateutil import parser
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-plt.ioff()
 
 os.chdir("../..") # change dir to \\AMEC\\NWS
 maindir = os.getcwd()
@@ -20,8 +14,8 @@ maindir = os.getcwd()
 RFC = 'NCRFC_FY2017'
 fx_group = '' # set to '' if not used
 data_format = 'nhds' # choices: 'usgs' or 'chps' or 'nhds'
-data_source_tag = 'usgs' # use this to lable csv summary file
-max_year = 2017
+dss_csv = 'on'          # options: 'on' or 'off' # create csv for dss import
+
 usgs_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data\\daily_discharge' # directory with USGS QME data
 chps_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\QME_CHPS_export\\' # CHPS csv output files
 nhds_files = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacards\\QME\\' # NHDS data download (cardfiles)
@@ -30,21 +24,12 @@ new_file = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\datacar
 
 if fx_group != '':
     nhds_files = nhds_files + os.sep + fx_group + os.sep + 'QME_Lynker_download' 
-    new_summary = open(new_file + os.sep + fx_group + os.sep + 'QME_' + data_source_tag + '_data_statistical_summary_'+fx_group+'.csv', 'w')
-    figname = new_file + RFC + '_' + fx_group + '_' + data_source_tag + '_QME_data_timeline.png'
+    dss_path = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_dss\\'  + fx_group
 else: 
     nhds_files = nhds_files + os.sep + 'QME_Lynker_download' 
-    new_summary = open(new_file + 'QME_' + data_source_tag + '_data_statistical_summary.csv', 'w')
-    figname = new_file + RFC + '_' + data_source_tag + '_' + 'QME_data_timeline.png'
-new_summary.write('Basin/Gauge' + ',' + 'Daily Count' + ',' + 'Start Date' + ',' + 'End Date' 
-+ ',' + 'Mean Daily QME' + ',' + 'Max Daily QME' + ',' + 'Min Daily QME' +','+ 'Standard Deviation' 
-+ ',' + 'Date Max' + ','  + 'Date Min' + '\n')
+    dss_path = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\data_dss'
 
-########## define data timeline figure ###
-fig, ax1 = plt.subplots(figsize=(11,9))        
-plt.title('QME Data Availability Timeline',fontsize=14)
 basins_list = []; count = 0
-years = mdates.YearLocator()   # every year
 
 if data_format == 'usgs':
     QMEs = [f for f in os.listdir(usgs_files) if os.path.isfile(os.path.join(usgs_files, f))]
@@ -52,9 +37,10 @@ if data_format == 'chps':
     QMEs = [f for f in os.listdir(chps_files) if os.path.isfile(os.path.join(chps_files, f))]
 if data_format == 'nhds':
     QMEs = [f for f in os.listdir(nhds_files) if os.path.isfile(os.path.join(nhds_files, f))]
+dss_dic = {}
     
 for QME in QMEs:
-    print QME
+    print 'Reading data for: ' + QME
     count += 1
     if data_format == 'usgs': 
         csv_read = open(usgs_files + '\\' + QME, 'r')
@@ -76,7 +62,12 @@ for QME in QMEs:
                 date.append(full_date)
                 if line_count == 12:
                     site_num = sep[0]
-                discharge.append(float(sep[3]))
+                discharge=sep[-1] # asssuming a single column datacard
+                if dss_csv == 'on':
+                    if str(full_date) not in dss_dic:
+                        dss_dic[str(full_date)] = {}
+                    if float(discharge) >= 0.0:
+                        dss_dic[str(full_date)][QME]=str(float(discharge))
             line_count += 1
         csv_read.close()
     if data_format == 'chps': 
@@ -89,7 +80,12 @@ for QME in QMEs:
                 sep = line.split(',')
                 full_date = parser.parse(sep[0])
                 date.append(full_date.date())
-                discharge.append(float(sep[-1]))
+                discharge=sep[-1] # asssuming a single column datacard
+                if dss_csv == 'on':
+                    if str(full_date) not in dss_dic:
+                        dss_dic[str(full_date)] = {}
+                    if float(discharge) >= 0.0:
+                        dss_dic[str(full_date)][QME]=str(float(discharge))
             line_count += 1
         csv_read.close()
     if data_format == 'nhds': 
@@ -117,59 +113,34 @@ for QME in QMEs:
                     date.append(full_date)
                     if line_count == 12:
                         site_num = sep[0]
-                    discharge.append(float(sep[-1][-10:]))
+                    discharge=sep[-1] # asssuming a single column datacard
+                    if dss_csv == 'on':
+                        if str(full_date) not in dss_dic:
+                            dss_dic[str(full_date)] = {}
+                        if float(discharge) >= 0.0:
+                            dss_dic[str(full_date)][QME]=str(float(discharge))
             line_count += 1
         csv_read.close()
 
-    Q_mask = np.ma.masked_less(discharge,0)     # mask values less than 0 to ignore
-    #Q_mask = np.ma.masked_invalid(np.asarray(discharge))    # mask missing and 'nan' instances
-    date_mask = np.ma.masked_where(np.ma.getmask(Q_mask) == True, date) # mask dates containing missing discharge data
-    Q_data = np.ma.compressed(Q_mask).tolist()          # create list with only valid dishcharge data
-    final_date = np.ma.compressed(date_mask).tolist()   # create list with corresponding date
-    
-    if len(final_date) != len(Q_data):
-        print 'WARNING -- Date and Discharge Data not the same length'
-    
-    basin_gauge = QME.split('_')[0].rstrip('.qme').upper() # basin/gage name
-    #if basin_gauge[0] != '0':
-    #    basin_gauge = '0' + basin_gauge
-    basins_list.append(basin_gauge)
-    day_count = str(len(Q_data))            # number of valid daily data values
-    start_date = str(min(final_date))       # date of first measurement
-    end_date = str(max(final_date))         # date of last measurement
-    mean_Q = str(np.average(Q_data))        # mean of all QME data
-    max_Q = np.max(Q_data)                  # maximum of all QME
-    max_index = Q_data.index(max_Q)         # index of the max daily QME value
-    date_max = str(final_date[max_index])   # date of maximum discharge
-    min_Q = np.min(Q_data)                  # minimum of all QME
-    min_indices = [i for i, x in enumerate(Q_data) if x == min_Q]
-    if len(min_indices) > 1:                # if more than 1 occurence of Q_min return "numerous"
-        date_min = 'Numerous'
-    else:
-        min_index = Q_data.index(min_Q)     # index of the minimum daily QME value
-        date_min = str(final_date[min_index])   # date of minimum discharge
-    sd = str(np.std(Q_data))                # standard deviation of QME data
-
-    new_summary.write(basin_gauge+','+day_count+','+start_date+','+end_date+','+mean_Q+','
-    +str(max_Q)+','+str(min_Q)+','+sd+','+date_max+','+date_min+'\n')    
-    
-    ###### create plot of dates of data availability
-    print 'Adding basin data to plot...'
-    y_pos = [count] * len(final_date)
-    ax1.plot(final_date, y_pos, '|',mew=0.5,ms=14)
-    #if basin_gauge == 'DCTN1':
-    #    break
-    
-print 'Adding plot attributes...'
-ax1.xaxis.set_major_locator(mdates.YearLocator(5))
-ax1.xaxis.set_minor_locator(years)
-plt.yticks(range(1,len(basins_list)+1),basins_list)
-plt.xlabel('Date (1960-2016)')
-plt.ylabel('Gage ID')
-plt.ylim(0,len(basins_list)+0.5)
-plt.xlim(datetime.datetime(1960,1,1), datetime.datetime(max_year,1,1))
-plt.savefig(figname, dpi=200,bbox_inches='tight')   
-plt.close()
-    
-new_summary.close()
+if dss_csv == 'on':
+    print 'Writing to combined dss csv...'
+    combine_csv = open(dss_path + os.sep + 'QME_daily' + '_merged_for_dss.csv','w')
+    combine_csv.write('Date,')
+    for Basin in QMEs:
+        if Basin != QMEs[-1]:
+            combine_csv.write(Basin.split('_')[0] + ',')
+        else:
+            combine_csv.write(Basin.split('_')[0] + '\n')
+    for datestep in sorted(dss_dic):
+        combine_csv.write(str(datestep) + ',')
+        for Basin in QMEs:
+            if Basin in dss_dic[datestep]:
+                combine_csv.write(dss_dic[datestep][Basin])
+            else:
+                combine_csv.write('')
+            if Basin != QMEs[-1]:
+                combine_csv.write(',')
+            else:
+                combine_csv.write('\n')
+    combine_csv.close()   
 print 'Completed!!'
