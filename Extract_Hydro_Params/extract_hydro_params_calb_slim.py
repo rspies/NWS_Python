@@ -11,37 +11,37 @@
 # has a slightly different format than the original SA .xml modulparfiles
 
 import os
-os.chdir("../..")
-maindir = os.path.abspath(os.curdir)
+#os.chdir("../..")
+maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 #-----------------------------------------------------------------------------
 ########################## START USER INPUT SECTION ##########################
 #Enter RFC (example: RFC = 'WGRFC')
-RFC = 'MBRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'final_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
-snow = 'on' # choices: 'on' or 'off'
+snow = 'off' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
 lagk = 'on' # choices: 'on' or 'off'
-tatum = 'on' # choices: 'on' or 'off'
+tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
-snow_plots = 'on' # choices: 'on' or 'off' -> Snow17 AEC plots
+snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
 uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC + '\\Working_Calib_Files\\' + param_source
+    folderPath = maindir + '\\ModuleParFiles_' + param_source
     #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + '\\Params_' + param_source
+    csv_file_out = maindir + '\\extract_hydro_params\\Params_' + param_source
 else:
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\Calibration_NWS\\' + RFC[:5] + os.sep + RFC  + '\\Working_Calib_Files\\' + fx_group + os.sep + param_source
+    folderPath = maindir + '\\ModuleParFiles_' + param_source + '_' + fx_group
     #!!!!!! output directory: enter ouput directory for .csv files below ->
-    csv_file_out = maindir + '\\Extract_Hydro_Params\\' + RFC[:5] + os.sep + RFC + os.sep + fx_group + '\\Params_' + param_source
+    csv_file_out = maindir + '\\extract_hydro_params\\Params_' + param_source + '_' + fx_group
 ########################## END USER INPUT SECTION ############################
 
 #-----------------------------------------------------------------------------
@@ -56,9 +56,9 @@ if uh_plots == 'on' or lag_plots == 'on' or snow_plots == 'on':
     #Turn interactive plot mode off (don't show figures)
     plt.ioff() 
 
-os.chdir("Python/Extract_Hydro_Params")
-working_dir = os.getcwd()
-print 'Script is Running...'
+#os.chdir("Python/Extract_Hydro_Params")
+working_dir = maindir
+print('Script is Running...')
 
 ###############################################################################
 #SAC-SMA SECTION--------------------------------------------------------------
@@ -69,7 +69,7 @@ sac_params = ['PCTIM','ADIMP','RIVA','EFC','UZTWM','UZFWM','UZK','ZPERC','REXP',
 #                   'RSERV','ADIMP','UZK','SIDE','LZFSM','LZSK','SMZC','UZTWM','UZFWM','PCTIM','EFC']
 
 if sacsma == 'on':
-    print 'Processing SACSMA parameters...'
+    print('Processing SACSMA parameters...')
     sac_line = 1
     csv_file = open(csv_file_out +'\\_' + RFC + '_SACSMA_Params_' + param_source + '_slim.csv', 'w')
     csv_file.write('BASIN,NAME,PCTIM,ADIMP,RIVA,EFC,UZTWM,UZFWM,UZK,ZPERC,REXP,LZTWM,LZFPM,LZFSM,'\
@@ -86,7 +86,7 @@ if sacsma == 'on':
         name = name.replace('SACSMA_', '')
         name = name.replace('_UpdateStates.xml', '')
         spl_name = name.split('_')[1]
-        print 'SAC-SMA -> ' + spl_name
+        print('SAC-SMA -> ' + spl_name)
         #print name
         csv_file.write(name + ',')
         csv_file.write(spl_name + ',')
@@ -114,7 +114,7 @@ if sacsma == 'on':
             #Section/line of .xml file with desired parameter value
             if param not in found_param:
                 csv_file.write(',')
-                print 'Warning - parameter not found: ' + param
+                print('Warning - parameter not found: ' + param)
                 xml_file.seek(0)
             else:
                 xml_file.seek(0)
@@ -179,7 +179,7 @@ if snow == 'on':
     snow_params = ['ALAT','ELEV','TAELEV','PXADJ','SCF','MFMAX','MFMIN','UADJ','SI','NMF','TIPM', \
                 'MBASE','PXTEMP','PLWHC','DAYGM','MV','RAIN_SNOW_ELEV_INPUT_OPTION','SCTOL','WETOL']
                 
-    print 'Processing SNOW-17 parameters...'
+    print('Processing SNOW-17 parameters...')
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_SNOW17_Params_' + param_source + '_slim.csv', 'w')
     
     csv_file.write('BASIN,NAME,ALAT,ELEV,TAELEV,PXADJ,SCF,MFMAX,MFMIN,UADJ,SI,NMF,TIPM,'\
@@ -196,7 +196,7 @@ if snow == 'on':
         name = name.replace('SNOW17_', '')
         name = name.replace('_UpdateStates.xml', '')
         spl_name = name.split('_')[1]
-        print 'Snow17 -> ' + spl_name
+        print('Snow17 -> ' + spl_name)
         #print name
         csv_file.write(name + ',')
         csv_file.write(spl_name + ',')
@@ -225,7 +225,7 @@ if snow == 'on':
             #Section/line of .xml file with desired parameter value
             if param not in found_param:
                 csv_file.write(',')
-                print 'Warning - parameter not found: ' + param
+                print('Warning - parameter not found: ' + param)
                 xml_file.seek(0)
             else:
                 xml_file.seek(0)
@@ -352,7 +352,7 @@ if snow == 'on':
 #UNIT HG SECTION---------------------------------------------------------------
 #loop through UNITHG .xlm files in folderPath
 if uhg == 'on':
-    print 'Processing UH parameters...'
+    print('Processing UH parameters...')
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_UHG_Params_' + param_source + '_slim.csv', 'w')
     
     csv_file.write('BASIN,CH5ID,AREA (mi2),Interval (hours),Const Baseflow (cfs),')
@@ -371,7 +371,7 @@ if uhg == 'on':
         name = name.replace('UNITHG_', '')
         name = name.replace('_UpdateStates.xml', '')
         ch5_id = name.split('_')[1]
-        print 'UHG - > ' + name + ' - ' + ch5_id
+        print('UHG - > ' + name + ' - ' + ch5_id)
         #print name
         
         csv_file.write(name + ',' + ch5_id + ',')    
@@ -398,7 +398,7 @@ if uhg == 'on':
                     break
             
             if section == '':
-                print 'Param not found: ' + param
+                print('Param not found: ' + param)
             
             #Write only numbers and decimals to output file
             else:
@@ -491,7 +491,7 @@ if uhg == 'on':
 #LAG-K SECTION---------------------------------------------------------------
 #loop through Lag-K .xlm files in folderPath
 if lagk == 'on':
-    print 'Processing LAG-K parameters...'
+    print('Processing LAG-K parameters...')
     lag_params = ['CURRENT_OUTFLOW','CURRENT_STORAGE','TSIDA','SETLAG','SETK']
     new_lag_params = ['CURRENT_OUTFLOW','CURRENT_STORAGE','INFLOW_TS_ID','CONSTANT_LAG_VALUE','CONSTANT_K_VALUE']
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_LAGK_Params_' + param_source + '_slim.csv', 'w')
@@ -509,7 +509,7 @@ if lagk == 'on':
         name = str(os.path.basename(filename)[:])
         name = name.replace('LAGK_', '')
         name = name.replace('_UpdateStates.xml', '')
-        print 'LAG/K -> ' + name
+        print('LAG/K -> ' + name)
         
         csv_file.write(name + ',')    
         
@@ -758,7 +758,7 @@ if lagk == 'on':
 ###############################################################################
 #TATUM SECTION---------------------------------------------------------------
 if tatum == 'on':
-    print 'Processing TATUM parameters...'
+    print('Processing TATUM parameters...')
     csv_file = open(csv_file_out + '\\' + '_' + RFC + '_TATUM_Params_' + param_source + '_slim.csv', 'w')
     
     csv_file.write('BASIN,CH5ID,Layers,Layer_Num,Flow_Thresh_CMS,')
@@ -777,7 +777,7 @@ if tatum == 'on':
         name = name.replace('TATUM_', '')
         name = name.replace('_UpdateStates.xml', '')
         ch5_id = name.split('_')[1]
-        print 'Tatum - > ' + name + ' - ' + ch5_id
+        print('Tatum - > ' + name + ' - ' + ch5_id)
         #print name
         
         #Open .xml file 
@@ -849,4 +849,4 @@ if tatum == 'on':
                     csv_file.write('\n')
                     search = 'off'
     csv_file.close()     
-print 'Script Complete'
+print('Script Complete')
