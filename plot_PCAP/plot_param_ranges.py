@@ -5,7 +5,7 @@
 #rspies@lynkertech.com
 #Lynker Technologies
 
-print "Start Script"
+print("Start Script")
 
 import os
 import matplotlib.pyplot as plt
@@ -17,36 +17,40 @@ import matplotlib.patheffects as PathEffects
 import pandas as pd
 from pylab import *
 
-os.chdir("../..")
-maindir = os.getcwd()
+#os.chdir("../..")
+maindir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb')
 ############################### User Input ####################################
-rfc = 'MBRFC_FY2017'
+rfc = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
-plot_type = 'final' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
+plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
-snow_plot = 'on' # plot snow17 
-e19 = 'on' # create e19 folder with lower res image for chps display
-wm_image = maindir + os.sep + 'Python' + os.sep + 'Extract_Hydro_Params' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
+snow_plot = 'off' # plot snow17 
+e19 = 'off' # create e19 folder with lower res image for chps display
+wm_image = maindir + os.sep + r'\python\extract_hydro_params\Lynker Logo for On-Screen.jpg' # lynker logo for plot
+fx_group_list = maindir + os.sep + r'\extract_hydro_params\basins_fx_group_list.csv'
 
 if fx_group == '':
-    csv_read_init = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'Params_pre_calb' + os.sep 
-    csv_read_apri = maindir + os.sep + 'GIS' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'Apriori'
-    csv_dir_calb = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc  + os.sep + 'Params_'+plot_type+'_calb' + os.sep 
+    csv_read_init = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params\\Params_pre_calb' + os.sep
+    csv_read_apri = maindir + os.sep + 'processed_data' + os.sep + 'Apriori'
+    csv_dir_calb = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params' + os.sep + 'Params_'+ plot_type+'_calb' + os.sep 
 else:
-    csv_read_init = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'Params_pre_calb' + os.sep
-    csv_read_apri = maindir + os.sep + 'GIS' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'Apriori' #+ os.sep + fx_group 
-    csv_dir_calb = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'Params_'+plot_type+'_calb' + os.sep
+    csv_read_init = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params\\Params_pre_calb' + os.sep
+    csv_read_apri = maindir + os.sep + 'processed_data' + os.sep + 'Apriori'
+    csv_dir_calb = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params' + os.sep + 'Params_'+plot_type+'_calb' + os.sep
 ############################ End User Input ###################################
 
 if sac_plot == 'on':
-    print 'Creating SAC-SMA plots...'
+    print('Creating SAC-SMA plots...')
     #### read data into pandas dataframes
-    csv_sac_ander = open(maindir + os.sep + 'Python' + os.sep + 'Extract_Hydro_Params' + os.sep + 'Anderson_SACSMA_param_ranges.csv', 'r')
+    csv_sac_ander = open(maindir + os.sep + r'\python\extract_hydro_params' + os.sep + 'Anderson_SACSMA_param_ranges.csv', 'r')
     csv_read_init_sac = open(csv_read_init + '_' + rfc + '_SACSMA_Params_pre_calb_slim.csv', 'r')
-    data_init = pd.read_csv(csv_read_init_sac, delimiter=',', index_col=False, skip_footer=0, header=0).set_index('NAME') #reindex to avoid data shifting
-    data_ander = pd.read_csv(csv_sac_ander, delimiter=',', skip_footer=0, header=0).set_index('Anderson') #reindex to avoid data shifting
+    data_init = pd.read_csv(csv_read_init_sac, delimiter=',', index_col=False, header=0).set_index('NAME') #reindex to avoid data shifting
+    data_ander = pd.read_csv(csv_sac_ander, delimiter=',', header=0).set_index('Anderson') #reindex to avoid data shifting
     csv_read_init_sac.close(); csv_sac_ander.close()
+    if group_limits == 'on':
+        fx_group_df = pd.read_csv(fx_group_list, index_col=0)
+        data_init = data_init.merge(fx_group_df,how='left',left_index=True,right_index=True)
     
     if plot_type == 'draft' or plot_type == 'final': 
         csv_read_calb = open(csv_dir_calb + '_' + rfc + '_SACSMA_Params_'+plot_type+'_calb_slim.csv', 'r')
@@ -60,23 +64,23 @@ if sac_plot == 'on':
         all_basins = data_calb.index.values.tolist() #list of all basins from the calb parameter csv
     
     for basin in all_basins:
-        print basin
+        print(basin)
         count = 1; plot_num = 1; x=1.1; apbasin = basin
         if len(basin)>5: # trim off 'LOC' ending on some ch5id's for apriori lookup
             apbasin = basin.replace("LOC", "")
-            print apbasin + ' --> basin name longer than 5 char'
+            print(apbasin + ' --> basin name longer than 5 char')
         if os.path.isfile(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv'):
-            data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
+            data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, header=0).set_index('Parameter')
             data_apri = data_apri.to_dict()
         else:
             if os.path.isfile(csv_read_apri + os.sep + apbasin[:5] + os.sep + apbasin[:5] + '_apriori_parameters.csv'):
                 apbasin = basin[:5]
-                data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
+                data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, header=0).set_index('Parameter')
                 data_apri = data_apri.to_dict()
-                print 'Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin
-                print 'Continuing...' 
+                print('Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin)
+                print('Continuing...' )
             else:
-                print basin + ' apriori file missing...'
+                print(basin + ' apriori file missing...')
                 data_apri = {}
         
         fig = plt.figure(figsize=(8,3.5))          
@@ -84,7 +88,7 @@ if sac_plot == 'on':
         codes = [Path.MOVETO,Path.LINETO,Path.LINETO,Path.LINETO,Path.CLOSEPOLY]
         tk = 0.3; tg = 0.2; ta = 0.1
         for param in sac_pars:
-            #print 'Plotting: ' + param
+            #print('Plotting: ' + param)
             ax1 = plt.subplot(2,9,plot_num)            
             
             #### rectangle plot for anderson range (http://matplotlib.org/users/path_tutorial.html)
@@ -111,8 +115,14 @@ if sac_plot == 'on':
                     
             #### calculate and plot all tasked basin param limits - max/min (regional limits)
             if group_limits == 'on':
-                gmax = data_init[param].max()
-                gmin = data_init[param].min()
+                if basin in fx_group_df.index:
+                    basin_fxgrp = fx_group_df['fx_group'].loc[basin]
+                    gmax = data_init[data_init['fx_group']==basin_fxgrp][param].max()
+                    gmin = data_init[data_init['fx_group']==basin_fxgrp][param].min()
+                else:
+                    basin_fxgrp = 'N/A'
+                    gmax = data_init[param].max()
+                    gmin = data_init[param].min()
                 if plot_type == 'draft' or plot_type == 'final': # get calb max/min values for calb parameters
                     gmax_calb = data_calb[param].max()
                     gmin_calb = data_calb[param].min()
@@ -126,7 +136,7 @@ if sac_plot == 'on':
                 (x+tg, gmin), # right, bottom
                 (0., 0.)]
                 path = Path(and_verts, codes)
-                patch = patches.PathPatch(path, facecolor='#cc66ff', lw=.5, zorder=3, alpha=0.4,label='FX-Group Range')
+                patch = patches.PathPatch(path, facecolor='#cc66ff', lw=.5, zorder=3, alpha=0.4,label='FX-Group Range (' + basin_fxgrp + ')')
                 ax1.add_patch(patch)
             
             #### plot initial param value with red bar marker
@@ -181,29 +191,29 @@ if sac_plot == 'on':
         newax.axis('off')
         #plt.imshow(im, aspect='auto', extent=(1,1,1,1), zorder=-100)
             
-        print 'Saving figure...'
+        print('Saving figure...')
         if fx_group == '':
-            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
+            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         else:
-            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
+            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         
-        plt.tight_layout()
+        #plt.tight_layout()
         subplots_adjust(left=None, bottom=None, right=None, top=0.9, wspace=0.1, hspace=0.2) #adjust white space 
         plt.savefig(figname, bbox_inches='tight', dpi=350)
         if e19 == 'on':
-            print 'Saving E19 figure...'
+            print('Saving E19 figure...')
             ### for E19 chps display basin directories
             if os.path.isdir(basin_e19) == False:
                 os.mkdir(basin_e19)
@@ -215,9 +225,9 @@ if sac_plot == 'on':
 ############################################################################
 
 if snow_plot == 'on':
-    print 'Creating SNOW-17 plots...'
+    print('Creating SNOW-17 plots...')
     #### read data into pandas dataframes
-    csv_snow_ander = open(maindir + os.sep + 'Python' + os.sep + 'Extract_Hydro_Params' + os.sep + 'Anderson_SNOW17_param_ranges.csv', 'r')
+    csv_snow_ander = open(maindir + os.sep + 'Python' + os.sep + 'extract_hydro_params' + os.sep + 'Anderson_SNOW17_param_ranges.csv', 'r')
     csv_read_init_snow = open(csv_read_init + '_' + rfc + '_SNOW17_Params_pre_calb_slim.csv', 'r')
     data_init = pd.read_csv(csv_read_init_snow, delimiter=',', index_col=False, skip_footer=0, header=0).set_index('NAME') #reindex to avoid data shifting
     data_ander = pd.read_csv(csv_snow_ander, delimiter=',', skip_footer=0, header=0).set_index('Anderson') #reindex to avoid data shifting
@@ -235,11 +245,11 @@ if snow_plot == 'on':
         all_basins = data_calb.index.values.tolist() #list of all basins from the calb parameter csv
     
     for basin in all_basins:
-        print basin
+        print(basin)
         count = 1; plot_num = 1; x=1.1; apbasin = basin
         if len(basin)>5: # trim off 'LOC' ending on some ch5id's for apriori lookup
             apbasin = basin.replace("LOC", "")
-            print apbasin + ' --> basin name longer than 5 char'
+            print(apbasin + ' --> basin name longer than 5 char')
         if os.path.isfile(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv'):
             data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
             data_apri = data_apri.to_dict()
@@ -248,10 +258,10 @@ if snow_plot == 'on':
                 apbasin = basin[:5]
                 data_apri = pd.read_csv(csv_read_apri + os.sep + apbasin + os.sep + apbasin + '_apriori_parameters.csv', delimiter=',', index_col=False, skip_footer=0, header=0).set_index('Parameter')
                 data_apri = data_apri.to_dict()
-                print 'Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin
-                print 'Continuing...' 
+                print('Warning Apriori file found for: ' + basin[:5] + '--> not exact match to ' + basin)
+                print('Continuing...' )
             else:
-                print basin + ' apriori file missing...'
+                print(basin + ' apriori file missing...')
                 data_apri = {}
         
         fig = plt.figure(figsize=(8,1.75))          
@@ -259,7 +269,7 @@ if snow_plot == 'on':
         codes = [Path.MOVETO,Path.LINETO,Path.LINETO,Path.LINETO,Path.CLOSEPOLY]
         tk = 0.3; tg = 0.2; ta = 0.1
         for param in snow_pars:
-            #print 'Plotting: ' + param
+            #print('Plotting: ' + param)
             ax1 = plt.subplot(1,9,plot_num)            
             
             #### rectangle plot for anderson range (http://matplotlib.org/users/path_tutorial.html)
@@ -286,8 +296,14 @@ if snow_plot == 'on':
                     
             #### calculate and plot all tasked basin param limits - max/min (regional limits)
             if group_limits == 'on':
-                gmax = data_init[param].max()
-                gmin = data_init[param].min()
+                if basin in fx_group_df.index:
+                    basin_fxgrp = fx_group_df['fx_group'].loc[basin]
+                    gmax = data_init[data_init['fx_group']==basin_fxgrp][param].max()
+                    gmin = data_init[data_init['fx_group']==basin_fxgrp][param].min()
+                else:
+                    basin_fxgrp = 'N/A'
+                    gmax = data_init[param].max()
+                    gmin = data_init[param].min()
                 and_verts = [(x-tg, gmin), # left, bottom
                 (x-tg, gmax), # left, top
                 (x+tg, gmax), # right, top
@@ -348,31 +364,31 @@ if snow_plot == 'on':
         newax.imshow(im, alpha = 0.3, extent=(0,1,1,1.4)) # location of image  (left, right, bottom, top)
         newax.axis('off')
         
-        print 'Saving figure...'
+        print('Saving figure...')
         if fx_group == '':
-            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
+            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         else:
-            directory = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'Extract_Hydro_Params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
+            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         
         
-        plt.tight_layout()
+        #plt.tight_layout()
         subplots_adjust(left=None, bottom=None, right=None, top=0.9, wspace=0.1, hspace=0.2) #adjust white space 
         plt.savefig(figname, bbox_inches='tight', dpi=350)
         ### for E19 chps display basin directories
         if e19 == 'on':
-            print 'Saving E19 figure...'
+            print('Saving E19 figure...')
             if os.path.isdir(basin_e19) == False:
                 os.mkdir(basin_e19)
             ### for E19 chps display
@@ -380,5 +396,5 @@ if snow_plot == 'on':
         plt.close()
         plt.show()
 
-print "End Script"
+print("End Script")
 
