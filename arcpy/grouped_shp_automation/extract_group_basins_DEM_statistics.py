@@ -14,25 +14,26 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../../../GIS/")
+#os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'MARFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
-find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
+in_shp = r'F:\projects\2021_twdb_wgrfc_calb\gis\basin_shapefiles\210318_Calb_Basins_Joined\Calb_Basins.shp'
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
-dem_file = maindir + '\\GTOPO_1K_Hydro\\na_dem_null' # 1km resolution
-#dem_file = r'Q:\GISLibrary\NHDPlus\v1\WG\NHDPlus12\Elev_Unit_d\elev_cm'
+#dem_file = maindir + '\\GTOPO_1K_Hydro\\na_dem_null' # 1km resolution
+dem_file = r'F:\projects\2021_twdb_wgrfc_calb\data\DEM_nhdplus\NHDPlusTX\NHDPlus12\NEDSnapshot\elev_cm_merge.tif'
 #dem_file = r'P:\NWS\GIS\APRFC\Processing\ASTER\kusk_mosiac.tif'
-
+    
+# Output directory for the basin .csv summary files
 if fx_group != '':
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\' + fx_group + os.sep
+    output_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\data\DEM_nhdplus\\Elevation_Slope\\Stats_Out\\"
 else:
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\'
+    output_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\data\DEM_nhdplus\\Elevation_Slope\\Stats_Out\\"
 
 # manually enter basins to analyze (example: basins = ['MFDN3'])
 # otherwise leave blank and script will

@@ -10,10 +10,11 @@
 #
 # Steps to set up run:
 # 1. Make sure the MapunitRaster_XX_10m raster has not been joined yet (Errors with field names? & Error 000049 : Failed to build attribute table)
-# 2. Open ArcMap and import the muaggatt table from the gssurgo .gdb directory
+# 2. Open ArcMap and import the muaggatt table from the gssurgo .gdb directory
 # 3. Right click on the table -> export (as dBASE Table)  -> save to SSURGO\XX\soils\mukey_join.dbf
 # 4. Check that the mukey attribute is type long (not string), create new column if needed
-# 5. Run script
+# 5. Open windows command line and navigate to script (needs arcmap 10.6 -> python v2.7?)
+# 5. Execute script
 # --------------------------------------------------------------------------
 # Import arcpy module
 print 'Importing modules...'
@@ -35,13 +36,14 @@ gisdir = os.getcwd()
 
 ################### User Input #####################
 ###################################################
-RFC = 'MARFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
-find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
+in_shp = "E:\\TWDB_WGRFC\\basins\\210318_Calb_Basins_Joined\\Calb_Basins.shp"
+#maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
-state = 'PA'
+state = 'TX'
 
 # if you only want to run specific basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [] or basins_overwrite = ['COCF1'])
@@ -49,15 +51,15 @@ basins_overwrite = ['PPDT2']#
 #ignore_basins = ['NWFM1','LOMM8','LTRM8','CYNM8','MRIM8','2802','ACMM8','BHLM8','DBMM8',]
 
 # location of the state raster SSURGO data
-State_gSSURGO_Raster = gisdir + '\\GIS Library\\SSURGO\\' + state.upper() + '\\soils\\gssurgo_g_' + state.lower() + '.gdb\\MapunitRaster_' + state.upper() + '_10m'
-join_table = gisdir + '\\GIS Library\\SSURGO\\' + state.upper() + '\\soils\\mukey_join.dbf'
+State_gSSURGO_Raster = 'E:\\TWDB_WGRFC\\gSSURGO\\soils_GSSURGO_tx_3899944_01\\soils\\gssurgo_g_tx\\gSSURGO_TX.gdb\\MapunitRaster_10m'
+join_table = 'E:\\TWDB_WGRFC\\gSSURGO\\soils_GSSURGO_tx_3899944_01\\soils\\gssurgo_g_tx' + '\\mukey_join.dbf'
 #State_soil_table = r'Q:\GISLibrary\SSURGO\TN\soils\gssurgo_g_tn.gdb\muaggatt'
 
 # Output directory for the basin .csv summary files
 if fx_group != '':
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\SSURGO\\data_files\\' + fx_group +os.sep
+    output_dir = 'E:\\TWDB_WGRFC\\gSSURGO\\data_files\\'
 else:
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\SSURGO\\data_files\\'
+    output_dir = 'E:\\TWDB_WGRFC\\gSSURGO\\data_files\\'
 ######################################################
 ################# End User Input ######################
 
@@ -68,10 +70,7 @@ winsound.Beep(1000,700) # beep to indicate script is complete
 
 #check that SSURGO file exits (may be named differently for older downloads)
 if os.path.exists(os.path.dirname(State_gSSURGO_Raster)) == False:
-    if os.path.exists(gisdir + '\\GIS Library\\SSURGO\\' + state.upper() + '\\soils\\gSSURGO_' + state.upper() + '.gdb') == True:
-        State_gSSURGO_Raster = gisdir + '\\GIS Library\\SSURGO\\' + state.upper() + '\\soils\\gSSURGO_' + state.upper() + '.gdb\\MapunitRaster_' + state.lower() + '_10m'
-    else:
-        print 'Can not find SSURGO raster for ' + state
+    print 'Can not find SSURGO raster for ' + state
 print 'State GSSURGO Raster location: ' + State_gSSURGO_Raster
 
 if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
@@ -131,14 +130,14 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
                 arcpy.BuildRasterAttributeTable_management(Basin_gSSURGO_Raster,"Overwrite")
                 
                 # Process: Join Field
-                print 'Joining "MUKEY" and "hydgrpdcd" fields...'
+                print 'Joining "VALUE" and "hydgrpdcd" fields...'
                 try:
-                    arcpy.JoinField_management(Basin_gSSURGO_Raster, "MUKEY", join_table, "mukey", "hydgrpdcd")
+                    arcpy.JoinField_management(Basin_gSSURGO_Raster, "VALUE", join_table, "MUKEY", "hydgrpdcd")
                     print 'Join successful!'
                 except Exception as x:
                     if 'ERROR 000728' in x.message:
-                        print 'Could not find MUKEY in join... trying "value"'
-                        arcpy.JoinField_management(Basin_gSSURGO_Raster, "VALUE", join_table, "mukey", "hydgrpdcd")
+                        print 'Could not find VALUE in join... trying "mukey"'
+                        arcpy.JoinField_management(Basin_gSSURGO_Raster, "MUKEY", join_table, "MUKEY", "hydgrpdcd")
                         print 'Join successful!'
                     else:
                         print 'error = ' + x.message

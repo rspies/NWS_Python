@@ -14,23 +14,23 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../../../GIS/")
+#os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['tmean','tmax','tmin','ppt'] # use temperature: 'tmean','tmax','tmin' or precipitation: 'ppt'
-resolution = '800m' # choices: '800m' or '4km' -> PRISM resolution
+resolution = '4km' # choices: '800m' or '4km' -> PRISM resolution
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'FY2017_CalibrationTask_BasinElevZones_30m.shp'
-find_ch5id = 'BASIN' # attribute table header for basin id -> must exist!!!
+in_shp = r'F:\projects\2021_twdb_wgrfc_calb\gis\basin_shapefiles\210318_Calb_Basins_Joined\Calb_Basins.shp'
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
 # if you only want to run specific basins or ignore basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [])
 #basins_overwrite = ['DTTM8']
-ignore_basins = ['VDFC7','SDGC7','SDGC7U','FRGC7','LDOT2U','PLBT4','CMRT4']
+ignore_basins = []
 ################# End User Input ######################
 if RFC[:5] == 'APRFC':
     resolution = '4km' # only 4km 1971-2000 data for Alaska
@@ -39,7 +39,7 @@ for variable in variables:
     if fx_group != '':
         output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution +'_month\\' + fx_group +os.sep
     else:
-        output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution +'_month\\'
+        output_dir =  'F:\\projects\\2021_twdb_wgrfc_calb\\data' + '\\PRISM\\Model_Builder_Output\\' + variable + '_' + resolution +'_month\\'
 
     if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
         print "Missing directory: 'C:\\NWS\\python\\temp_output\\' -> please create"
@@ -96,7 +96,8 @@ for variable in variables:
                     ## Process: Extract by Mask
                     print 'Extracting/Clipping by mask...'
                     #arcpy.gp.ExtractByMask_sa(PRISM_Dataset, Basin_Boundary, Basin_Raster) # fails for small basins
-                    arcpy.Clip_management(PRISM_Dataset, "#", Basin_Raster, Basin_Boundary, "0", "ClippingGeometry")
+                    arcpy.Clip_management(PRISM_Dataset, "#", Basin_Raster, Basin_Boundary, "0", "ClippingGeometry","NO_MAINTAIN_EXTENT")
+                    
             
                     ## Process: Raster to Point
                     print 'Raster to point...'
