@@ -19,6 +19,7 @@ from pylab import *
 
 #os.chdir("../..")
 maindir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb')
+out_dir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb\processed_data')
 ############################### User Input ####################################
 rfc = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
@@ -28,7 +29,7 @@ sac_plot = 'on' # plot sacsma
 snow_plot = 'off' # plot snow17 
 e19 = 'off' # create e19 folder with lower res image for chps display
 wm_image = maindir + os.sep + r'\python\extract_hydro_params\Lynker Logo for On-Screen.jpg' # lynker logo for plot
-fx_group_list = maindir + os.sep + r'\extract_hydro_params\basins_fx_group_list.csv'
+fx_group_list = out_dir + os.sep + r'\extract_hydro_params\basins_fx_group_list.csv'
 
 if fx_group == '':
     csv_read_init = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params\\Params_pre_calb' + os.sep
@@ -193,19 +194,19 @@ if sac_plot == 'on':
             
         print('Saving figure...')
         if fx_group == '':
-            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            directory = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
+            basin_e19 = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         else:
-            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
+            directory = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SACSMA' + os.sep + basin + '_sacsma_param_' + plot_type + '_analysis.png'
+            basin_e19 = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         
@@ -366,19 +367,19 @@ if snow_plot == 'on':
         
         print('Saving figure...')
         if fx_group == '':
-            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            directory = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
+            basin_e19 = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         else:
-            directory = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
+            directory = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            figname = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
-            basin_e19 = maindir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
+            figname = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'SNOW17' + os.sep + basin + '_snow17_param_' + plot_type + '_analysis.png'
+            basin_e19 = out_dir + os.sep + 'extract_hydro_params' + os.sep + rfc[:5] + os.sep + rfc + os.sep + fx_group + os.sep + 'param_plots' + os.sep + plot_type + os.sep + 'E19' + os.sep + basin.rstrip('UPR').rstrip('LWR').rstrip('LOC') + '_calb'
             if not os.path.exists(basin_e19):
                 os.makedirs(basin_e19)
         
