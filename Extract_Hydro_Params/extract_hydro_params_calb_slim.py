@@ -18,19 +18,19 @@ maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 #Enter RFC (example: RFC = 'WGRFC')
 RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'pre_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb'
+param_source = 'SA' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb' or 'SA'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'off' # choices: 'on' or 'off'
-uhg = 'on' # choices: 'on' or 'off'
-lagk = 'on' # choices: 'on' or 'off'
+uhg = 'off' # choices: 'on' or 'off'
+lagk = 'off' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
 snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
-lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
+uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
@@ -78,8 +78,8 @@ if sacsma == 'on':
     #csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
     #               'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
     #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
-    for filename in os.listdir(folderPath + '\\SAC_SMA\\'):
-        #print filename
+    for filename in glob.glob(os.path.join(folderPath, "*\\SACSMA*.xml")):
+        print(filename)
     
         #Define output file name
         name = str(os.path.basename(filename)[:])
@@ -92,7 +92,7 @@ if sacsma == 'on':
         csv_file.write(spl_name + ',')
     
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\SAC_SMA\\' + filename, 'r')
+        xml_file = open(filename, 'r')
         found_param = []
         #loop through parameters in the 'sac_params' list
         for param in sac_params:
@@ -188,7 +188,7 @@ if snow == 'on':
     csv_adc = open(csv_file_out + '\\' + '_' + RFC + '_SNOW17_ADC_' + param_source + '_slim.csv', 'w')
     csv_adc.write('BASIN,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0\n')
     
-    for filename in os.listdir(folderPath + '\\Snow17\\'):
+    for filename in glob.glob(os.path.join(folderPath, "*\\SNOW*.xml")):
         #print filename
         
         #Define output file name
@@ -202,7 +202,7 @@ if snow == 'on':
         csv_file.write(spl_name + ',')
     
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\Snow17\\'+ filename, 'r')
+        xml_file = open(filename, 'r')
         found_param = []
         #loop through parameters in the 'sac_params' list
         for param in snow_params:
@@ -363,7 +363,7 @@ if uhg == 'on':
     csv_file.write('\n')
     
     
-    for filename in os.listdir(folderPath + '\\UH\\'):
+    for filename in glob.glob(os.path.join(folderPath, "*\\UNITHG*.xml")):
         #print filename
     
         #Define output file name
@@ -377,7 +377,7 @@ if uhg == 'on':
         csv_file.write(name + ',' + ch5_id + ',')    
         
         #Open .xml file and temporary .txt file to write .xml contents to
-        xml_file = open(folderPath + '\\UH\\' + filename, 'r')
+        xml_file = open(filename, 'r')
     
         ###UHG_DURATION
         #Find line number with UHG_DURATION value
@@ -498,7 +498,7 @@ if lagk == 'on':
     
     csv_file.write('BASIN,Current Outflow,Current Storage,Inflow Basin,CONSTANT_LAG,CONSTANT_K,KQ_PAIRS,LAGQ_PAIRS,LAG1,Q1,LAG2,Q2,LAG3,Q3,LAG4,Q4,LAG5,Q5,LAG6,Q6,LAG7,Q7,LAG8,Q8,LAG9,Q9,LAG10,Q10,LAG11,Q11,LAG12,Q12,LAG13,Q13,LAG14,Q14,K1,KQ1,K2,KQ2,K3,KQ3,K4,KQ4,K5,KQ5,K6,KQ6,K7,KQ7,K8,KQ8,K9,KQ9,K10,KQ10,K11,KQ11,K12,KQ12,K13,KQ13,K14,KQ14'+'\n')
     
-    for filename in glob.glob(os.path.join(folderPath + '\\Lag_K', "LAGK*.xml")):
+    for filename in glob.glob(os.path.join(folderPath, "*\\LAGK*.xml")):
         #print filename
         lag_time = []
         lag_Q = []
@@ -769,7 +769,7 @@ if tatum == 'on':
     csv_file.write('\n')
     
     
-    for filename in os.listdir(folderPath + '\\Tatum\\'):
+    for filename in glob.glob(os.path.join(folderPath, "*\\TATUM*.xml")):
         #print filename
     
         #Define output file name
@@ -781,7 +781,7 @@ if tatum == 'on':
         #print name
         
         #Open .xml file 
-        txt_file = open(folderPath + '\\Tatum\\' + filename, 'r')
+        txt_file = open(filename, 'r')
         
         ###Number of Layers
         #Find line number with NUMBER_OF_LAYERS
