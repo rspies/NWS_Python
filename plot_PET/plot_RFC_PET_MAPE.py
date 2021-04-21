@@ -21,6 +21,7 @@ version = 'initial' # choices: 'initial', 'draft', 'final'
 csv_read_FAO = open(maindir + os.sep + 'plot_input' + os.sep + rfc + '_Plot_PET_Initial_FAOPM.csv', 'r')
 csv_read_apri = open(maindir + os.sep + 'plot_input' + os.sep + rfc + '_Plot_PET_apriori_ETD.csv', 'r')
 csv_read_MAPE = open(maindir + os.sep + 'plot_input' + os.sep + rfc + '_Plot_PET_MAPE_ETD.csv', 'r')
+csv_read_station = open(maindir + os.sep + 'plot_input' + os.sep + rfc + '_Plot_PET_station_climofill_ETD.csv', 'r')
 csv_read_calb = maindir + os.sep + rfc + '_Plot_PET_'+ version + '_calb.csv'
 
 ############################ End User Input ###################################
@@ -29,6 +30,7 @@ print('Be sure to check all units!!!!!!!!!')
 data_FAO = pd.read_csv(csv_read_FAO, delimiter=',', header=0)
 data_apri = pd.read_csv(csv_read_apri, delimiter=',', header=0)
 data_MAPE = pd.read_csv(csv_read_MAPE, delimiter=',', header=0)
+data_station_fill = pd.read_csv(csv_read_station, delimiter=',', header=0)
 if version == 'draft' or version == 'final':
     data_calb = pd.read_csv(open(csv_read_calb,'r'), delimiter=',', header=0)
     csv_read_calb.close()
@@ -53,12 +55,14 @@ for basin in all_basins:
         y2 = list(data_FAO[basin])[:12]
         y3 = list(data_apri[basin])[:12]
         y4 = list(data_MAPE[basin])[:12]
+        y5 = list(data_station_fill[basin])[:12]
         
         #ax1 = plt.subplot(5,20,plot_num)
         #ax1.plot(x,y1, color='black', markersize=4, linestyle='-', linewidth=1, zorder=5, label = 'NWS initial (MAPE * PEadj)')
         ax1.plot(x,y2, color='orange', markersize=4, linestyle='-', linewidth=2.5, zorder=5, label = 'FAO-PM')
         ax1.plot(x,y3, color='purple', markersize=4, linestyle='-', linewidth=2.5, zorder=5, label = 'Apriori ETD')
         ax1.plot(x,y4, color='green', markersize=4, linestyle='-', linewidth=2.5, zorder=5, label = 'MAPE ETD')
+        ax1.plot(x,y5, color='brown', markersize=4, linestyle='-', linewidth=2.5, zorder=5, label = 'Station Climo ETD')
         
         if version == 'draft' or version == 'final':
             y4 = list(data_calb[basin])[:12]
@@ -86,7 +90,7 @@ for basin in all_basins:
         count +=2; plot_num += 1
         
         #### add a single legend outside the subplots
-        ax1.legend(loc="center left",fontsize=12,ncol=3,bbox_to_anchor=(0,-0.2))
+        ax1.legend(loc="center left",fontsize=12,ncol=2,bbox_to_anchor=(0.1,-0.2))
         
         print(basin + ' saving figure...')
         figname = maindir + os.sep + 'plots' + os.sep + basin + '_PET_' + version + '_analysis_MAPE.png'
