@@ -12,32 +12,35 @@ import os
 import glob
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../../../GIS/")
+#os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\FY2017_CalibrationTask_BasinElevZones_30m.shp'
-find_ch5id = 'BASIN' # CH5_ID OR NAME attribute table header for basin id -> must exist!!!
+in_shp = r'F:\projects\2021_twdb_wgrfc_calb\gis\basin_shapefiles\210318_Calb_Basins_Joined\Calb_Basins.shp'
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
-snow = 'on' # choices: 'on' or 'off' -> process the snow grids (alat,elev,mfmax,mfmin,uadj)
+snow = 'off' # choices: 'on' or 'off' -> process the snow grids (alat,elev,mfmax,mfmin,uadj)
 
 # location of apriori grids (CONUS)
-SACSMA_Grids_Folder = 'D:\\Projects\\NWS\\GIS\\APriori\\SACSMA_grids\\ssurgo\\grid_WGS84'
+SACSMA_Grids_Folder = 'E:\\NWS_Project_folder_Dcopy\\GIS\\APriori\\SACSMA_grids\\ssurgo\\grid_WGS84'
 SNOW17_Grids_Folder = 'D:\\Projects\\NWS\\GIS\\APriori\\SNOW17_grids\\grid_WGS84'
 
 # if you only want to run specific basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [])
 #basins_overwrite = []#['FRNO3','GOSO3','HARO3','HCRO3','JASO3','LOPO3','MNRO3','SPRO3','TRBO3','VIDO3'] 
 
-if fx_group != '':
-    output_dir =  maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\' + fx_group +os.sep
-else:
-    output_dir =  maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\'
+#if fx_group != '':
+#    output_dir =  maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\' + fx_group +os.sep
+#else:
+#    output_dir =  maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\'
+    
+# Output directory for the basin .csv summary files
+output_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\data\\Apriori\\"
 
-ignore_basins = ['PLBT4']
+ignore_basins = []
 ################# End User Input ######################
 if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
     print "Missing directory: 'C:\\NWS\\python\\temp_output\\' -> please create"
@@ -76,6 +79,7 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
             # list all SACSMA SSURGO grids (directories containing data only) #ignore extra files in directory
             all_ssurgo = [ name for name in os.listdir(SACSMA_Grids_Folder) if os.path.isdir(os.path.join(SACSMA_Grids_Folder, name)) ]    
             all_ssurgo.remove('info') # remove info directory from list of variables 
+            #all_ssurgo=['sac_EFC']
             for variable in all_ssurgo:
                 print ch5id + ' --> ' + variable
                 Out_text = output_dir + '\\' + ch5id + '\\' + ch5id + '_' + variable + '.txt' 
@@ -85,15 +89,26 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
                 #Basin_Raster = 'P:\\NWS\\GIS\\Models\\10_0_tools\\Model_Output\\' + variable
                 #Basin_Points = 'P:\\NWS\\GIS\\Models\\10_0_tools\\Model_Output\\' + variable + '_points'
                 Basin_Raster = 'C:\\NWS\\python\\temp_output\\' + ch5id
+                Basin_Raster_resamp = 'C:\\NWS\\python\\temp_output\\' + ch5id + '_resam'
+                Basin_Raster_resamp_clip = 'C:\\NWS\\python\\temp_output\\' + ch5id + '_rsclp'
                 Basin_Points = 'C:\\NWS\\python\\temp_output\\' + ch5id + '_points'
         
-                ## Process: Extract by Mask
-                print 'Extracting by mask...'
-                arcpy.gp.ExtractByMask_sa(RASTER, Basin_Boundary, Basin_Raster)
-        
+                ## Process: Clip raster - https://desktop.arcgis.com/en/arcmap/latest/tools/data-management-toolbox/clip.htm
+                print 'Clipping raster - rectangular extent...'
+                #arcpy.gp.ExtractByMask_sa(RASTER, Basin_Boundary, Basin_Raster)
+                arcpy.Clip_management(RASTER, "#", Basin_Raster, Basin_Boundary, "", "NONE","NO_MAINTAIN_EXTENT")
+                
+                ## Process: Resample apriori raster - https://desktop.arcgis.com/en/arcmap/10.3/tools/data-management-toolbox/resample.htm
+                print 'Resampling basin raster...'
+                arcpy.Resample_management(Basin_Raster, Basin_Raster_resamp, "0.01 0.01", "NEAREST")
+                
+                ## Process: Clip raster to basin boundary
+                print 'Extracting by mask - basin boundary...'
+                arcpy.Clip_management(Basin_Raster_resamp, "#", Basin_Raster_resamp_clip, Basin_Boundary, "", "ClippingGeometry","NO_MAINTAIN_EXTENT")
+                
                 ## Process: Raster to Point
                 print 'Raster to point...'
-                arcpy.RasterToPoint_conversion(Basin_Raster, Basin_Points, "VALUE")
+                arcpy.RasterToPoint_conversion(Basin_Raster_resamp_clip, Basin_Points, "VALUE")
                 #
                 ## Process: Export Feature Attribute to ASCII
                 print 'Export attributes to text...'
@@ -133,7 +148,7 @@ for Basin in basins:
     print Basin
     folderPath = output_dir+ Basin + '\\'
     apriori_file = open(folderPath + Basin + '_apriori_parameters.csv', 'w')
-    apriori_file.write('Parameter,' + 'Mean,' + 'Max,' + 'Min,' + '\n')
+    apriori_file.write('Parameter,' + 'Mean,' + 'Max,' + 'Min,' + 'Count,' + '\n')
     
     #SAC-SMA SECTION--------------------------------------------------------------
     #loop through SACSMA files in folderPath
@@ -175,13 +190,14 @@ for Basin in basins:
         maximum = numpy.max(grid)
         minimum = numpy.min(grid)
         mean = numpy.mean(grid)
+        count = numpy.count_nonzero(~numpy.isnan(grid))
     
         #print 'grid is', grid
         #print 'max is', maximum
         #print 'min is', minimum
         #print 'mean is', mean
     
-        apriori_file.write(name + ',' + str(mean) + ',' + str(maximum) + ',' + str(minimum) + ',' + '\n')
+        apriori_file.write(name + ',' + str(mean) + ',' + str(maximum) + ',' + str(minimum) + ',' + str(count) + ',' + '\n')
     
     apriori_file.close()
     

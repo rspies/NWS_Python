@@ -12,17 +12,17 @@ import os
 #import xlrd # python module for exel file handling
 import csv
 import glob
-os.chdir("../..")
+#os.chdir("../..")
 maindir = os.getcwd()
 
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC Region
-RFC = 'NWRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 variables = ['ppt','tmean','tmax','tmin'] # use temperature: 'tmean','tmax','tmin' or precipitation: 'ppt'
-resolution = '800m' # choices: '800m' or '4km' -> PRISM resolution
+resolution = '4km' # choices: '800m' or '4km' -> PRISM resolution
 # if you only want to run specific basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [])
 basins_overwrite = []
@@ -36,9 +36,10 @@ for variable in variables:
     if fx_group != '':
         csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution + '_month\\' + fx_group + '\\'
     else:
-        csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution + '_month\\'
+        csv_folderPath =  'F:\\projects\\2021_twdb_wgrfc_calb\\data' + '\\PRISM\\Model_Builder_Output\\' + variable + '_' + resolution +'_month\\'
+        #csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\PRISM\\Model_Builder_Output_' + variable + '_' + resolution + '_month\\'
     #FOLDER PATH OF BASIN SUMMARY PRISM .xls DATA FILES (!Must be different than csv_FolderPath!)
-    output_folderPath = maindir + '\\GIS\\'+ RFC[:5] + os.sep + RFC + '\\PRISM\\'
+    output_folderPath = 'F:\\projects\\2021_twdb_wgrfc_calb\\data' + '\\PRISM\\Model_Builder_Output\\'
     
     
     units = {'ppt':'inches','tmax':'degrees C','tmin':'degrees C','tmean':'degrees C'}

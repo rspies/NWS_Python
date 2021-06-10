@@ -15,15 +15,15 @@ maindir = os.getcwd()
 #USER INPUT SECTION
 ####################################################################
 # OPTIONAL -> run all basins within an RFC directory
-RFC = 'APRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #FOLDER PATH OF ELEVATION AND SLOPE .CSV FILES FROM MODEL BUILDER OR PYTHON SCRIPT
 if fx_group != '':
     file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\' + fx_group + '\\'
 else:
-    file_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\Stats_Out\\'
-output_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Elevation_Slope\\'
-non_hydro1k_tasks = ['SERFC_FY14'] # identify tasks that DON'T use the hydro1k DEM (e.g. NHD plus 30m DEM)
+    file_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\data\DEM_nhdplus\\Elevation_Slope\\Stats_Out\\"
+output_folderPath = "F:\\projects\\2021_twdb_wgrfc_calb\\data\DEM_nhdplus\\Elevation_Slope\\"
+non_hydro1k_tasks = ['WGRFC_2021'] # identify tasks that DON'T use the hydro1k DEM (e.g. NHD plus 30m DEM)
 ####################################################################
 #END USER INPUT SECTION
 ####################################################################

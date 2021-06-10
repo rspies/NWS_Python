@@ -12,16 +12,16 @@ import arcpy
 import os
 import csv
 import winsound
-os.chdir("../../../GIS/")
+# os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input ###########################################################
-RFC = 'MARFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 variable = 'recharge' # choices: 'recharge' or 'trans'
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
-find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
+in_shp = r'F:\projects\2021_twdb_wgrfc_calb\gis\basin_shapefiles\210318_Calb_Basins_Joined\Calb_Basins.shp'
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
 # if you only want to run specific basins -> list them below
@@ -31,9 +31,9 @@ find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
 if fx_group != '':
     output_dir = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\GW_' + variable + '\\' + fx_group +os.sep
 else:
-    output_dir = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\GW_' + variable + '\\'
+    output_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\processed_data" + '\\GW_' + variable + '\\'
 
-ignore_basins = ['SDGC7U','VDFC7','MRLC7','VCSC7','SDGC7','FRGC7','CBBT21','LDOT2U','FALT23','PLBT4','CMRT4']
+ignore_basins = []
 ################# End User Input ##########################################################
 
 if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
@@ -50,7 +50,7 @@ csvFile = csv.writer(recharge_csv) #output csv
 
 # location of Recharge/Transmisivity Raster
 if variable == 'recharge':
-    Recharge_Dataset = 'D:\\GIS Library\\rech48grd\\rech48grd'
+    Recharge_Dataset = 'D:\\GIS Library\\rech48grd\\rech48grd_export.tif'
     csvFile.writerow(['Basin','Mean Annual Recharge (mm)', 'Mean Annual Recharge (in)'])
 if variable == 'trans':
     Recharge_Dataset = 'D:\\GIS Library\\USGS_karst\\TransmissivityMap_data_USGS\\transidw'

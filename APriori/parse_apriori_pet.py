@@ -7,12 +7,12 @@
 ###################################################################################
 import os
 
-os.chdir("../..")
+#os.chdir("../..")
 maindir = os.getcwd()
 
 ######################## User Input ###############################
-RFC = 'MARFC_FY2017'
-basins_dir = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\Apriori\\'
+RFC = 'WGRFC_2021'
+basins_dir = "F:\\projects\\2021_twdb_wgrfc_calb\\data\\Apriori\\"
 summary = open(basins_dir + 'apriori_ETD_summary.csv','w')
 ###################################################################
 summary.write('Calculated Apriori ETD = PE * PEadj (units = mm/day)\n')

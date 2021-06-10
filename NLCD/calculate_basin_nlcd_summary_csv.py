@@ -11,19 +11,19 @@ import glob
 import os
 import numpy
 import csv
-os.chdir("../..")
+#os.chdir("../..")
 maindir = os.getcwd()
 
 ####################################################################
 #USER INPUT SECTION
 ####################################################################
 #ENTER RFC
-RFC = 'APRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #FOLDER PATH OF NLCD .csv DATA FILES
-csv_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\' + fx_group
+csv_folderPath = 'E:\\TWDB_WGRFC\\NLCD\\data_files\\'
 #FOLDER PATH OF BASIN SUMMARYNLCD .xls DATA FILES (!Must be different than csv_FolderPath!)
-output_folderPath = maindir + '\\GIS\\' + RFC[:5] + os.sep + RFC + '\\NLCD\\'
+output_folderPath = 'E:\\TWDB_WGRFC\\NLCD\\'
 ####################################################################
 #END USER INPUT SECTION
 ####################################################################
@@ -99,7 +99,7 @@ for filename in glob.glob(os.path.join(csv_folderPath, "*.csv")):
 
     #GET THE RASTER GRID COUNT OF EACH LAND CLASSIFICATION
     for row in data_file:
-        LandCover = str(row[3])
+        LandCover = str(row[0])
         count = float(row[2])
         code = int(row[1])
         if LandCover == 'Open Water' or code == 11:

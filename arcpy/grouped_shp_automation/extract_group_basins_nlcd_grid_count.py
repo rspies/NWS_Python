@@ -15,32 +15,34 @@ import os
 import csv
 import winsound
 arcpy.env.overwriteOutput = True
-os.chdir("../../../GIS/")
+#os.chdir("../../../GIS/")
 maindir = os.getcwd()
 
 ################### User Input #####################
-RFC = 'MARFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
 #in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_from' + RFC[:5] + '\\calb_basins\\calb_basins_DES.shp'
-in_shp = maindir + '\\' + RFC[:5] + os.sep + RFC + '\\Shapefiles_fromRFC\\calb_basins\\' + 'marfc_fy17_calb_basins.shp'
-find_ch5id = 'CH5_ID' # attribute table header for basin id -> must exist!!!
+in_shp = "E:\\TWDB_WGRFC\\basins\\210318_Calb_Basins_Joined\\Calb_Basins.shp"
+find_ch5id = 'Arc_Name_n' # attribute table header for basin id -> must exist!!!
 #find_name = 'NAME' # optional: attribute table header for more basin info
 
 # if you only want to run specific basins -> list them below
 # otherwise set it equal to empty list (basins_overwrite = [])
-#basins_overwrite = [] 
+basins_overwrite = ['MCGT2'] 
 
+# Output directory for the basin .csv summary files
 if fx_group != '':
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\' + fx_group + os.sep
+    output_dir = 'E:\\TWDB_WGRFC\\NLCD\\data_files\\'
 else:
-    output_dir = maindir + '\\'+ RFC[:5] + os.sep + RFC + '\\NLCD\\data_files\\'
+    output_dir = 'E:\\TWDB_WGRFC\\NLCD\\data_files\\'
 
 # location of NLCD Raster (CONUS)
 if RFC[:5] == 'APRFC': # different file for Alaska
     NLCD_Dataset = r'D:\\GIS Library\\NLCD\\AK_NLCD_2001\\ak_nlcd_2001_land_cover_3-13-08_se5.img'
     #NLCD_Dataset = r'Q:\\GISLibrary\\NLCD\\AK_NLCD_2001\\ak_nlcd_2001_land_cover_3-13-08_se5.img'
 else:
-    NLCD_Dataset = r'D:\\GIS Library\\NLCD\\nlcd_2011_landcover_2011_edition_2014_03_31.img'
+    #NLCD_Dataset = r'D:\\GIS Library\\NLCD\\nlcd_2011_landcover_2011_edition_2014_03_31.img'
+    NLCD_Dataset = r'E:\\GIS Library\\NLCD\\NLCD_2016_Land_Cover_L48_20190424\\NLCD_2016_Land_Cover_L48_20190424.img'
 ################# End User Input ######################
 if not os.path.exists('C:\\NWS\\python\\temp_output\\'):
     print "Missing directory: 'C:\\NWS\\python\\temp_output\\' -> please create"
@@ -55,7 +57,7 @@ arcpy.CheckOutExtension("spatial")
 
 # Set Geoprocessing environments
 arcpy.env.scratchWorkspace = "C:\\NWS\\python\\Model_Output.gdb" # temporary file storage directory
-#arcpy.env.parallelProcessingFactor = "50"
+arcpy.env.parallelProcessingFactor = "50"
 print 'ok so far...'
 
 # use search cursor to loop through individual basins in shapefile
@@ -122,6 +124,7 @@ with arcpy.da.SearchCursor(in_shp, ("SHAPE@",find_ch5id)) as cursor: # search cu
             row = None
             rows = None
             nlcd_csv.close()
+            arcpy.Delete_management("in_memory")
     
 print 'Script completed!!'
 winsound.Beep(800,1000) # beep to indicate script is complete
