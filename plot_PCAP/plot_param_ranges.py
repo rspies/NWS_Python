@@ -16,6 +16,7 @@ from matplotlib.path import Path
 import matplotlib.patheffects as PathEffects
 import pandas as pd
 from pylab import *
+from datetime import date
 
 #os.chdir("../..")
 maindir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb')
@@ -27,8 +28,8 @@ plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the c
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
 snow_plot = 'off' # plot snow17 
-e19 = 'off' # create e19 folder with lower res image for chps display
-wm_image = maindir + os.sep + r'\python\extract_hydro_params\Lynker Logo for On-Screen.jpg' # lynker logo for plot
+e19 = 'on' # create e19 folder with lower res image for chps display
+wm_image = maindir + os.sep + r'\python\extract_hydro_params\Lynker-Primary-Logo-96dpi.jpg' # lynker logo for plot
 fx_group_list = out_dir + os.sep + r'\extract_hydro_params\basins_fx_group_list.csv'
 
 if fx_group == '':
@@ -63,7 +64,7 @@ if sac_plot == 'on':
         all_basins = data_init.index.values.tolist() #list of all basins from the pre_calb parameter csv
     else:
         all_basins = data_calb.index.values.tolist() #list of all basins from the calb parameter csv
-    
+
     for basin in all_basins:
         print(basin)
         count = 1; plot_num = 1; x=1.1; apbasin = basin
@@ -187,9 +188,13 @@ if sac_plot == 'on':
                 
         ### add Lynker logo watermark in plot corner
         im = image.imread(wm_image)
-        newax = fig.add_axes([0.85,0.95, 0.1, 0.1], anchor='NE') # create axis to place image (x,y,scalex,scaley)
-        newax.imshow(im, alpha = 0.3, extent=(0,1,1,1.4))
+        newax = fig.add_axes([0.8,0.94, 0.1, 0.1], anchor='NE') # create axis to place image (x,y,scalex,scaley)
+        newax.imshow(im, alpha = 0.4, extent=(0,1,1,1.4))
         newax.axis('off')
+        
+        ### add datestamp to image
+        today = date.today()
+        ax1.text(0.5, -0.05,today, style='italic', fontsize=5, color='grey', verticalalignment='top')
         #plt.imshow(im, aspect='auto', extent=(1,1,1,1), zorder=-100)
             
         print('Saving figure...')
@@ -364,6 +369,10 @@ if snow_plot == 'on':
         newax = fig.add_axes([0.80,1.01, 0.16, 0.16], anchor='NE') # create axis to place image (x,y,scalex,scaley)
         newax.imshow(im, alpha = 0.3, extent=(0,1,1,1.4)) # location of image  (left, right, bottom, top)
         newax.axis('off')
+        
+        ### add datestamp to image
+        today = date.today()
+        ax1.text(0.5, -0.05,today, style='italic', fontsize=5, color='grey', verticalalignment='top')
         
         print('Saving figure...')
         if fx_group == '':

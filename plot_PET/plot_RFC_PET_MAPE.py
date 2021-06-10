@@ -1,8 +1,7 @@
 #plot_ts_hydrographs.py
-#python script to loop time series files in a folder and plot hydrographs
-#Author: Cody Moser, PhD
-#cody.lee.moser@noaa.gov
-#NOAA/NWS/MARFC
+#python script to PET data files and create PET comparison plots
+#Author: Ryan Spies
+#rspies@lynker.com
 
 print("Start Script")
 
@@ -38,7 +37,7 @@ if version == 'draft' or version == 'final':
 #csv_read_NWS.close()
 csv_read_FAO.close(); csv_read_MAPE.close()
 
-all_basins = list(data_MAPE.columns.values)
+all_basins = list(data_FAO.columns.values)
 x = range(1,13,1) # month range
 count = 1
 plot_num = 1

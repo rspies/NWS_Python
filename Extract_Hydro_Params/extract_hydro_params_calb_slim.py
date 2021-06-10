@@ -23,13 +23,13 @@ param_source = 'SA' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'in
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'off' # choices: 'on' or 'off'
-uhg = 'off' # choices: 'on' or 'off'
-lagk = 'off' # choices: 'on' or 'off'
+uhg = 'on' # choices: 'on' or 'off'
+lagk = 'on' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
 snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
-uh_plots = 'off' # choices: 'on' or 'off' -> UNIT-HG plots
+uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
 lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
