@@ -24,9 +24,9 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 ##############################################################################
 ##### IMPORTANT: Make sure to call the correct CHPS .csv output columns ######
 #####    and specify the calibration period in next section 
-RFC = 'MBRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = ''                   # set to blank '' if not using fx_groups
-yr_begin = 1989; yr_final = 2013  # these are the default start/end years for plots
+yr_begin = 2000; yr_final = 2020  # these are the default start/end years for plots
 sim_type = 'final'            # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum']  # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type    #' Calb Raster Analysis' or '_bias_pbias_test'
@@ -35,17 +35,19 @@ add_obs_Q_plot = 'yes'          # yes/no to create a subplot of the observed dat
 basin_ids = []                  # <-- use this to run specific basin(s)
 ignore_basins = []
 
-wm_image = os.getcwd() + os.sep + 'Python' + os.sep + 'plot_RHAP' + os.sep + 'Lynker Logo for On-Screen.jpg' # lynker logo for plot
-log_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'raster_hydrograph_plots' + os.sep
+qme_sqme_input = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\Orig pre simulation files\QME_SQME')
+out_dir = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\Orig pre simulation files\RHAP') + os.sep
+wm_image = os.getcwd() + os.sep + 'Python' + os.sep + 'plot_RHAP' + os.sep + 'Lynker-Primary-Logo-96dpi.jpg' # lynker logo for plot
+#log_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'raster_hydrograph_plots' + os.sep
 ############################ End User input ###################################
 
 ### create log file to output summary of calibration period
-log_file = open(log_dir + 'summary_info.txt','w')
+log_file = open(out_dir + 'summary_info.txt','w')
 log_file.write('Basin,start_date,end_date,daily_pts\n')
 ########### find all basin QME vs SQME .csv files ############
 if len(basin_ids) == 0:
     basin_ids = []
-    all_files = os.listdir(maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries'+ os.sep + fx_group + os.sep + sim_type + os.sep + 'QME_SQME' + os.sep)
+    all_files = os.listdir(qme_sqme_input)
     for each in all_files:
         if each.endswith(".csv"):
                 ch5id = each.split('_')[0]
@@ -54,17 +56,17 @@ if len(basin_ids) == 0:
 #basin_ids=['APBA4']
 ########### loop through all desired basins and define min/max errors for plots ############
 for basin_id in basin_ids:
-    print basin_id
-    calib_read = open(maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type+ os.sep + 'QME_SQME' + os.sep + basin_id + '_QME_SQME.csv', 'r') #test!!!
+    print(basin_id)
+    calib_read = open(qme_sqme_input + os.sep + basin_id + '_QME_SQME.csv', 'r') #test!!!
     # output figure directory
-    out_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'raster_hydrograph_plots' + os.sep 
+    #out_dir = out_dir + os.sep + 'raster_hydrograph_plots' + os.sep 
     
     ###### tab delimitted CHPS calibrated AND Observed dishcarge text file into panda arrays ###########
     ### replaces hour time stamp with zero to create a mean daily value -> match obs data
     test = pd.read_csv(calib_read,sep=',',skiprows=2,
             usecols=[0,1,2],parse_dates=['date'],names=['date', 'QME', 'SQME'])
     ### assign column data to variables
-    print 'Populating data arrays for calibrated dishcarge... and converting to daily values'
+    print('Populating data arrays for calibrated dishcarge... and converting to daily values')
     
     date_calib = test['date'].tolist()                  # convert to list (indexible)
     Q_calib = test['SQME'].tolist()
@@ -99,7 +101,7 @@ for basin_id in basin_ids:
     if len(date_Q) > 0:
         log_file.write(basin_id + ',' + str(min(date_Q).date()) + ',' + str(max(date_Q).date()) + ',') # log summary file output
         if min(date_Q).year > yr_begin:
-            print 'Obs data begins -> ' + str(min(date_Q).year)
+            print('Obs data begins -> ' + str(min(date_Q).year))
             yr_start = int(min(date_Q).year)
             if int(min(date_Q).year) > 2005:
                 yr_start = 2005
@@ -107,7 +109,7 @@ for basin_id in basin_ids:
             yr_start = yr_begin
         ### set plot end date to last year with obs data or to default (yr_final)
         if max(date_Q).year > yr_final:
-            print 'Obs data ends -> ' + str(max(date_Q).year)
+            print('Obs data ends -> ' + str(max(date_Q).year))
             yr_end = int(max(date_Q).year)
         else:
             yr_end = yr_final
@@ -116,16 +118,16 @@ for basin_id in basin_ids:
         log_file.write(basin_id + ',na,na,') # log summary file output
     
     ################## Create matrix of observed and calibrated data #####################
-    print 'Creating matrix of data...'
-    print 'Ignoring leap days...'
+    print('Creating matrix of data...')
+    print('Ignoring leap days...')
     start=pd.datetime(yr_start,1,1); end=pd.datetime(yr_end,12,31); delta = datetime.timedelta(days=1)
     gage_Q = []
-    print 'Parsing daily observed gage dishcarge data...'
+    print('Parsing daily observed gage dishcarge data...')
     while start <= end:
         date_loop = pd.to_datetime(start)
         #ignore leap year day (maintains equal matrix dimensions)
         if date_loop.month == 2 and date_loop.day == 29: 
-            print 'Ignoring: ' + str(date_loop)
+            print('Ignoring: ' + str(date_loop))
         else:
             if date_loop in date_Q:
                 if float(date_Q[date_loop][0]) < 0.0:       # replace negative Q with nan
@@ -140,17 +142,17 @@ for basin_id in basin_ids:
     
     ### check if any observed data is available - if not do not create a plot
     if np.count_nonzero(~np.isnan(gage_Q)) == 0: # count the non-nan values
-        print 'NO QME DATA AVIALABLE...'
+        print('NO QME DATA AVIALABLE...')
         log_file.write('0\n') # log summary file output
     else: 
-        print 'Parsing daily calibrated dishcarge data...'
+        print('Parsing daily calibrated dishcarge data...')
         log_file.write(str(np.count_nonzero(~np.isnan(gage_Q))) + '\n') # log summary file output
         start=pd.datetime(yr_start,1,1); chps_Q = []
         while start <= end:
             date_loop = pd.to_datetime(start)
             #ignore leap year day (maintains equal matrix dimensions)
             if date_loop.month == 2 and date_loop.day == 29: 
-                print 'Ignoring: ' + str(date_loop)
+                print('Ignoring: ' + str(date_loop))
             else:
                 if date_loop in date_Q_calib:
                     if float(np.average(date_Q_calib[date_loop])) < 0.0:    # replace negative Q with nan
@@ -167,15 +169,15 @@ for basin_id in basin_ids:
         ediff = (np.asarray(chps_Q)-np.asarray(gage_Q))#/np.asarray(gage_Q)
         ema = np.ma.masked_invalid(ediff)
         #eadd = np.cumsum(ema)
-        error_cum = ema.reshape((len(gage_Q)/365),365)
-        obs_Q = np.flipud(np.asarray(gage_Q).reshape((len(gage_Q)/365),365))
-        calib_Q = np.flipud(np.asarray(chps_Q).reshape((len(chps_Q)/365),365))
+        error_cum = ema.reshape(int((len(gage_Q)/365)),365)
+        obs_Q = np.flipud(np.asarray(gage_Q).reshape(int((len(gage_Q)/365)),365))
+        calib_Q = np.flipud(np.asarray(chps_Q).reshape(int((len(chps_Q)/365)),365))
         fig = plt.figure(figsize=(8,10))
         cmap =cm.seismic_r 
         
         ### calculate plot coloring thresholds for bias and accum bias - based on obs data mean
         avg_flow = np.ma.mean(np.ma.masked_invalid(obs_Q))
-        print 'Mean flow: ' + str(avg_flow)
+        print('Mean flow: ' + str(avg_flow))
         if 0 <= avg_flow <= 1:
             cminb = -6; cmaxb = 6
             cmina = -100; cmaxa =100        
@@ -233,7 +235,7 @@ for basin_id in basin_ids:
                     ax1 = fig.add_subplot(312)
                 else:
                     ax1 = fig.add_subplot(212)     
-                print 'Creating Bias plot...'
+                print('Creating Bias plot...')
                 
             #  Accumulated Bias
             if error_type == 'accum':
@@ -247,7 +249,7 @@ for basin_id in basin_ids:
                     ax1 = fig.add_subplot(313)
                 else:
                     ax1 = fig.add_subplot(213)
-                print 'Creating Accumulated Bias plot...'
+                print('Creating Accumulated Bias plot...')
             
             #  %Bias = 100 * [(calib-obs)/obs]
             if error_type == 'pbias':
@@ -260,7 +262,7 @@ for basin_id in basin_ids:
                     ax1 = fig.add_subplot(313)
                 else:
                     ax1 = fig.add_subplot(213)
-                print 'Creating %Bias plot...'
+                print('Creating %Bias plot...')
         #    cmap.set_bad('k',0.3)
             
             
@@ -410,8 +412,8 @@ for basin_id in basin_ids:
         newax.axis('off')            
         
         plt.savefig(fig_out, dpi=resolution, bbox_inches='tight')
-        print 'Figure saved to: ' + out_dir + basin_id + '_' + label + '.png'
+        print('Figure saved to: ' + out_dir + basin_id + '_' + label + '.png')
         plt.close()
 log_file.close()
-print 'Finished!'
-print datetime.datetime.now()
+print('Finished!')
+print(datetime.datetime.now())
