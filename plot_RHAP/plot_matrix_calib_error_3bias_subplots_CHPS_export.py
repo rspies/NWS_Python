@@ -27,7 +27,7 @@ maindir = os.getcwd() + os.sep + 'Calibration_NWS' + os.sep
 RFC = 'WGRFC_2021'
 fx_group = ''                   # set to blank '' if not using fx_groups
 yr_begin = 2000; yr_final = 2020  # these are the default start/end years for plots
-sim_type = 'final'            # choices: initial (prior to calib) or final (final calib)
+sim_type = 'initial'            # choices: initial (prior to calib) or final (final calib)
 error_types = ['bias','accum']  # choices: pbias, bias, NAE (normalized absolute error)
 fig_name = '_bias_pbias_' + sim_type    #' Calb Raster Analysis' or '_bias_pbias_test'
 resolution = 350                #350->(for report figs) 100->for CHPS fx help tab display (E19)

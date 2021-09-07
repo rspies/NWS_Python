@@ -6,14 +6,14 @@ import os
 from shutil import copyfile
 from PIL import Image
 
-plot_dir = r'D:\projects\2021_twdb_wgrfc_calb\water_balance\figures'
-e19_dir = r'D:\projects\2021_twdb_wgrfc_calb\water_balance\figures\E19'
+plot_dir = r'D:\projects\2021_twdb_wgrfc_calb\gis\Basin Maps\Brazos'
+e19_dir = r'D:\projects\2021_twdb_wgrfc_calb\gis\Basin Maps\E19'
 basin_name_loc = 0 # this is the ordinate of the plot name that contains the basinid when split by "_"
 
 mod_resolution = "True" # "True" or "False" to modify image resolution for better display in CHPS
 basewidth = 1000
 
-filename_append = "_watbal_summary"
+filename_append = "_basin_overview_map"
 
 if not os.path.isdir(e19_dir):
     os.mkdir(e19_dir)
@@ -22,7 +22,7 @@ else:
 
 for plot in os.listdir(plot_dir):
     print(plot)
-    if plot != "E19":
+    if plot != "E19" and plot [-4:] != '.txt':
         ## Get basin id from plot file name
         basin_id = plot.replace('.','_').split("_")[basin_name_loc]
         ## Create path to basin dir in e19
@@ -31,7 +31,7 @@ for plot in os.listdir(plot_dir):
         if not os.path.isdir(basin_dir):
             os.mkdir(basin_dir)
         ## Copy src file to dst
-        dst_plot = basin_dir + os.sep + plot[:-4] + filename_append + plot[-4:]
+        dst_plot = basin_dir + os.sep + basin_id + filename_append + plot[-4:]
         copyfile(plot_dir + os.sep + plot, dst_plot)
         if mod_resolution == "True":
             img = Image.open(dst_plot)

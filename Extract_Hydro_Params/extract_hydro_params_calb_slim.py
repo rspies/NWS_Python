@@ -18,13 +18,13 @@ maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 #Enter RFC (example: RFC = 'WGRFC')
 RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'SA' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb' or 'SA'
+param_source = 'draft_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb' or 'SA'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'off' # choices: 'on' or 'off'
-uhg = 'on' # choices: 'on' or 'off'
-lagk = 'on' # choices: 'on' or 'off'
+uhg = 'off' # choices: 'on' or 'off'
+lagk = 'off' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
@@ -34,12 +34,22 @@ lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\ModuleParFiles_' + param_source
+    if param_source == 'SA' or param_source == 'pre_calb':
+        folderPath = maindir + '\\ModuleParFiles_' + param_source
+        basin_name_index = 1
+    elif param_source == 'draft_calb':
+        folderPath = maindir + '\\modifiers_post_peer_review_draft'
+        basin_name_index = 0
     #!!!!!! output directory: enter ouput directory for .csv files below ->
     csv_file_out = maindir + '\\extract_hydro_params\\Params_' + param_source
 else:
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    folderPath = maindir + '\\ModuleParFiles_' + param_source + '_' + fx_group
+    if param_source == 'SA' or param_source == 'pre_calb':
+        folderPath = maindir + '\\ModuleParFiles_' + param_source + '_' + fx_group
+        basin_name_index = 1
+    elif param_source == 'draft_calb':
+        folderPath = maindir + '\\modifiers_post_peer_review_draft'
+        basin_name_index = 0
     #!!!!!! output directory: enter ouput directory for .csv files below ->
     csv_file_out = maindir + '\\extract_hydro_params\\Params_' + param_source + '_' + fx_group
 ########################## END USER INPUT SECTION ############################
@@ -78,14 +88,19 @@ if sacsma == 'on':
     #csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
     #               'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
     #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
-    for filename in glob.glob(os.path.join(folderPath, "*\\SACSMA*.xml")):
+    if param_source == 'SA' or param_source == 'pre_calb':
+        file_search_tag = "*\\SACSMA*.xml"
+    elif param_source == 'draft_calb':
+        file_search_tag = "*.xml*"
+        
+    for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
         print(filename)
     
         #Define output file name
         name = str(os.path.basename(filename)[:])
         name = name.replace('SACSMA_', '')
         name = name.replace('_UpdateStates.xml', '')
-        spl_name = name.split('_')[1]
+        spl_name = name.split('_')[basin_name_index]
         print('SAC-SMA -> ' + spl_name)
         #print name
         csv_file.write(name + ',')
@@ -143,9 +158,12 @@ if sacsma == 'on':
         ###ET_DEMAND_CURVE
         xml_file.seek(0)
         line_num=0
+        pet_curve_block = 0
         for line in xml_file:
             line_num += 1
-            if 'row A' in line:
+            if '<parameter id="ET_DEMAND_CURVE"' in line:
+                pet_curve_block = 1
+            if 'row A' in line and pet_curve_block == 1:
                 break
     
         xml_file.seek(0)

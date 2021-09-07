@@ -19,16 +19,16 @@ from pylab import *
 from datetime import date
 
 #os.chdir("../..")
-maindir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb')
-out_dir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb\processed_data')
+maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb')
+out_dir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\processed_data')
 ############################### User Input ####################################
 rfc = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
-plot_type = 'initial' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
+plot_type = 'draft' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
 snow_plot = 'off' # plot snow17 
-e19 = 'on' # create e19 folder with lower res image for chps display
+e19 = 'off' # create e19 folder with lower res image for chps display
 wm_image = maindir + os.sep + r'\python\extract_hydro_params\Lynker-Primary-Logo-96dpi.jpg' # lynker logo for plot
 fx_group_list = out_dir + os.sep + r'\extract_hydro_params\basins_fx_group_list.csv'
 
@@ -56,7 +56,7 @@ if sac_plot == 'on':
     
     if plot_type == 'draft' or plot_type == 'final': 
         csv_read_calb = open(csv_dir_calb + '_' + rfc + '_SACSMA_Params_'+plot_type+'_calb_slim.csv', 'r')
-        data_calb = pd.read_csv(csv_read_calb, delimiter=',', index_col=False, skip_footer=0, header=0).set_index('NAME') #reindex to avoid data shifting
+        data_calb = pd.read_csv(csv_read_calb, delimiter=',', index_col=False, header=0).set_index('NAME') #reindex to avoid data shifting
         csv_read_calb.close()
     
     sac_pars = ['UZTWM','UZFWM','UZK','PCTIM','ADIMP','EFC','SIDE','RSERV','PXADJ','LZTWM','LZFSM','LZSK','LZFPM','LZPK','REXP','ZPERC','PFREE','RIVA']
