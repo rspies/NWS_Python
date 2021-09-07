@@ -23,14 +23,14 @@ param_source = 'draft_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'off' # choices: 'on' or 'off'
-uhg = 'off' # choices: 'on' or 'off'
+uhg = 'on' # choices: 'on' or 'off'
 lagk = 'off' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
 snow_plots = 'off' # choices: 'on' or 'off' -> Snow17 AEC plots
 uh_plots = 'on' # choices: 'on' or 'off' -> UNIT-HG plots
-lag_plots = 'off' # choices: 'on' or 'off' -> LAG/K plots
+lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
@@ -90,7 +90,7 @@ if sacsma == 'on':
     #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
     if param_source == 'SA' or param_source == 'pre_calb':
         file_search_tag = "*\\SACSMA*.xml"
-    elif param_source == 'draft_calb':
+    elif param_source == 'draft_calb' or param_source == 'final_calb':
         file_search_tag = "*.xml*"
         
     for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
@@ -206,14 +206,19 @@ if snow == 'on':
     csv_adc = open(csv_file_out + '\\' + '_' + RFC + '_SNOW17_ADC_' + param_source + '_slim.csv', 'w')
     csv_adc.write('BASIN,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0\n')
     
-    for filename in glob.glob(os.path.join(folderPath, "*\\SNOW*.xml")):
+    if param_source == 'SA' or param_source == 'pre_calb':
+        file_search_tag = "*\\SNOW*.xml"
+    elif param_source == 'draft_calb' or param_source == 'final_calb':
+        file_search_tag = "*.xml*"
+    
+    for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
         #print filename
         
         #Define output file name
         name = str(os.path.basename(filename)[:])
         name = name.replace('SNOW17_', '')
         name = name.replace('_UpdateStates.xml', '')
-        spl_name = name.split('_')[1]
+        spl_name = name.split('_')[basin_name_index]
         print('Snow17 -> ' + spl_name)
         #print name
         csv_file.write(name + ',')
@@ -380,15 +385,19 @@ if uhg == 'on':
         t += 6
     csv_file.write('\n')
     
+    if param_source == 'SA' or param_source == 'pre_calb':
+        file_search_tag = "*\\UNITHG*.xml"
+    elif param_source == 'draft_calb' or param_source == 'final_calb':
+        file_search_tag = "*.xml*"
     
-    for filename in glob.glob(os.path.join(folderPath, "*\\UNITHG*.xml")):
+    for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
         #print filename
     
         #Define output file name
         name = str(os.path.basename(filename)[:])
         name = name.replace('UNITHG_', '')
         name = name.replace('_UpdateStates.xml', '')
-        ch5_id = name.split('_')[1]
+        ch5_id = name.split('_')[basin_name_index]
         print('UHG - > ' + name + ' - ' + ch5_id)
         #print name
         
@@ -435,12 +444,17 @@ if uhg == 'on':
         #Set time 0 values
         ordinate = 0
         flow = 0
+        uhg_xml_block = 0
         csv_file.write('0' + ',')
         UHG_time.append(ordinate)
         UHG_flow.append(ordinate)
         
         for line in xml_file:
-            if 'row A' in line:
+            if '<parameter id="UHG_ORDINATES"' in line:
+                uhg_xml_block = 1
+            if '</table>' in line:
+                uhg_xml_block = 0
+            if 'row A' in line and uhg_xml_block == 1:
                 ordinate = ordinate + 6
                 UHG_time.append(ordinate)
                 line = re.sub("[^0123456789\.\-]", "", line)
@@ -516,7 +530,12 @@ if lagk == 'on':
     
     csv_file.write('BASIN,Current Outflow,Current Storage,Inflow Basin,CONSTANT_LAG,CONSTANT_K,KQ_PAIRS,LAGQ_PAIRS,LAG1,Q1,LAG2,Q2,LAG3,Q3,LAG4,Q4,LAG5,Q5,LAG6,Q6,LAG7,Q7,LAG8,Q8,LAG9,Q9,LAG10,Q10,LAG11,Q11,LAG12,Q12,LAG13,Q13,LAG14,Q14,K1,KQ1,K2,KQ2,K3,KQ3,K4,KQ4,K5,KQ5,K6,KQ6,K7,KQ7,K8,KQ8,K9,KQ9,K10,KQ10,K11,KQ11,K12,KQ12,K13,KQ13,K14,KQ14'+'\n')
     
-    for filename in glob.glob(os.path.join(folderPath, "*\\LAGK*.xml")):
+    if param_source == 'SA' or param_source == 'pre_calb':
+        file_search_tag = "*\\LAGK*.xml"
+    elif param_source == 'draft_calb' or param_source == 'final_calb':
+        file_search_tag = "*.xml*"
+    
+    for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
         #print filename
         lag_time = []
         lag_Q = []
@@ -756,7 +775,7 @@ if lagk == 'on':
                 #add plot legend with location and size
                 ax1.legend(loc='upper right', prop={'size':10})
                     
-                plt.title(name.split('_')[0] + ': ' + inflow_basin + ' LAG/K Parameters')
+                plt.title(name.split('_')[basin_name_index] + ': ' + inflow_basin + ' LAG/K Parameters')
                     
                 output_folder = csv_file_out +'\\LAGK_plots\\'
                 if os.path.exists(output_folder) == False:
