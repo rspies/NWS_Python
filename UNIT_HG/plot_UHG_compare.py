@@ -10,18 +10,18 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-os.chdir("../..")
+working_dir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 
 
 ################################# User Input #########################################
-RFC = 'MBRFC_FY2017'
+RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-version_compare = 'final_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
+version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 
 if fx_group == '':
-    maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params' + os.sep + RFC[:5] + os.sep + RFC
+    maindir = working_dir + os.sep + 'extract_hydro_params'
 else:
-    maindir = os.getcwd() + os.sep + 'Extract_Hydro_Params' + os.sep + RFC[:5] + os.sep + RFC + os.sep + fx_group
+    maindir = working_dir + os.sep + 'extract_hydro_params' + os.sep + fx_group
 calib_csv = open(maindir  + '\\Params_' + version_compare + '\\_' + RFC +'_UHG_Params_' + version_compare + '_slim.csv','r')
 initial_csv_file = maindir + '\\Params_pre_calb\\_' + RFC +'_UHG_Params_pre_calb_slim.csv'
 ######################################################################################
@@ -29,8 +29,8 @@ basins = []
 UHG_time = []
 for each in calib_csv:
     sep = each.split(',')
-    if sep[0] != 'BASIN':
-        find = str(sep[0].split('_')[1])
+    if sep[1] != 'CH5ID':
+        find = str(sep[1])
         if find != 'BASIN' and find != '':
             if find == 'TOTAL': # MARFC has "Total" second id
                 find = str(sep[0].split('_')[0])
@@ -44,9 +44,9 @@ calib_csv.close()
 for basin in basins:
     calib_csv = open(maindir + '\\Params_' + version_compare + '\\_' + RFC +'_UHG_Params_' + version_compare + '_slim.csv','r')
     initial_csv = open(initial_csv_file,'r')    
-    print 'Plotting: ' + basin + '...'
+    print('Plotting: ' + basin + '...')
     UHG_calb_flow = []
-    UHG_initial_flow = []; non_zero_cnt_init = 0; non_zero_cnt_calb = 0
+    UHG_initial_flow = []; non_zero_cnt_init = 0; non_zero_cnt_calb = 0;
     
     for each in calib_csv:
         sep = each.split(',')
@@ -54,7 +54,7 @@ for basin in basins:
             if str(sep[0].split('_')[1]) == 'TOTAL': # MARFC has "Total" second id
                 find = str(sep[0].split('_')[0])
             else:
-                find = str(sep[0].split('_')[1])
+                find = str(sep[1])
         else:
             find = 'header'
             ## ch5id added to extract param script 6/2016 (index change + 1 column)
@@ -69,9 +69,9 @@ for basin in basins:
             interval = int(sep[2+ add])
             count = 0
             for value in sep:
-                if count > 4 and value != '\n': #ignoring first 5 values in row (basin, id, area, intveral, const baseflow)
-                    UHG_calb_flow.append(value)
-                    if float(value) > 0:
+                if count > 4 and value != '\n' and value != '': #ignoring first 5 values in row (basin, id, area, intveral, const baseflow)
+                    UHG_calb_flow.append(float(value))
+                    if float(value) > 0 or count < 15:
                         non_zero_cnt_calb += 1
                 if count == 1+add:
                     area = float(value)
@@ -82,7 +82,7 @@ for basin in basins:
             if str(sep[0].split('_')[1]) == 'TOTAL': # MARFC has "Total" second id
                 find = str(sep[0].split('_')[0])
             else:
-                find = str(sep[0].split('_')[1])
+                find = str(sep[1])
         else:
             find = 'header'
             ## UHG area added to extract param script 6/2016 (index change + 1 column)
@@ -98,22 +98,21 @@ for basin in basins:
             count = 0
             for value in sep:
                 if count > 4 and value != '\n': #ignoring first 5 values in row (basin, id, area, intveral, const baseflow)
-                    UHG_initial_flow.append(value) 
-                    if float(value) > 0:
+                    UHG_initial_flow.append(float(value)) 
+                    if float(value) > 0  or count < 15:
                         non_zero_cnt_init += 1
                 count += 1
-                
     if interval != interval_check:
-        print 'Error: mismatched intervals -> ' + basin
+        print('Error: mismatched intervals -> ' + basin)
         UHG_initial_fix = UHG_initial_flow
         UHG_initial_flow =[]
         for each in UHG_initial_fix:
             UHG_initial_flow.append(float(each)/(interval_check/interval))
-    print 'Interval set to: ' + str(interval) + ' hours'
+    print('Interval set to: ' + str(interval) + ' hours')
     #Get max UHG time value            
     num_ordinates = max(len(UHG_calb_flow),len(UHG_initial_flow))
-    x_calb = range(0,len(UHG_calb_flow)*interval,interval)
-    x_initial = range(0,len(UHG_initial_flow)*interval_check,interval_check)
+    x_calb = list(range(0,len(UHG_calb_flow)*interval,interval))
+    x_initial = list(range(0,len(UHG_initial_flow)*interval_check,interval_check))
     fig, ax1 = plt.subplots()
     #Plot the data
     ax1.plot(x_calb, UHG_calb_flow, color='green', label='Calibrated UHG', linewidth='3', zorder=5)
@@ -165,4 +164,4 @@ for basin in basins:
     plt.ioff()    
     calib_csv.close()
     initial_csv.close()
-print 'Script Completed'
+print('Script Completed')

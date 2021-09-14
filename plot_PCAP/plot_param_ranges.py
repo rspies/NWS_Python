@@ -19,8 +19,8 @@ from pylab import *
 from datetime import date
 
 #os.chdir("../..")
-maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb')
-out_dir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\processed_data')
+maindir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb')
+out_dir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb\processed_data')
 ############################### User Input ####################################
 rfc = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
@@ -172,7 +172,8 @@ if sac_plot == 'on':
             ax1.get_xaxis().set_visible(False)
             
             #### add annotated labels to data points for initial
-            ax1.annotate(str(data_init.loc[basin,param]), (x+.35,data_init.loc[basin,param]), fontsize='5',zorder=7, color='red')
+            ax1.annotate(str(data_init.loc[basin,param]), (x+.35,data_init.loc[basin,param]), fontsize='5',zorder=6, color='red', path_effects=[
+            PathEffects.withStroke(linewidth=2, foreground="w")])
             #### add annotated labels to data points for draft/final
             if plot_type == 'draft' or plot_type == 'final': 
                 ax1.annotate(str(data_calb.loc[basin,param]), (x-0.25,data_calb.loc[basin,param]), fontsize='4.5', zorder=7, color='blue', path_effects=[
