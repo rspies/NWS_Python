@@ -16,7 +16,7 @@ working_dir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 ################################# User Input #########################################
 RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-version_compare = 'draft_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
+version_compare = 'final_calb' # 'draft_calb' or 'final_calb' will be used to compare results to the pre_calb
 
 if fx_group == '':
     maindir = working_dir + os.sep + 'extract_hydro_params'

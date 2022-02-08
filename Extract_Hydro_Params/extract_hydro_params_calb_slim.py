@@ -18,13 +18,13 @@ maindir = os.path.abspath(r'D:\projects\2021_twdb_wgrfc_calb\chps_export')
 #Enter RFC (example: RFC = 'WGRFC')
 RFC = 'WGRFC_2021'
 fx_group = '' # set to blank '' if not using fx_groups
-param_source = 'draft_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb' or 'SA'
+param_source = 'final_calb' # choices: 'final_calb' or 'pre_calb' or 'draft_calb' or 'initial_calb' or 'SA'
 
 #### model processing choices ####
 sacsma = 'on' # choices: 'on' or 'off'
 snow = 'off' # choices: 'on' or 'off'
 uhg = 'on' # choices: 'on' or 'off'
-lagk = 'off' # choices: 'on' or 'off'
+lagk = 'on' # choices: 'on' or 'off'
 tatum = 'off' # choices: 'on' or 'off'
 
 #### parameter plot options ####
@@ -34,20 +34,20 @@ lag_plots = 'on' # choices: 'on' or 'off' -> LAG/K plots
 
 if fx_group == '':
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         folderPath = maindir + '\\ModuleParFiles_' + param_source
         basin_name_index = 1
-    elif param_source == 'draft_calb':
+    elif param_source == 'draft_calb_mods':
         folderPath = maindir + '\\modifiers_post_peer_review_draft'
         basin_name_index = 0
     #!!!!!! output directory: enter ouput directory for .csv files below ->
     csv_file_out = maindir + '\\extract_hydro_params\\Params_' + param_source
 else:
     #!!!!!! input directory: enter location of ModuleParFiles directory below ->
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         folderPath = maindir + '\\ModuleParFiles_' + param_source + '_' + fx_group
         basin_name_index = 1
-    elif param_source == 'draft_calb':
+    elif param_source == 'draft_calb_mods':
         folderPath = maindir + '\\modifiers_post_peer_review_draft'
         basin_name_index = 0
     #!!!!!! output directory: enter ouput directory for .csv files below ->
@@ -88,9 +88,9 @@ if sacsma == 'on':
     #csv_file.write('BASIN,NAME,REXP,LZPK,LZFPM,PXADJ,RCI,PFREE,ZPERC,RIVA,MAPE_Input,PEADJ,LZTWM,'\
     #               'RSERV,ADIMP,UZK,SIDE,LZFSM,LZSK,SMZC,UZTWM,UZFWM,PCTIM,EFC,'\
     #               'JAN_ET,FEB_ET,MAR_ET,APR_ET,MAY_ET,JUN_ET,JUL_ET,AUG_ET,SEP_ET,OCT_ET,NOV_ET,DEC_ET' + '\n')
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         file_search_tag = "*\\SACSMA*.xml"
-    elif param_source == 'draft_calb' or param_source == 'final_calb':
+    elif param_source == 'draft_calb_mods' or param_source == 'final_calb_mods':
         file_search_tag = "*.xml*"
         
     for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
@@ -206,9 +206,9 @@ if snow == 'on':
     csv_adc = open(csv_file_out + '\\' + '_' + RFC + '_SNOW17_ADC_' + param_source + '_slim.csv', 'w')
     csv_adc.write('BASIN,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0\n')
     
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         file_search_tag = "*\\SNOW*.xml"
-    elif param_source == 'draft_calb' or param_source == 'final_calb':
+    elif param_source == 'draft_calb_mods' or param_source == 'final_calb_mods':
         file_search_tag = "*.xml*"
     
     for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
@@ -385,9 +385,9 @@ if uhg == 'on':
         t += 6
     csv_file.write('\n')
     
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         file_search_tag = "*\\UNITHG*.xml"
-    elif param_source == 'draft_calb' or param_source == 'final_calb':
+    elif param_source == 'draft_calb_mods' or param_source == 'final_calb_mods':
         file_search_tag = "*.xml*"
     
     for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
@@ -530,9 +530,9 @@ if lagk == 'on':
     
     csv_file.write('BASIN,Current Outflow,Current Storage,Inflow Basin,CONSTANT_LAG,CONSTANT_K,KQ_PAIRS,LAGQ_PAIRS,LAG1,Q1,LAG2,Q2,LAG3,Q3,LAG4,Q4,LAG5,Q5,LAG6,Q6,LAG7,Q7,LAG8,Q8,LAG9,Q9,LAG10,Q10,LAG11,Q11,LAG12,Q12,LAG13,Q13,LAG14,Q14,K1,KQ1,K2,KQ2,K3,KQ3,K4,KQ4,K5,KQ5,K6,KQ6,K7,KQ7,K8,KQ8,K9,KQ9,K10,KQ10,K11,KQ11,K12,KQ12,K13,KQ13,K14,KQ14'+'\n')
     
-    if param_source == 'SA' or param_source == 'pre_calb':
+    if param_source == 'SA' or param_source == 'pre_calb' or param_source == 'draft_calb' or param_source == 'final_calb':
         file_search_tag = "*\\LAGK*.xml"
-    elif param_source == 'draft_calb' or param_source == 'final_calb':
+    elif param_source == 'draft_calb_mods' or param_source == 'final_calb_mods':
         file_search_tag = "*.xml*"
     
     for filename in glob.glob(os.path.join(folderPath, file_search_tag)):
@@ -775,7 +775,7 @@ if lagk == 'on':
                 #add plot legend with location and size
                 ax1.legend(loc='upper right', prop={'size':10})
                     
-                plt.title(name.split('_')[basin_name_index] + ': ' + inflow_basin + ' LAG/K Parameters')
+                plt.title(name.split('_')[0] + ': ' + inflow_basin + ' LAG/K Parameters')
                     
                 output_folder = csv_file_out +'\\LAGK_plots\\'
                 if os.path.exists(output_folder) == False:

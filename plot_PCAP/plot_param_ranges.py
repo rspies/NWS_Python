@@ -24,7 +24,7 @@ out_dir = os.path.abspath(r'F:\projects\2021_twdb_wgrfc_calb\processed_data')
 ############################### User Input ####################################
 rfc = 'WGRFC_2021'
 fx_group = '' # leave blank if not processing by fx group
-plot_type = 'draft' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
+plot_type = 'final' # choices: 'initial', 'draft' or 'final' #version of the calibrated params to use (initial/pre-calb is always plotted)
 group_limits = 'on' # 'on' or 'off' -> on calculates the mean of all tasked calibration basins in the initial param csv
 sac_plot = 'on' # plot sacsma
 snow_plot = 'off' # plot snow17 
@@ -39,7 +39,7 @@ if fx_group == '':
 else:
     csv_read_init = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params\\Params_pre_calb' + os.sep
     csv_read_apri = maindir + os.sep + 'processed_data' + os.sep + 'Apriori'
-    csv_dir_calb = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params' + os.sep + 'Params_'+plot_type+'_calb' + os.sep
+    csv_dir_calb = maindir + os.sep + 'chps_export' + os.sep + 'extract_hydro_params' + os.sep + 'Params_'+plot_type+'_calb_' + fx_group + os.sep
 ############################ End User Input ###################################
 
 if sac_plot == 'on':

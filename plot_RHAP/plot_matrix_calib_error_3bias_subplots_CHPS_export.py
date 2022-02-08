@@ -35,8 +35,8 @@ add_obs_Q_plot = 'yes'          # yes/no to create a subplot of the observed dat
 basin_ids = []                  # <-- use this to run specific basin(s)
 ignore_basins = []
 
-qme_sqme_input = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\Orig pre simulation files\QME_SQME')
-out_dir = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\Orig pre simulation files\RHAP') + os.sep
+qme_sqme_input = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\FINAL_simulation_files\QME_SQME')
+out_dir = os.path.abspath(r'G:\Shared drives\TWDB-WGRFC Hydro Calb\calibration_results\FINAL_simulation_files\RHAP') + os.sep
 wm_image = os.getcwd() + os.sep + 'Python' + os.sep + 'plot_RHAP' + os.sep + 'Lynker-Primary-Logo-96dpi.jpg' # lynker logo for plot
 #log_dir = maindir + RFC[:5] + os.sep + RFC + os.sep + 'Calibration_TimeSeries' + os.sep + fx_group + os.sep + sim_type + os.sep + 'raster_hydrograph_plots' + os.sep
 ############################ End User input ###################################
